@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>McDonald's Menu Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.css">
+
+  
+</head>
+<body>
+
+
+
+    <button id="logoutButton">Logout</button>
+
+    <div class="container mt-3">
+        <h1 class="mb-4">McDonald's Menu Management</h1>
+        <!-- Button to open the Add Menu Item modal -->
+        <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addItemModal">Add Item</button>
+        <!-- Button to open the Create Meal modal -->
+        <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createMealModal">Create Meal</button>
+    </div>
+
+
+     <!-- Table to display Items -->
+     <table class="table" id="ItemsTable">
+        <thead>
+            <tr>
+                <th data-field="id">ID</th>
+                <th data-field="name">Name</th>
+                <th data-field="category">Category</th>
+                <th data-field="description">Description</th>
+                <th data-field="nutrition">Ingredients</th>
+                <th data-field="allergens">Allergens</th>
+                <th data-field="size">Size</th>
+                <th data-field="image">Image</th>
+                <th data-field="price">Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="ItemsBody">
+            <!-- Dynamic rows will be inserted here -->
+        </tbody>
+    </table>
+</div>
+
+     <!-- Table to display Items -->
+     <table class="table" id="MealsTable">
+        <thead>
+            <tr>
+                <th data-field="id">ID</th>
+                <th data-field="name">Name</th>
+                <th data-field="description">Description</th>
+                <th data-field="hamburger_id">Hamburger ID</th>
+                <th data-field="wrap_id">Wrap ID</th>
+                <th data-field="chicken_burger_id">Chicken Burger ID</th>
+                <th data-field="vegan_id">Vegan ID</th>
+                <th data-field="side_id">Side ID</th>
+                <th data-field="breakfast_id">Breakfast ID</th>
+                <th data-field="dessert_id">Dessert ID</th>
+                <th data-field="drink_id">Drink ID</th>
+                <th data-field="image">Image</th>
+                <th data-field="price">Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="MealsBody">
+            <!-- Dynamic rows will be inserted here -->
+        </tbody>
+    </table>
+</div>
+
+    <!-- Add Menu Item Modal -->
+    <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addItemModalLabel">Add Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="itemForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category:</label>
+                            <select id="category" name="category" class="form-select" required>
+                                <option value="hamburgers">Hamburgers</option>
+                                <option value="wraps">Wraps</option>
+                                <option value="chicken_burgers">Chicken Burgers</option>
+                                <option value="vegan">Vegan</option>
+                                <option value="sides">Sides</option>
+                                <option value="breakfast">Breakfast</option>
+                                <option value="dessert">Dessert</option>
+                                <option value="drinks">Drinks</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Item Name:</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description:</label>
+                            <textarea id="description" name="description" class="form-control"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="ingredients" class="form-label">Ingredients:</label>
+                            <textarea id="ingredients" name="ingredients" class="form-control"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Allergy Information:</label>
+                            <div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="gluten" name="allergens" value="Gluten">
+                                    <label class="form-check-label" for="gluten">Gluten</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="dairy" name="allergens" value="Dairy">
+                                    <label class="form-check-label" for="dairy">Dairy</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="peanuts" name="allergens" value="Peanuts">
+                                    <label class="form-check-label" for="peanuts">Peanuts</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="soy" name="allergens" value="Soy">
+                                    <label class="form-check-label" for="soy">Soy</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="egg" name="allergens" value="Egg">
+                                    <label class="form-check-label" for="egg">Egg</label>
+                                </div>
+                        
+                                <!-- Input field for other allergens -->
+                                <div class="mt-3">
+                                    <label for="otherAllergen" class="form-label">Other Allergen:</label>
+                                    <input type="text" class="form-control" id="otherAllergen" name="otherAllergen" placeholder="Add another allergen">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+
+                        <div class="mb-3">
+                            <label for="size" class="form-label">Size:</label>
+                            <select id="size" name="size" class="form-select">
+                                <option value="">None</option>
+                                <option value="small">Small</option>
+                                <option value="medium">Medium</option>
+                                <option value="large">Large</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Price:</label>
+                            <input type="number" id="price" name="price" class="form-control" step="0.01" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Image URL:</label>
+                            <input type="file" id="image" name="image" accept="image/*" class="form-control">
+                            <div class="mt-3" id="imagePreviewContainer" style="display: none;">
+                                <h5>Image Preview:</h5>
+                                <img id="imagePreview" src="" alt="Image Preview" class="img-fluid" style="max-height: 300px;">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="itemSubmitButton">
+                            Add Item
+                            <span id="itemLoading" class="spinner-border spinner-border-sm text-light" style="display: none;"></span>
+                        </button>
+                        <div id="itemAlert" class="mt-3" style="display: none;"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Meal Modal -->
+    <div class="modal fade" id="createMealModal" tabindex="-1" aria-labelledby="createMealModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createMealModalLabel">Create Meal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="mealForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="mealName" class="form-label">Meal Name:</label>
+                            <input type="text" id="mealName" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="mealDescription" class="form-label">Description:</label>
+                            <textarea id="mealDescription" class="form-control"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="hamburgerSelect" class="form-label">Hamburger:</label>
+                            <select id="hamburgerSelect" class="form-select"></select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="wrapSelect" class="form-label">Wraps:</label>
+                            <select id="wrapSelect" class="form-select"></select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="chicken_burgerSelect" class="form-label">Chicken Burgers:</label>
+                            <select id="chicken_burgerSelect" class="form-select"></select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="veganSelect" class="form-label">Vegan:</label>
+                            <select id="veganSelect" class="form-select"></select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="sideSelect" class="form-label">Side:</label>
+                            <select id="sideSelect" class="form-select"></select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="breakfastSelect" class="form-label">Breakfast:</label>
+                            <select id="breakfastSelect" class="form-select"></select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="dessertSelect" class="form-label">Dessert:</label>
+                            <select id="dessertSelect" class="form-select"></select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="drinkSelect" class="form-label">Drink:</label>
+                            <select id="drinkSelect" class="form-select"></select>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label for="mealPrice" class="form-label">Price:</label>
+                            <input type="number" id="mealPrice" class="form-control" step="0.01" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Image URL:</label>
+                            <input type="file" id="imageMeal" name="image" accept="image/*" class="form-control">
+                            <div class="mt-3" id="imagePreviewContainerMeal" style="display: none;">
+                                <h5>Image Preview:</h5>
+                                <img id="imagePreviewMeal" src="" alt="Image Preview" class="img-fluid" style="max-height: 300px;">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="mealSubmitButton">
+                            Create Meal
+                            <span id="mealLoading" class="spinner-border spinner-border-sm text-light" style="display: none;"></span>
+                        </button>
+                        <div id="mealAlert" class="mt-3" style="display: none;"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- View Item Modal (for viewing details) -->
+     <div class="modal fade" id="viewItemModal" tabindex="-1" aria-labelledby="viewItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewItemModalLabel">View Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="viewItemDetails">
+                        <!-- Item details will be dynamically populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+         <!-- View Meal Modal (for viewing details) -->
+         <div class="modal fade" id="viewMealModal" tabindex="-1" aria-labelledby="viewMealModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewMealModalLabel">View Meal</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="viewMealDetails">
+                            <!-- Item details will be dynamically populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Edit Menu Item Modal -->
+<div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editItemModalLabel">Edit Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editItemForm" enctype="multipart/form-data">
+                    <input type="hidden" id="editItemId">
+                    <div class="mb-3">
+                        <label for="editCategory" class="form-label">Category:</label>
+                        <select id="editCategory" name="category" class="form-select" required>
+                            <option value="hamburgers">Hamburgers</option>
+                            <option value="wraps">Wraps</option>
+                            <option value="chicken_burgers">Chicken Burgers</option>
+                            <option value="vegan">Vegan</option>
+                            <option value="sides">Sides</option>
+                            <option value="breakfast">Breakfast</option>
+                            <option value="dessert">Dessert</option>
+                            <option value="drinks">Drinks</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editName" class="form-label">Item Name:</label>
+                        <input type="text" id="editName" name="name" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Description:</label>
+                        <textarea id="editDescription" name="description" class="form-control"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editIngredients" class="form-label">Ingredients:</label>
+                        <textarea id="editIngredients" name="ingredients" class="form-control"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Allergy Information:</label>
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="editGluten" name="allergens" value="Gluten">
+                                <label class="form-check-label" for="editGluten">
+                                    Gluten
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="editDairy" name="allergens" value="Dairy">
+                                <label class="form-check-label" for="editDairy">
+                                    Dairy
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="editPeanuts" name="allergens" value="Peanuts">
+                                <label class="form-check-label" for="editPeanuts">
+                                    Peanuts
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="editSoy" name="allergens" value="Soy">
+                                <label class="form-check-label" for="editSoy">
+                                    Soy
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="editEgg" name="allergens" value="Egg">
+                                <label class="form-check-label" for="editEgg">
+                                    Egg
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editOtherAllergens" class="form-label">Other Allergens (comma separated):</label>
+                        <input type="text" id="editOtherAllergens" name="otherAllergens" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editSize" class="form-label">Size:</label>
+                        <select id="editSize" name="size" class="form-select">
+                            <option value="">None</option>
+                            <option value="small">Small</option>
+                            <option value="medium">Medium</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editPrice" class="form-label">Price:</label>
+                        <input type="number" id="editPrice" name="price" class="form-control" step="0.01" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editImage" class="form-label">Image URL:</label>
+                        <input type="file" id="editImage" name="image" accept="image/*" class="form-control">
+                        <div class="mt-3" id="editImagePreviewContainer" style="display: none;">
+                            <h5 id="editImageHeading">Image Preview:</h5>
+                            <img id="editImagePreview" src="" alt="Image Preview" class="img-fluid" style="max-height: 300px;">
+                            <button type="button" id="removeImageButton" class="btn btn-danger mt-2" style="display: none;">Remove Image</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="editItemSubmitButton">
+                        Save Changes
+                        <span id="editItemLoading" class="spinner-border spinner-border-sm text-light" style="display: none;"></span>
+                    </button>
+                    <div id="editItemAlert" class="mt-3" style="display: none;"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Meal Modal -->
+<div class="modal fade" id="editMealModal" tabindex="-1" aria-labelledby="editMealModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editMealModalLabel">Edit Meal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editMealForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="editMealName" class="form-label">Meal Name:</label>
+                        <input type="text" id="editMealName" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editMealDescription" class="form-label">Description:</label>
+                        <textarea id="editMealDescription" class="form-control"></textarea>
+                    </div>
+
+             
+                    <div class="mb-3">
+                        <label for="editHamburgerSelect" class="form-label">Hamburger:</label>
+                        <select id="editHamburgerSelect" class="form-select"></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editWrapSelect" class="form-label">Wraps:</label>
+                        <select id="editWrapSelect" class="form-select"></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editChicken_burgerSelect" class="form-label">Chicken Burgers:</label>
+                        <select id="editChicken_burgerSelect" class="form-select"></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editVeganSelect" class="form-label">Vegan:</label>
+                        <select id="editVeganSelect" class="form-select"></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editSideSelect" class="form-label">Side:</label>
+                        <select id="editSideSelect" class="form-select"></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editBreakfastSelect" class="form-label">Breakfast:</label>
+                        <select id="editBreakfastSelect" class="form-select"></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editDessertSelect" class="form-label">Dessert:</label>
+                        <select id="editDessertSelect" class="form-select"></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editDrinkSelect" class="form-label">Drink:</label>
+                        <select id="editDrinkSelect" class="form-select"></select>
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label for="editMealPrice" class="form-label">Price:</label>
+                        <input type="number" id="editMealPrice" class="form-control" step="0.01" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editMealImage" class="form-label">Image:</label>
+                        <input type="file" id="editMealImage" name="image" accept="image/*" class="form-control">
+                        <div class="mt-3" id="editMealImagePreviewContainer" style="display: none;">
+                            <h5 id="editMealImageHeading">Image Preview:</h5>
+                            <img id="editMealImagePreview" src="" alt="Meal Image" class="img-fluid" style="max-height: 300px;">
+                            <button type="button" class="btn btn-danger mt-2" id="removeMealImageButton" style="display: none;">Remove Image</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Update Meal
+                        <span id="editMealLoading" class="spinner-border spinner-border-sm text-light" style="display: none;"></span>
+                    </button>
+
+                    <div id="editMealAlert" class="mt-3" style="display: none;"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Combined Modal for All Scenarios -->
+<div class="modal fade" id="genericModal" tabindex="-1" aria-labelledby="genericModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="genericModalTitle">Confirm Deletion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="genericModalBody">
+          Are you sure you want to delete this item?
+        </div>
+        <div class="modal-footer" id="genericModalFooter">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="genericModalActionButton">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+
+    <!-- Bootstrap JS & Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Image Preview Script -->
+    <script>
+        // Function to preview image after selecting it
+        document.getElementById('image').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const imagePreview = document.getElementById('imagePreview');
+                const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+                
+                // Show the preview container and set the image source to the selected file
+                imagePreviewContainer.style.display = 'block';
+                imagePreview.src = e.target.result;
+            };
+
+            // Read the selected file as a data URL
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        });
+
+                // Function to preview image after selecting it
+                document.getElementById('imageMeal').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const imagePreview = document.getElementById('imagePreviewMeal');
+                const imagePreviewContainer = document.getElementById('imagePreviewContainerMeal');
+                
+                // Show the preview container and set the image source to the selected file
+                imagePreviewContainer.style.display = 'block';
+                imagePreview.src = e.target.result;
+            };
+
+            // Read the selected file as a data URL
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+
+    <!-- Bootstrap JS & Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.js"></script>
+
+<script>
+    // Fetch and populate table data
+    window.onload = function() {
+        fetch('http://localhost:3000/api/v1/items')
+            .then(response => response.json())
+            .then(data => {
+                let tableBody = document.getElementById('ItemsBody');
+                data.forEach(item => {
+                    let row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>${item.category}</td>
+                        <td>${item.description}</td>
+                        <td>${item.ingredients}</td>
+                        <td>${item.allergens}</td>
+                        <td>${item.size}</td>
+                        <td><img src="http://localhost:3000${item.image_url}" alt="${item.name}" style="width: 50px; height: 50px;"></td>
+                        <td>${item.price}€</td>
+                        <td>
+                            <button class="btn btn-info btn-sm" onclick="viewItemDetails(${item.id})">View</button>
+                            <button class="btn btn-warning btn-sm" onclick="editItem(${item.id})">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteItem(${item.id})">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // Enable Bootstrap Table Pagination and Search
+                $('#ItemsTable').bootstrapTable({
+                    search: true,   // Enable search
+                    pagination: true, // Enable pagination
+                    pageSize: 5,    // Set number of items per page
+                    filterControl: true, // Enable filter control on columns
+                });
+
+            })
+            .catch(error => console.error('Error fetching data:', error));
+
+
+
+            fetch('http://localhost:3000/api/v1/meals')
+            .then(response => response.json())
+            .then(data => {
+                let tableBody = document.getElementById('MealsBody');
+                data.forEach(meal => {
+                    let row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${meal.id}</td>
+                        <td>${meal.name}</td>
+                        <td>${meal.description}</td>
+                        <td>${meal.hamburger_id}</td>
+                        <td>${meal.wrap_id}</td>
+                        <td>${meal.chicken_burger_id}</td>
+                        <td>${meal.vegan_id}</td>
+                        <td>${meal.side_id}</td>
+                        <td>${meal.breakfast_id}</td>
+                        <td>${meal.dessert_id}</td>
+                        <td>${meal.drink_id}</td>
+                        
+                        <td><img src="http://localhost:3000${meal.image_url}" alt="${meal.name}" style="width: 50px; height: 50px;"></td>
+                        <td>${meal.price}€</td>
+                        <td>
+                            <button class="btn btn-info btn-sm" onclick="viewMealDetails(${meal.id})">View</button>
+                            <button class="btn btn-warning btn-sm" onclick="editMeal(${meal.id})">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteMeal(${meal.id})">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // Enable Bootstrap Table Pagination and Search
+                $('#MealsTable').bootstrapTable({
+                    search: true,   // Enable search
+                    pagination: true, // Enable pagination
+                    pageSize: 5,    // Set number of items per page
+                    filterControl: true, // Enable filter control on columns
+                });
+
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    };
+
+    // Function to show item details in a modal
+    function viewItemDetails(id) {
+    fetch(`http://localhost:3000/api/v1/items/${id}`)
+        .then(response => response.json())
+        .then(item => {
+            const viewItemDetailsDiv = document.getElementById('viewItemDetails');
+
+            viewItemDetailsDiv.innerHTML = `
+              <div class="text-center mb-3">
+                    <h3>${item.name}</h3>
+                </div>
+                <div class="row">
+                    <!-- ID on the top left -->
+                    <div class="col-6">
+                        <p><strong>ID:</strong> ${item.id}</p>
+                    </div>
+                    <!-- Price on the top right -->
+                    <div class="col-6 text-end">
+                        <p><strong>Price:</strong> ${item.price}€</p>
+                    </div>
+                </div>
+                
+                
+                <!-- Image in the center at the top -->
+                <div class="text-center mb-3">
+                    <img src="http://localhost:3000${item.image_url}" alt="${item.name}" class="img-fluid" style="max-height: 300px;">
+                </div>
+
+                <!-- Category and Description in the center -->
+                <p><strong>Category:</strong> ${item.category}</p>
+                <p><strong>Description:</strong> ${item.description}</p>
+                <p><strong>Ingredients:</strong> ${item.ingredients}</p>
+                <p><strong>Allergens:</strong> ${item.allergens || 'None'}</p>
+                
+                <!-- Date on the bottom right -->
+                <div class="text-end mt-3">
+                    <p><strong>Created At:</strong> ${new Date(item.created_at).toLocaleString()}</p>
+                </div>
+            `;
+            // Open the modal
+            const viewItemModal = new bootstrap.Modal(document.getElementById('viewItemModal'));
+            viewItemModal.show();
+        })
+        .catch(error => console.error('Error fetching item details:', error));
+}
+
+
+// Function to fetch and update the name of an item based on its ID
+function fetchItemName(itemId) {
+    return fetch(`http://localhost:3000/api/v1/items/${itemId}`)
+        .then(response => response.json())
+        .then(data => {
+            return data.name; // return name from the response
+        })
+        .catch(error => {
+            console.error(`Error fetching data for ${itemId}:`, error);
+            return 'Error loading name'; // return error message if there's an issue
+        });
+}
+
+// Function to fetch and update the name of an item based on its ID
+function fetchItemName(itemId) {
+    return fetch(`http://localhost:3000/api/v1/items/${itemId}`)
+        .then(response => {
+            if (!response.ok) {
+                // If the response is not OK (e.g., 404 or other errors), return 'Not available'
+                return 'Not available';
+            }
+            return response.json();
+        })
+        .then(data => {
+            // If the 'name' field is available, return it, otherwise return 'Not available'
+            return data && data.name ? data.name : 'Not available';
+        })
+        .catch(error => {
+            console.error(`Error fetching data for ${itemId}:`, error);
+            return 'Not available'; // return 'Not available' if there's an error
+        });
+}
+
+function viewMealDetails(id) {
+    fetch(`http://localhost:3000/api/v1/meals/${id}`)
+        .then(response => response.json())
+        .then(meal => {
+            const viewMealDetailsDiv = document.getElementById('viewMealDetails');
+
+            // Fetch names for each item
+            Promise.all([
+                fetchItemName(meal.hamburger_id),
+                fetchItemName(meal.wrap_id),
+                fetchItemName(meal.chicken_burger_id),
+                fetchItemName(meal.vegan_id),
+                fetchItemName(meal.side_id),
+                fetchItemName(meal.breakfast_id),
+                fetchItemName(meal.dessert_id),
+                fetchItemName(meal.drink_id)
+            ]).then(names => {
+                viewMealDetailsDiv.innerHTML = `
+                    <div class="text-center mb-3">
+                        <h3>${meal.name}</h3>
+                    </div>
+                    <div class="row">
+                        <!-- ID on the top left -->
+                        <div class="col-6">
+                            <p><strong>ID:</strong> ${meal.id}</p>
+                        </div>
+                        <!-- Price on the top right -->
+                        <div class="col-6 text-end">
+                            <p><strong>Price:</strong> ${meal.price}€</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Image in the center at the top -->
+                    <div class="text-center mb-3">
+                        <img src="http://localhost:3000${meal.image_url}" alt="${meal.name}" class="img-fluid" style="max-height: 300px;">
+                    </div>
+
+                    <!-- Category and Description in the center -->
+                    <p><strong>Description:</strong> ${meal.description}</p>
+                   
+                    <p><strong>Hamburger Name:</strong> ${names[0]} (ID: ${meal.hamburger_id})</p>
+                    <p><strong>Wrap Name:</strong> ${names[1]} (ID: ${meal.wrap_id})</p>
+                    <p><strong>Chicken Burger Name:</strong> ${names[2]} (ID: ${meal.chicken_burger_id})</p>
+                    <p><strong>Vegan Name:</strong> ${names[3]} (ID: ${meal.vegan_id})</p>
+                    <p><strong>Side Name:</strong> ${names[4]} (ID: ${meal.side_id})</p>
+                    <p><strong>Breakfast Name:</strong> ${names[5]} (ID: ${meal.breakfast_id})</p>
+                    <p><strong>Dessert Name:</strong> ${names[6]} (ID: ${meal.dessert_id})</p>
+                    <p><strong>Drink Name:</strong> ${names[7]} (ID: ${meal.drink_id})</p>
+
+                    <!-- Date on the bottom right -->
+                    <div class="text-end mt-3">
+                        <p><strong>Created At:</strong> ${new Date(meal.created_at).toLocaleString()}</p>
+                    </div>
+                `;
+
+                // Open the modal
+                const viewMealModal = new bootstrap.Modal(document.getElementById('viewMealModal'));
+                viewMealModal.show();
+            });
+        })
+        .catch(error => console.error('Error fetching meal details:', error));
+}
+
+
+
+
+
+
+// Open the Edit Modal with Item Data
+function editItem(id) {
+    fetch(`http://localhost:3000/api/v1/items/${id}`)
+        .then(response => response.json())
+        .then(item => {
+            const editForm = document.getElementById('editItemForm');
+            const allergens = item.allergens ? item.allergens.split(',') : [];
+            const originalImageUrl = item.image_url;
+
+            // Populate the form fields
+            document.getElementById('editName').value = item.name;
+            document.getElementById('editCategory').value = item.category;
+            document.getElementById('editDescription').value = item.description;
+            document.getElementById('editIngredients').value = item.ingredients;
+            document.getElementById('editSize').value = item.size;
+            document.getElementById('editPrice').value = item.price;
+
+            // Set the allergens checkboxes based on the data
+            ['Gluten', 'Dairy', 'Peanuts', 'Soy', 'Egg'].forEach(allergen => {
+                if (allergens.includes(allergen)) {
+                    document.getElementById('edit' + allergen).checked = true;
+                }
+            });
+
+            // Populate the 'Other Allergens' input
+            const otherAllergens = allergens.filter(allergen => !['Gluten', 'Dairy', 'Peanuts', 'Soy', 'Egg'].includes(allergen)).join(', ');
+            document.getElementById('editOtherAllergens').value = otherAllergens;
+
+            const imagePreviewContainerEdit = document.getElementById('editImagePreviewContainer');
+            const imagePreviewEdit = document.getElementById('editImagePreview');
+            const imageHeadingEdit = document.getElementById('editImageHeading');
+            const removeImageButton = document.getElementById('removeImageButton');
+            
+            if (item.image_url) {
+                imagePreviewEdit.src = `http://localhost:3000${item.image_url}`;
+                imagePreviewContainerEdit.style.display = 'block';
+                imageHeadingEdit.innerText = 'Original Image'; 
+                removeImageButton.style.display = 'none';  // Do not show remove button initially
+            } else {
+                // If no image exists, hide the preview container
+                imagePreviewContainerEdit.style.display = 'none';
+                removeImageButton.style.display = 'none';
+            }
+
+            const imageInput = document.getElementById('editImage');
+            imageInput.addEventListener('change', function() {
+                const file = imageInput.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreviewEdit.src = e.target.result;
+                        imagePreviewContainerEdit.style.display = 'block';
+                        imageHeadingEdit.innerText = 'New Image'; 
+                        removeImageButton.style.display = 'inline-block';  // Show remove button
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    // If no image is selected, show the original image
+                    imagePreviewEdit.src = `http://localhost:3000${item.image_url}`;
+                    imagePreviewContainerEdit.style.display = 'block';
+                    imageHeadingEdit.innerText = 'Original Image';
+                    removeImageButton.style.display = 'none';  // Hide remove button
+                }
+            });
+
+            // Remove Image Button Logic
+            removeImageButton.addEventListener('click', function() {
+                // When the user clicks "Remove Image", reset to the original image
+                imagePreviewEdit.src = `http://localhost:3000${item.image_url}`;
+                imagePreviewContainerEdit.style.display = 'block';
+                imageHeadingEdit.innerText = 'Original Image';
+                removeImageButton.style.display = 'none';  // Hide the remove button
+                imageInput.value = '';  // Clear the file input
+            });
+
+            // Open the modal
+            const editModal = new bootstrap.Modal(document.getElementById('editItemModal'));
+            editModal.show();
+
+            // Handle form submission for updating the item
+            editForm.onsubmit = function(e) {
+                e.preventDefault();
+
+                const formData = new FormData();
+                const selectedAllergens = [];
+
+                // Collect allergens from checkboxes
+                ['Gluten', 'Dairy', 'Peanuts', 'Soy', 'Egg'].forEach(allergen => {
+                    if (document.getElementById('edit' + allergen).checked) {
+                        selectedAllergens.push(allergen);
+                    }
+                });
+
+                // Add allergens from the 'Other Allergens' input field (if any)
+                const otherAllergens = document.getElementById('editOtherAllergens').value.trim();
+                if (otherAllergens) {
+                    selectedAllergens.push(...otherAllergens.split(',').map(item => item.trim()));
+                }
+
+                formData.append('category', document.getElementById('editCategory').value);
+                formData.append('name', document.getElementById('editName').value);
+                formData.append('description', document.getElementById('editDescription').value);
+                formData.append('ingredients', document.getElementById('editIngredients').value);
+                formData.append('allergens', selectedAllergens.join(',')); // Store selected allergens as a comma-separated string
+                formData.append('size', document.getElementById('editSize').value);
+                formData.append('price', document.getElementById('editPrice').value);
+
+                // If new image is selected, append it to formData
+                const newImage = document.getElementById('editImage').files[0];
+                if (newImage) {
+                    formData.append('image', newImage);
+                } else if (editForm.removeImage) {
+                    // If the user clicked "Remove Image", send null to the server
+                    formData.append('image', null);
+                } else {
+                    // If no new image and no removal, send the original image
+                    formData.append('image', originalImageUrl);
+                }
+
+                // Send the PUT request to update the item
+                fetch(`http://localhost:3000/api/v1/items/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Include token for authorization
+                    },
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Item updated successfully') {
+                        editItemAlert.className = "alert alert-success mt-3";
+                        editItemAlert.textContent = 'Item updated successfully';
+                        editItemAlert.style.display = 'block';
+                        editForm.reset();  // Reset the form after successful update
+                        window.location.reload(); // Reload the page to see updated data
+
+
+                    } else {
+                        editItemAlert.className = "alert alert-danger mt-3";
+                        editItemAlert.textContent = 'Error updating item.';
+                        editItemAlert.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating item:', error);
+                });
+            };
+        })
+        .catch(error => {
+            console.error('Error fetching item details for edit:', error);
+        });
+}
+
+
+async function editMeal(id) {
+    try {
+        const response = await fetch(`http://localhost:3000/api/v1/meals/${id}`);
+        const meal = await response.json();
+
+        const editForm = document.getElementById('editMealForm');
+        const originalImageUrl = meal.image_url;
+
+        // Populate form fields
+        document.getElementById('editMealName').value = meal.name;
+        document.getElementById('editMealDescription').value = meal.description;
+        document.getElementById('editMealPrice').value = meal.price;
+
+        // Fetch and populate meal items
+        await fetchItemsForEditMeal(meal);
+
+        // Image Handling
+        const imagePreviewContainer = document.getElementById('editMealImagePreviewContainer');
+        const imagePreview = document.getElementById('editMealImagePreview');
+        const imageHeading = document.getElementById('editMealImageHeading');
+        const removeImageButton = document.getElementById('removeMealImageButton');
+
+        if (meal.image_url) {
+            imagePreview.src = `http://localhost:3000${meal.image_url}`;
+            imagePreviewContainer.style.display = 'block';
+            imageHeading.innerText = 'Original Image';
+            removeImageButton.style.display = 'none';
+        } else {
+            imagePreviewContainer.style.display = 'none';
+            removeImageButton.style.display = 'none';
+        }
+
+        const imageInput = document.getElementById('editMealImage');
+        imageInput.addEventListener('change', function () {
+            const file = imageInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreviewContainer.style.display = 'block';
+                    imageHeading.innerText = 'New Image';
+                    removeImageButton.style.display = 'inline-block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.src = `http://localhost:3000${meal.image_url}`;
+                imagePreviewContainer.style.display = 'block';
+                imageHeading.innerText = 'Original Image';
+                removeImageButton.style.display = 'none';
+            }
+        });
+
+        removeImageButton.addEventListener('click', function () {
+            imagePreview.src = `http://localhost:3000${meal.image_url}`;
+            imagePreviewContainer.style.display = 'block';
+            imageHeading.innerText = 'Original Image';
+            removeImageButton.style.display = 'none';
+            imageInput.value = '';
+        });
+
+        // Show Modal
+        const editModal = new bootstrap.Modal(document.getElementById('editMealModal'));
+        editModal.show();
+
+        // Handle Form Submission
+        editForm.onsubmit = async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('editMealName').value);
+            formData.append('description', document.getElementById('editMealDescription').value);
+            formData.append('price', document.getElementById('editMealPrice').value);
+            formData.append('hamburger_id', document.getElementById('editHamburgerSelect').value);
+            formData.append('wrap_id', document.getElementById('editWrapSelect').value);
+            formData.append('chicken_burger_id', document.getElementById('editChicken_burgerSelect').value);
+            formData.append('vegan_id', document.getElementById('editVeganSelect').value);
+            formData.append('side_id', document.getElementById('editSideSelect').value);
+            formData.append('breakfast_id', document.getElementById('editBreakfastSelect').value);
+            formData.append('dessert_id', document.getElementById('editDessertSelect').value);
+            formData.append('drink_id', document.getElementById('editDrinkSelect').value);
+            
+
+            const newImage = document.getElementById('editMealImage').files[0];
+            if (newImage) {
+                formData.append('image', newImage);
+            } else {
+                formData.append('image', originalImageUrl);
+            }
+
+            try {
+                const updateResponse = await fetch(`http://localhost:3000/api/v1/meals/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Include token for authorization
+                    },
+                    body: formData,
+                });
+
+                const editMealAlert = document.getElementById('editMealAlert');
+
+                const result = await updateResponse.json();
+                if (result.message === 'Meal updated successfully') {
+                    editMealAlert.className = "alert alert-success mt-3";
+                    editMealAlert.textContent = 'Meal updated successfully';
+                    editMealAlert.style.display = 'block';
+                    window.location.reload(); // Reload the page to see updated data
+                    editForm.reset();
+                } else {
+                    editMealAlert.className = "alert alert-danger mt-3";
+                    editMealAlert.textContent = 'Error updating meal.';
+                    editMealAlert.style.display = 'block';
+                }
+            } catch (error) {
+                editMealAlert.className = "alert alert-danger mt-3";
+                editMealAlert.textContent = 'Error updating meal.';
+                editMealAlert.style.display = 'block';
+            }
+        };
+    } catch (error) {
+        console.error('Error fetching meal details:', error);
+    }
+}
+
+async function fetchItemsForEditMeal(meal) {
+    const response = await fetch('http://localhost:3000/api/v1/items');
+    const items = await response.json();
+
+    const hamburgerSelect = document.getElementById('editHamburgerSelect');
+    const wrapSelect = document.getElementById('editWrapSelect');
+    const chickenBurgerSelect = document.getElementById('editChicken_burgerSelect');
+    const veganSelect = document.getElementById('editVeganSelect');
+    const sideSelect = document.getElementById('editSideSelect');
+    const dessertSelect = document.getElementById('editDessertSelect');
+    const breakfastSelect = document.getElementById('editBreakfastSelect');
+    const drinkSelect = document.getElementById('editDrinkSelect');
+
+    hamburgerSelect.innerHTML = '<option value="">None</option>';
+    wrapSelect.innerHTML = '<option value="">None</option>';
+    chickenBurgerSelect.innerHTML = '<option value="">None</option>';
+    veganSelect.innerHTML = '<option value="">None</option>';
+    sideSelect.innerHTML = '<option value="">None</option>';
+    breakfastSelect.innerHTML = '<option value="">None</option>';
+    dessertSelect.innerHTML = '<option value="">None</option>';
+    drinkSelect.innerHTML = '<option value="">None</option>';
+
+    items.forEach(item => {
+        let option = `<option value="${item.id}" ${meal.hamburger_id === item.id ? 'selected' : ''}>${item.name}</option>`;
+        if (item.category === 'hamburgers') hamburgerSelect.innerHTML += option;
+
+        option = `<option value="${item.id}" ${meal.wrap_id === item.id ? 'selected' : ''}>${item.name}</option>`;
+        if (item.category === 'wraps') wrapSelect.innerHTML += option;
+
+        option = `<option value="${item.id}" ${meal.chicken_burger_id === item.id ? 'selected' : ''}>${item.name}</option>`;
+        if (item.category === 'chicken_burgers') chickenBurgerSelect.innerHTML += option;
+
+        option = `<option value="${item.id}" ${meal.vegan_id === item.id ? 'selected' : ''}>${item.name}</option>`;
+        if (item.category === 'vegan') veganSelect.innerHTML += option;
+
+        option = `<option value="${item.id}" ${meal.side_id === item.id ? 'selected' : ''}>${item.name}</option>`;
+        if (item.category === 'sides') sideSelect.innerHTML += option;
+
+        option = `<option value="${item.id}" ${meal.breakfast_id === item.id ? 'selected' : ''}>${item.name}</option>`;
+        if (item.category === 'breakfast') breakfastSelect.innerHTML += option;
+
+        option = `<option value="${item.id}" ${meal.dessert_id === item.id ? 'selected' : ''}>${item.name}</option>`;
+        if (item.category === 'desserts') dessertSelect.innerHTML += option;
+
+        option = `<option value="${item.id}" ${meal.drink_id === item.id ? 'selected' : ''}>${item.name}</option>`;
+        if (item.category === 'drinks') drinkSelect.innerHTML += option;
+
+    });
+}
+
+
+
+// Function to handle delete button click
+function deleteItem(id) {
+    // Show the initial confirmation modal
+    showModal("Are you sure you want to delete this item?", "Confirm Deletion", "delete", id);
+}
+
+// Function to show the modal with dynamic content
+function showModal(message, title, actionType, id) {
+    // Update modal title and body
+    const modalTitle = document.getElementById('genericModalTitle');
+    const modalBody = document.getElementById('genericModalBody');
+    const actionButton = document.getElementById('genericModalActionButton');
+    const modalFooter = document.getElementById('genericModalFooter');
+    
+    if (modalTitle && modalBody && actionButton && modalFooter) {
+        modalTitle.textContent = title;
+        modalBody.textContent = message;
+
+        // Update the action button behavior based on the action type
+        if (actionType === "delete") {
+            actionButton.classList.remove('btn-secondary', 'btn-danger');
+            actionButton.classList.add('btn-danger');
+            actionButton.textContent = "Delete";
+
+            // Show both Cancel and Delete buttons
+            modalFooter.querySelector('.btn-secondary').style.display = "inline-block";
+            actionButton.style.display = "inline-block";
+
+            actionButton.onclick = function() {
+                fetch(`http://localhost:3000/api/v1/items/${id}/checkMeal`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.isAssociatedWithMeal) {
+                            showModal("This item is part of a meal. Deleting it will also delete the meal. Are you sure?", "Confirm Meal Deletion", "deleteMeal", id);
+                        } else {
+                            confirmDelete(id);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking item association with meal:', error);
+                        showErrorModal("Error checking item association.");
+                    });
+            };
+        } else if (actionType === "deleteMeal") {
+            actionButton.classList.remove('btn-secondary', 'btn-danger');
+            actionButton.classList.add('btn-danger');
+            actionButton.textContent = "Delete Meal and Item";
+
+            // Show both Cancel and Delete buttons
+            modalFooter.querySelector('.btn-secondary').style.display = "inline-block";
+            actionButton.style.display = "inline-block";
+
+            actionButton.onclick = function() {
+                confirmDelete(id, true);
+            };
+        } else if (actionType === "success") {
+            // Hide Cancel button for success scenario
+            modalFooter.querySelector('.btn-secondary').style.display = "none";
+            actionButton.classList.remove('btn-secondary', 'btn-danger');
+            actionButton.classList.add('btn-primary');
+            actionButton.textContent = "OK";
+
+            actionButton.onclick = function() {
+                document.location.reload(); // Reload the page to see updated data
+            };
+        } else if (actionType === "error") {
+            // Show both Cancel and Retry buttons
+            modalFooter.querySelector('.btn-secondary').style.display = "inline-block";
+            actionButton.classList.remove('btn-secondary', 'btn-danger');
+            actionButton.classList.add('btn-danger');
+            actionButton.textContent = "Close";
+
+            actionButton.onclick = function() {
+                $('#genericModal').modal('hide');
+            };
+        }
+
+        // Show the modal
+        $('#genericModal').modal('show');
+    } else {
+        console.error("Modal elements not found in the DOM.");
+    }
+}
+
+// Function to perform deletion
+function confirmDelete(id, deleteMeal = false) {
+    fetch(`http://localhost:3000/api/v1/items/${id}`, {
+        method: 'DELETE',  // Specify the HTTP method as DELETE
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Include token for authorization
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === 'Item deleted') {
+            showModal("Item deleted successfully!", "Success", "success", id);
+        } else {
+            showErrorModal("Error deleting item.");
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting item:', error);
+        showErrorModal("Error deleting item.");
+    });
+}
+
+// Function to show error message in the modal
+function showErrorModal(message) {
+    showModal(message, "Error", "error");
+} 
+
+</script>
+
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.js"></script>
+    <!-- Bootstrap Table Filter Extension -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+
+
+
+    <script>
+        // Check if the user is logged in and has the admin role
+        const token = localStorage.getItem('authToken');
+
+        if (!token) {
+            // If not logged in, redirect to login page
+            window.location.href = '../login.html';
+        } else {
+            // Decode the JWT token (assuming it contains the user role)
+            const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode JWT token (base64)
+            const role = decodedToken.role;
+
+            if (role !== 'admin') {
+                // If the role is not 'admin', redirect to a general page or login
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Logout functionality
+        const logoutButton = document.getElementById('logoutButton');
+        logoutButton.addEventListener('click', () => {
+            // Remove the JWT token from localStorage
+            localStorage.removeItem('authToken');
+            // Redirect the user to the login page
+            window.location.href = '../login.html';
+        });
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin-Only Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 50%;
+            margin: 100px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        p {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome Admin</h1>
+        <p>You have access to the admin area!</p>
+    </div>
+
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Users</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>All Users</h1>
+        <table id="usersTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Function to fetch and display all users
+        const fetchUsers = async () => {
+            try {
+                // Send GET request to the backend API
+                const response = await fetch('http://localhost:3000/api/v1/users', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`  // Include token for authorization if needed
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const users = data.users;
+                    const tbody = document.querySelector('#usersTable tbody');
+                    tbody.innerHTML = '';  // Clear existing data
+
+                    // Loop through the users and append them to the table
+                    users.forEach(user => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${user.id}</td>
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td>${user.role}</td>
+                            <td>${user.status}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    alert('Error fetching users: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to fetch users.');
+            }
+        };
+
+        // Fetch users when the page loads
+        document.addEventListener('DOMContentLoaded', fetchUsers);
+    </script>
+</body>
+</html>
+
+    <script>
+        // Check if the user is logged in and has the admin role
+        const token = localStorage.getItem('authToken');
+
+        if (!token) {
+            // If not logged in, redirect to login page
+            window.location.href = 'login.html';
+        } else {
+            // Decode the JWT token (assuming it contains the user role)
+            const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode JWT token (base64)
+            const role = decodedToken.role;
+
+            if (role !== 'admin') {
+                // If the role is not 'admin', redirect to a general page or login
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
+
+
+</body>
+</html>
