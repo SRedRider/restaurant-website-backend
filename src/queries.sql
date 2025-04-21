@@ -16,12 +16,10 @@
 
 
 -- Dumping database structure for restaurant
-DROP DATABASE IF EXISTS `restaurant`;
 CREATE DATABASE IF NOT EXISTS `restaurant` /*!40100 DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci */;
 USE `restaurant`;
 
 -- Dumping structure for table restaurant.items
-DROP TABLE IF EXISTS `items`;
 CREATE TABLE IF NOT EXISTS `items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `category` enum('hamburgers','wraps','chicken_burgers','vegan','sides','breakfast','dessert','drinks') DEFAULT NULL,
@@ -39,7 +37,6 @@ CREATE TABLE IF NOT EXISTS `items` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table restaurant.meals
-DROP TABLE IF EXISTS `meals`;
 CREATE TABLE IF NOT EXISTS `meals` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -76,8 +73,28 @@ CREATE TABLE IF NOT EXISTS `meals` (
 
 -- Data exporting was unselected.
 
+-- Dumping structure for table restaurant.orders
+CREATE TABLE IF NOT EXISTS `orders` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `customer_name` varchar(255) NOT NULL,
+  `customer_phone` varchar(15) NOT NULL,
+  `items` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`items`)),
+  `notes` text DEFAULT NULL,
+  `method` enum('delivery','pickup') DEFAULT 'pickup',
+  `status` enum('processing','preparing','ready','completed') DEFAULT 'processing',
+  `address` text DEFAULT NULL,
+  `scheduled_time` datetime DEFAULT NULL,
+  `order_id` varchar(5) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_user_order` (`user_id`),
+  CONSTRAINT `fk_user_order` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Data exporting was unselected.
+
 -- Dumping structure for table restaurant.users
-DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,

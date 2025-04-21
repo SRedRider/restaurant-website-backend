@@ -14,6 +14,7 @@ app.use('/public/uploads', express.static('public/uploads'));
 app.use('/api/v1/items', require('./api/routes/item-route')); // Handle item-related routes
 app.use('/api/v1/meals', require('./api/routes/meal-route')); // Handle meal-related routes
 app.use('/api/v1',  require('./api/routes/auth-route')); // Handle user-related routes
+app.use('/api/v1/orders', require('./api/routes/order-route')); // Handle order-related routes
 
 
 // Handle 404 - Not Found

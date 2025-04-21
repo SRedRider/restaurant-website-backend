@@ -27,6 +27,30 @@ const isAdmin = (req, res, next) => {
     }
 };
 
+const isAdminOrUser = (req, res, next) => {
+    // Check for admin first
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) {
+        return res.status(401).json({ message: 'Authorization token required' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+
+        // Check if the user is admin or regular user
+        if (decoded.role === 'admin' || decoded.role === 'customer') {
+            return next(); 
+        }
+
+        return res.status(403).json({ message: 'Access forbidden: Admins or Users only' });
+    } catch (error) {
+        return res.status(401).json({ message: 'Invalid or expired token' });
+    }
+};
+
+
 module.exports = {
-    isAdmin
+    isAdmin,
+    isAdminOrUser
 };
