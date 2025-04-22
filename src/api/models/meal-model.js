@@ -1,11 +1,11 @@
 const db = require('../../utils/database');
 
-const createMeal = async (name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url) => {
+const createMeal = async (name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url, visible) => {
     try {
         // Insert the data into the 'meals' table with safe placeholders
         const [result] = await db.query(
-            `INSERT INTO meals (name, description, price, hamburger_id, wrap_id, chicken_burger_id, vegan_id, side_id, breakfast_id, dessert_id, drink_id, image_url) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO meals (name, description, price, hamburger_id, wrap_id, chicken_burger_id, vegan_id, side_id, breakfast_id, dessert_id, drink_id, image_url, visible) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 name,
                 description,
@@ -18,7 +18,8 @@ const createMeal = async (name, description, price, hamburgerId, wrapId, chicken
                 breakfastId === 'null' ? null : breakfastId, // If breakfastId is 'null', set to null
                 dessertId === 'null' ? null : dessertId, // If dessertId is 'null', set to null
                 drinkId === 'null' ? null : drinkId,     // If drinkId is 'null', set to null
-                image_url
+                image_url,
+                visible
             ]
         );
 
@@ -63,10 +64,10 @@ const deleteMeal = async (id) => {
     await db.query(`DELETE FROM meals WHERE id = ?`, [id]);
 };
 
-const updateMeal = async (id, name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url) => {
+const updateMeal = async (id, name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url, visible) => {
     await db.query(
-        `UPDATE meals SET name = ?, description = ?, price = ?, hamburger_id = ?, wrap_id = ?, chicken_burger_id = ?, vegan_id = ?, side_id = ?, breakfast_id = ?, dessert_id = ?, drink_id = ?, image_url = ? WHERE id = ?`,
-        [name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url, id]
+        `UPDATE meals SET name = ?, description = ?, price = ?, hamburger_id = ?, wrap_id = ?, chicken_burger_id = ?, vegan_id = ?, side_id = ?, breakfast_id = ?, dessert_id = ?, drink_id = ?, image_url = ?, visible = ? WHERE id = ?`,
+        [name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url, visible, id]
     );
   };
 

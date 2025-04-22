@@ -147,34 +147,28 @@ async function fetchItemsForMeals() {
     const response = await fetch('http://localhost:3000/api/v1/items');
     const items = await response.json();
 
-    const hamburgerSelect = document.getElementById('hamburgerSelect');
-    const wrapSelect = document.getElementById('wrapSelect');
-    const chicken_burgerSelect = document.getElementById('chicken_burgerSelect');
-    const veganSelect = document.getElementById('veganSelect');
-    const sideSelect = document.getElementById('sideSelect');
-    const breakfastSelect = document.getElementById('breakfastSelect');
-    const dessertSelect = document.getElementById('dessertSelect');
-    const drinkSelect = document.getElementById('drinkSelect');
+    const selects = {
+        hamburgers: document.getElementById('hamburgerSelect'),
+        wraps: document.getElementById('wrapSelect'),
+        chicken_burgers: document.getElementById('chicken_burgerSelect'),
+        vegan: document.getElementById('veganSelect'),
+        sides: document.getElementById('sideSelect'),
+        breakfast: document.getElementById('breakfastSelect'),
+        desserts: document.getElementById('dessertSelect'),
+        drinks: document.getElementById('drinkSelect')
+    };
 
-    hamburgerSelect.innerHTML = '<option value="">None</option>';
-    wrapSelect.innerHTML = '<option value="">None</option>';
-    chicken_burgerSelect.innerHTML = '<option value="">None</option>';
-    veganSelect.innerHTML = '<option value="">None</option>';
-    sideSelect.innerHTML = '<option value="">None</option>';
-    breakfastSelect.innerHTML = '<option value="">None</option>';
-    dessertSelect.innerHTML = '<option value="">None</option>';
-    drinkSelect.innerHTML = '<option value="">None</option>';
-
+    // Reset select options
+    Object.values(selects).forEach(select => select.innerHTML = '<option value="">None</option>');
 
     items.forEach(item => {
-        const option = `<option value="${item.id}">${item.name}</option>`;
-        if (item.category === 'hamburgers') hamburgerSelect.innerHTML += option;
-        if (item.category === 'wraps') wrapSelect.innerHTML += option;
-        if (item.category === 'chicken_burgers') chicken_burgerSelect.innerHTML += option;
-        if (item.category === 'vegan') veganSelect.innerHTML += option;
-        if (item.category === 'sides') sideSelect.innerHTML += option;
-        if (item.category === 'breakfast') breakfastSelect.innerHTML += option;
-        if (item.category === 'dessert') dessertSelect.innerHTML += option;
-        if (item.category === 'drinks') drinkSelect.innerHTML += option;
+        const isDisabled = item.stock === 'no' ? 'disabled' : '';
+        const badge = item.stock === 'no' ? ' (No Stock)' : '';
+        const option = `<option value="${item.id}" ${isDisabled}>${item.name}${badge}</option>`;
+        
+        if (selects[item.category]) {
+            selects[item.category].innerHTML += option;
+        }
     });
 }
+

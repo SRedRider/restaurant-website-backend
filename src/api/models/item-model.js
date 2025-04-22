@@ -1,13 +1,13 @@
 const db = require('../../utils/database');
 
-const createItem = async (category, name, description, ingredients, allergens, size, price, image_url) => {
+const createItem = async (category, name, description, ingredients, allergens, size, price, image_url, stock, visible) => {
   // Ensure allergens is a comma-separated string (already done in the controller)
   const allergensString = Array.isArray(allergens) ? allergens.join(',') : allergens;
 
   const [result] = await db.query(
-    `INSERT INTO items (category, name, description, ingredients, allergens, size, price, image_url) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [category, name, description, ingredients, allergensString, size, price, image_url]
+    `INSERT INTO items (category, name, description, ingredients, allergens, size, price, image_url, stock, visible) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [category, name, description, ingredients, allergensString, size, price, image_url, stock, visible]
   );
 
   return result.insertId;
@@ -19,6 +19,7 @@ const getAllItems = async () => {
     const [rows] = await db.query(`SELECT * FROM items`);
     return rows;
 };
+
 
 const getItemById = async (id) => {
     const [rows] = await db.query(`SELECT * FROM items WHERE id = ?`, [id]);
@@ -47,12 +48,12 @@ const deleteItem = async (id) => {
     await db.query(`DELETE FROM items WHERE id = ?`, [id]);
 };
 
-const updateItem = async (id, category, name, description, ingredients, allergens, size, price, image_url) => {
+const updateItem = async (id, category, name, description, ingredients, allergens, size, price, image_url, stock, visible) => {
   const allergensString = Array.isArray(allergens) ? allergens.join(',') : allergens;
 
   await db.query(
-      `UPDATE items SET category = ?, name = ?, description = ?, ingredients = ?, allergens = ?, size = ?, price = ?, image_url = ? WHERE id = ?`,
-      [category, name, description, ingredients, allergensString, size, price, image_url, id]
+      `UPDATE items SET category = ?, name = ?, description = ?, ingredients = ?, allergens = ?, size = ?, price = ?, image_url = ?, stock = ?, visible = ? WHERE id = ?`,
+      [category, name, description, ingredients, allergensString, size, price, image_url, stock, visible, id]
   );
 };
 

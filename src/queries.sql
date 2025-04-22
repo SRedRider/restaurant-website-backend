@@ -73,6 +73,101 @@ CREATE TABLE IF NOT EXISTS `meals` (
 
 -- Data exporting was unselected.
 
+-- ----------------------------------------
+-- Trigger: Set meals.stock = 'no' if any linked item is out of stock
+-- ----------------------------------------
+DELIMITER //
+
+CREATE TRIGGER update_meal_stock
+AFTER UPDATE ON items
+FOR EACH ROW
+BEGIN
+  IF NEW.stock = 'no' THEN
+    UPDATE meals
+    SET stock = 'no'
+    WHERE hamburger_id = NEW.id
+       OR wrap_id = NEW.id
+       OR chicken_burger_id = NEW.id
+       OR vegan_id = NEW.id
+       OR side_id = NEW.id
+       OR breakfast_id = NEW.id
+       OR dessert_id = NEW.id
+       OR drink_id = NEW.id;
+  END IF;
+END;
+//
+
+DELIMITER ;
+
+-- ----------------------------------------
+-- Trigger: Restore meals.stock = 'yes' if ALL linked items are in stock
+-- ----------------------------------------
+DELIMITER //
+
+CREATE TRIGGER restore_meal_stock
+AFTER UPDATE ON items
+FOR EACH ROW
+BEGIN
+  IF NEW.stock = 'yes' THEN
+    UPDATE meals
+    SET stock = 'yes'
+    WHERE (
+      (hamburger_id IS NULL OR (hamburger_id IS NOT NULL AND (SELECT stock FROM items WHERE id = hamburger_id) = 'yes')) AND
+      (wrap_id IS NULL OR (wrap_id IS NOT NULL AND (SELECT stock FROM items WHERE id = wrap_id) = 'yes')) AND
+      (chicken_burger_id IS NULL OR (chicken_burger_id IS NOT NULL AND (SELECT stock FROM items WHERE id = chicken_burger_id) = 'yes')) AND
+      (vegan_id IS NULL OR (vegan_id IS NOT NULL AND (SELECT stock FROM items WHERE id = vegan_id) = 'yes')) AND
+      (side_id IS NULL OR (side_id IS NOT NULL AND (SELECT stock FROM items WHERE id = side_id) = 'yes')) AND
+      (breakfast_id IS NULL OR (breakfast_id IS NOT NULL AND (SELECT stock FROM items WHERE id = breakfast_id) = 'yes')) AND
+      (dessert_id IS NULL OR (dessert_id IS NOT NULL AND (SELECT stock FROM items WHERE id = dessert_id) = 'yes')) AND
+      (drink_id IS NULL OR (drink_id IS NOT NULL AND (SELECT stock FROM items WHERE id = drink_id) = 'yes'))
+    );
+  END IF;
+END;
+//
+
+DELIMITER ;
+
+
+-- ----------------------------------------
+-- Trigger: Set meals.stock = 'yes' if all linked items are in stock or set  meals.stock = 'no' if any linked item is out of stock
+-- ----------------------------------------
+DELIMITER //
+
+CREATE TRIGGER update_meal_stock_on_item_change
+BEFORE UPDATE ON meals
+FOR EACH ROW
+BEGIN
+  IF NEW.hamburger_id != OLD.hamburger_id
+     OR NEW.wrap_id != OLD.wrap_id
+     OR NEW.chicken_burger_id != OLD.chicken_burger_id
+     OR NEW.vegan_id != OLD.vegan_id
+     OR NEW.side_id != OLD.side_id
+     OR NEW.breakfast_id != OLD.breakfast_id
+     OR NEW.dessert_id != OLD.dessert_id
+     OR NEW.drink_id != OLD.drink_id
+  THEN
+    IF (
+      (NEW.hamburger_id IS NULL OR (SELECT stock FROM items WHERE id = NEW.hamburger_id) = 'yes') AND
+      (NEW.wrap_id IS NULL OR (SELECT stock FROM items WHERE id = NEW.wrap_id) = 'yes') AND
+      (NEW.chicken_burger_id IS NULL OR (SELECT stock FROM items WHERE id = NEW.chicken_burger_id) = 'yes') AND
+      (NEW.vegan_id IS NULL OR (SELECT stock FROM items WHERE id = NEW.vegan_id) = 'yes') AND
+      (NEW.side_id IS NULL OR (SELECT stock FROM items WHERE id = NEW.side_id) = 'yes') AND
+      (NEW.breakfast_id IS NULL OR (SELECT stock FROM items WHERE id = NEW.breakfast_id) = 'yes') AND
+      (NEW.dessert_id IS NULL OR (SELECT stock FROM items WHERE id = NEW.dessert_id) = 'yes') AND
+      (NEW.drink_id IS NULL OR (SELECT stock FROM items WHERE id = NEW.drink_id) = 'yes')
+    ) THEN
+      SET NEW.stock = 'yes';
+    ELSE
+      SET NEW.stock = 'no';
+    END IF;
+  END IF;
+END;
+//
+
+DELIMITER ;
+
+
+
 -- Dumping structure for table restaurant.orders
 CREATE TABLE IF NOT EXISTS `orders` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

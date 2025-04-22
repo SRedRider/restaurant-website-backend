@@ -3,8 +3,8 @@ const Meal = require('../models/meal-model');
 const addMeal = async (req, res) => {
     const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
     try {
-        const { name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId } = req.body;
-        const mealId = await Meal.createMeal(name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url);
+        const { name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, visible } = req.body;
+        const mealId = await Meal.createMeal(name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url, visible);
         res.status(201).json({ message: 'Meal added successfully', id: mealId, image_url });
     } catch (error) {
         console.error('Error adding meal:', error);
@@ -31,7 +31,7 @@ const getMealById = async (req, res) => {
 };
 
 const updateMeal = async (req, res) => {
-    const { name, description, price, hamburger_id, wrap_id, chicken_burger_id, vegan_id, side_id, breakfast_id, dessert_id,  drink_id } = req.body;
+    const { name, description, price, hamburger_id, wrap_id, chicken_burger_id, vegan_id, side_id, breakfast_id, dessert_id,  drink_id, visible } = req.body;
     const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
 
     const hamburger_idValue = hamburger_id && hamburger_id.trim() ? hamburger_id : null;
@@ -49,7 +49,7 @@ const updateMeal = async (req, res) => {
 
     try {
         // Update the meal in the database
-        await Meal.updateMeal(req.params.id, name, description, price, hamburger_idValue, wrap_idValue, chicken_burger_idValue, vegan_idValue, side_idValue, breakfast_idValue, dessert_idValue, drink_idValue, finalImageUrl);
+        await Meal.updateMeal(req.params.id, name, description, price, hamburger_idValue, wrap_idValue, chicken_burger_idValue, vegan_idValue, side_idValue, breakfast_idValue, dessert_idValue, drink_idValue, finalImageUrl, visible);
         res.status(200).json({ message: 'Meal updated successfully' });
     } catch (error) {
         console.error('Error updating meal:', error);

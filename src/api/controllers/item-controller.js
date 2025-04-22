@@ -1,7 +1,7 @@
 const Item = require('../models/item-model');
 
 const addItem = async (req, res) => {
-    const { category, name, description, ingredients, allergens, size, price } = req.body;
+    const { category, name, description, ingredients, allergens, size, price, stock, visible } = req.body;
     const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
 
     // Ensure allergens is a string before attempting to split it
@@ -30,7 +30,7 @@ const addItem = async (req, res) => {
 
     try {
         // Call the createItem function with the allergens string
-        const itemId = await Item.createItem(category, name, description, ingredients, allergensString, sizeValue, price, image_url);
+        const itemId = await Item.createItem(category, name, description, ingredients, allergensString, sizeValue, price, image_url, stock, visible);
         res.status(201).json({ message: 'Item added successfully', id: itemId, image_url });
     } catch (error) {
         console.error('Error adding item:', error);
@@ -85,7 +85,7 @@ const checkItemMealAssociation = async (req, res) => {
 
 
 const updateItem = async (req, res) => {
-    const { category, name, description, ingredients, allergens, size, price, otherAllergens } = req.body;
+    const { category, name, description, ingredients, allergens, size, price, otherAllergens, stock, visible } = req.body;
 
     let finalAllergens = allergens ? allergens.split(',') : [];
     
@@ -104,7 +104,7 @@ const updateItem = async (req, res) => {
     const allergensValue = finalAllergens.length > 0 ? finalAllergens.join(',') : null;
 
     try {
-        await Item.updateItem(req.params.id, category, name, description, ingredients, allergensValue, sizeValue, price, finalImageUrl);
+        await Item.updateItem(req.params.id, category, name, description, ingredients, allergensValue, sizeValue, price, finalImageUrl, stock, visible);
         res.status(200).json({ message: 'Item updated successfully' });
     } catch (error) {
         console.error('Error updating item:', error);
