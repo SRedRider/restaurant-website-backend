@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 
 const router = express.Router();
-const { isAdmin } = require('../../middleware/auth-middleware');
+const { isAdmin, checkVisibleAccess } = require('../../middleware/auth-middleware');
 const itemController = require('../controllers/item-controller');
 
 
@@ -23,7 +23,7 @@ const upload = multer({ storage });
 
 
 router.post('/', isAdmin, upload.single('image'), itemController.addItem);
-router.get('/', itemController.getAllItems);
+router.get('/', checkVisibleAccess, itemController.getAllItems);
 router.get('/:id', itemController.getItemById);
 router.delete('/:id', isAdmin, itemController.deleteItem);
 router.get('/:id/checkMeal', itemController.checkItemMealAssociation);

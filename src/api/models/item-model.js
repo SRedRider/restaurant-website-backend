@@ -15,9 +15,21 @@ const createItem = async (category, name, description, ingredients, allergens, s
 
   
 
-const getAllItems = async () => {
-    const [rows] = await db.query(`SELECT * FROM items`);
-    return rows;
+const getAllItems = async (isAdmin) => {
+  let query = 'SELECT * FROM items';
+  
+  // If not admin, only return items that are visible
+  if (!isAdmin) {
+      query += " WHERE visible = 'yes'";
+  }
+
+  try {
+      const [rows] = await db.query(query);
+      return rows;
+  } catch (error) {
+      console.error('Error fetching items:', error);
+      throw new Error('Database error');
+  }
 };
 
 

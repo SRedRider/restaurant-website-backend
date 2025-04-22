@@ -49,8 +49,35 @@ const isAdminOrUser = (req, res, next) => {
     }
 };
 
+const checkVisibleAccess = (req, res, next) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            req.user = decoded;
+
+            // Check if user is admin
+            if (decoded.role === 'admin') {
+                req.isAdmin = true; // If admin, set isAdmin to true
+                console.log('User is admin');
+            } else {
+                req.isAdmin = false; // If not admin, set isAdmin to false
+                console.log('User is not admin');
+            }
+        } catch (error) {
+            return res.status(401).json({ message: 'Invalid or expired token' });
+        }
+    } else {
+        req.isAdmin = false; // If no token, treat as non-admin
+        console.log('No token provided, user is treated as non-admin');
+    }
+
+    next(); // Proceed to the next middleware/controller
+};
 
 module.exports = {
     isAdmin,
-    isAdminOrUser
+    isAdminOrUser,
+    checkVisibleAccess
 };

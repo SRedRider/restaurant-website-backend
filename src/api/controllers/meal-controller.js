@@ -11,14 +11,16 @@ const addMeal = async (req, res) => {
         res.status(500).json({ error: 'Database error' });
     }
 };
+
 const getAllMeals = async (req, res) => {
     try {
-        const meals = await Meal.getAllMeals();
+        // Use the isAdmin flag from the middleware
+        const meals = await Meal.getAllMeals(req.isAdmin); // Pass isAdmin flag to model
         res.json(meals);
     } catch (error) {
         res.status(500).json({ error: 'Database error' });
     }
-}
+};
 
 const getMealById = async (req, res) => {
     try {

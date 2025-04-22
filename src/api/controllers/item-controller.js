@@ -40,17 +40,16 @@ const addItem = async (req, res) => {
 
 
 
-
-
-
 const getAllItems = async (req, res) => {
     try {
-        const items = await Item.getAllItems();
+        // Use the isAdmin flag from the middleware
+        const items = await Item.getAllItems(req.isAdmin); // Pass isAdmin flag to model
         res.json(items);
     } catch (error) {
         res.status(500).json({ error: 'Database error' });
     }
 };
+
 
 const getItemById = async (req, res) => {
     try {

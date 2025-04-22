@@ -31,10 +31,23 @@ const createMeal = async (name, description, price, hamburgerId, wrapId, chicken
 };
 
 
-const getAllMeals = async () => {
-    const [rows] = await db.query(`SELECT * FROM meals`);
-    return rows;
+const getAllMeals = async (isAdmin) => {
+    let query = 'SELECT * FROM meals';
+    
+    // If not admin, only return meals that are visible
+    if (!isAdmin) {
+        query += " WHERE visible = 'yes'";
+    }
+
+    try {
+        const [rows] = await db.query(query);
+        return rows;
+    } catch (error) {
+        console.error('Error fetching meals:', error);
+        throw new Error('Database error');
+    }
 };
+
 
 const getMealById = async (id) => {
     try {

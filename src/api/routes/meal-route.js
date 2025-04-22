@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 
-const { isAdmin } = require('../../middleware/auth-middleware');
+const { isAdmin, checkVisibleAccess } = require('../../middleware/auth-middleware');
 const mealController = require('../controllers/meal-controller');
 
 // Multer Storage Configuration
@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post('/', isAdmin, upload.single('image'), mealController.addMeal);
-router.get('/', mealController.getAllMeals);
+router.get('/', checkVisibleAccess, mealController.getAllMeals);
 router.get('/:id', mealController.getMealById);
 router.put('/:id', isAdmin, upload.single('image'), mealController.updateMeal);
 
