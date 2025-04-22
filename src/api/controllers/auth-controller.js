@@ -35,7 +35,7 @@ const registerUser = async (req, res) => {
         }
     });
 
-    const verificationLink = `https://users.metropolia.fi/~shanes/Web-projekti/restaurant/verify.html?token=${verificationToken}`;
+    const verificationLink = `https://users.metropolia.fi/~quangth/restaurant/verify.html?token=${verificationToken}`;
 
     const mailOptions = {
         from: process.env.EMAIL_USER,
@@ -117,7 +117,7 @@ const forgotPassword = async (req, res) => {
         }
     });
 
-    const resetLink = `https://users.metropolia.fi/~shanes/Web-projekti/restaurant/new-password.html?token=${resetToken}`;
+    const resetLink = `https://users.metropolia.fi/~quangth/restaurant/new-password.html?token=${resetToken}`;
 
     const mailOptions = {
         from: process.env.EMAIL_USER,
