@@ -144,7 +144,12 @@ document.getElementById('itemForm').addEventListener('submit', async function (e
 
 
 async function fetchItemsForMeals() {
-    const response = await fetch('http://localhost:3000/api/v1/items');
+    const response = await fetch('http://localhost:3000/api/v1/items', {
+        method: 'GET', // You can specify the method if needed
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Replace with your actual token
+        }
+    });
     const items = await response.json();
 
     const selects = {
@@ -199,6 +204,7 @@ async function fetchItemsForMeals() {
                         <td>${item.price}€</td>
                         <td><span class="badge ${item.stock.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${item.stock.toLowerCase() === 'yes' ? 'In Stock' : 'Out of Stock'}</span></td>
                         <td><span class="badge ${item.visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${item.visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span></td>
+                        <td>${item.created_at}</td>
                         <td>
                             <button class="btn btn-info btn-sm" onclick="viewItemDetails(${item.id})">View</button>
                             <button class="btn btn-warning btn-sm" onclick="editItem(${item.id})">Edit</button>
@@ -207,16 +213,9 @@ async function fetchItemsForMeals() {
                     `;
                     tableBody.appendChild(row);
                 });
-        
-                // Enable Bootstrap Table Pagination and Search
-                $('#ItemsTable').bootstrapTable({
-                    search: true,   // Enable search
-                    pagination: true, // Enable pagination
-                    pageSize: 5,    // Set number of items per page
-                    filterControl: true, // Enable filter control on columns
-                });
-        
+                initializeTable('#ItemsTable', 5);
             })
+            
             .catch(error => console.error('Error fetching data:', error));
         
         
@@ -250,6 +249,7 @@ async function fetchItemsForMeals() {
                                 <td>${meal.price}€</td>
                                 <td><span class="badge ${meal.stock.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${meal.stock.toLowerCase() === 'yes' ? 'In Stock' : 'Out of Stock'}</span></td>
                                 <td><span class="badge ${meal.visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${meal.visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span></td>
+                                <td>${meal.created_at}</td>
                                 <td>
                                     <button class="btn btn-info btn-sm" onclick="viewMealDetails(${meal.id})">View</button>
                                     <button class="btn btn-warning btn-sm" onclick="editMeal(${meal.id})">Edit</button>
@@ -259,14 +259,7 @@ async function fetchItemsForMeals() {
                             tableBody.appendChild(row);
                         });
         
-                        // Enable Bootstrap Table Pagination and Search
-                        $('#MealsTable').bootstrapTable({
-                            search: true,   // Enable search
-                            pagination: true, // Enable pagination
-                            pageSize: 5,    // Set number of items per page
-                            filterControl: true, // Enable filter control on columns
-                        });
-        
+                        initializeTable('#MealsTable', 5);
                     })
                     .catch(error => console.error('Error fetching data:', error));
             };
@@ -574,6 +567,7 @@ async function fetchItemsForMeals() {
                                 editItemAlert.textContent = 'Item updated successfully';
                                 editItemAlert.style.display = 'block';
                                 editForm.reset();  // Reset the form after successful update
+                                $('#ItemsTable').bootstrapTable('refresh');
                                 window.location.reload(); // Reload the page to see updated data
                             } else {
                                 editItemAlert.className = "alert alert-danger mt-3";

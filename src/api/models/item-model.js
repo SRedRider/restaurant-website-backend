@@ -1,4 +1,5 @@
 const db = require('../../utils/database');
+const moment = require('moment-timezone');
 
 const createItem = async (category, name, description, ingredients, allergens, size, price, image_url, stock, visible) => {
   // Ensure allergens is a comma-separated string (already done in the controller)
@@ -25,7 +26,18 @@ const getAllItems = async (isAdmin) => {
 
   try {
       const [rows] = await db.query(query);
-      return rows;
+      
+      // Map through the rows to adjust any time fields (e.g., created_at)
+      const adjustedRows = rows.map(item => {
+          if (item.created_at) {
+              // Adjust the `created_at` field to Finland's time zone (Europe/Helsinki)
+              item.created_at = moment.utc(item.created_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
+          }
+          
+          return item;
+      });
+
+      return adjustedRows;
   } catch (error) {
       console.error('Error fetching items:', error);
       throw new Error('Database error');
@@ -33,9 +45,32 @@ const getAllItems = async (isAdmin) => {
 };
 
 
+
 const getItemById = async (id) => {
-    const [rows] = await db.query(`SELECT * FROM items WHERE id = ?`, [id]);
-    return rows[0];
+  try {
+      const [rows] = await db.query(`SELECT * FROM items WHERE id = ?`, [id]);
+      
+      if (rows.length > 0) {
+          const item = rows[0];
+          
+          // Adjust any time-related fields (e.g., created_at, updated_at)
+          if (item.created_at) {
+              item.created_at = moment.utc(item.created_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
+          }
+          if (item.updated_at) {
+              item.updated_at = moment.utc(item.updated_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
+          }
+          // Add any other time fields here as necessary
+          
+          return item;
+      } else {
+          // No item found with the given ID
+          return null;
+      }
+  } catch (error) {
+      console.error('Error fetching item by ID:', error);
+      throw new Error('Database error');
+  }
 };
 
 const checkIfItemIsInMeal = async (id) => {

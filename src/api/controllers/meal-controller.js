@@ -1,9 +1,20 @@
 const Meal = require('../models/meal-model');
 
 const addMeal = async (req, res) => {
+    const { name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, visible } = req.body;
     const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
+
+    if (!name || !description || !price || !image_url || !visible) {
+        return res.status(400).json({ message: 'Name, description, price, image_url, and visible are required' });
+    }
+    if (isNaN(price)) {
+        return res.status(400).json({ message: 'Price must be a number' });
+    }
+    if (price < 0) {
+        return res.status(400).json({ message: 'Price must be a positive number' });
+    }
+    
     try {
-        const { name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, visible } = req.body;
         const mealId = await Meal.createMeal(name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url, visible);
         res.status(201).json({ message: 'Meal added successfully', id: mealId, image_url });
     } catch (error) {
@@ -48,6 +59,17 @@ const updateMeal = async (req, res) => {
     // If no image is uploaded, keep the existing image
     const currentMeal = await Meal.getMealById(req.params.id);
     const finalImageUrl = image_url || currentMeal.image_url;
+
+    if (!name || !description || !price || !finalImageUrl) {
+        return res.status(400).json({ message: 'Name, description, price, and image_url are required' });
+    }
+    if (isNaN(price)) {
+        return res.status(400).json({ message: 'Price must be a number' });
+    }
+    if (price < 0) {
+        return res.status(400).json({ message: 'Price must be a positive number' });
+    }
+    
 
     try {
         // Update the meal in the database

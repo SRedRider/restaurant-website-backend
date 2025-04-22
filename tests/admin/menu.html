@@ -8,75 +8,121 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.css">
+  <!-- Bootstrap Table CSS -->
+   <!-- Make sure jQuery is included first -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
 </head>
 <body>
 
 
 
-    <button id="logoutButton">Logout</button>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">McDonald's Admin</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn logout-btn" href="#" id="logoutButton">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
+    <!-- Main Content -->
     <div class="container mt-3">
         <h1 class="mb-4">McDonald's Menu Management</h1>
-        <!-- Button to open the Add Menu Item modal -->
+
+        <!-- Buttons to open modals -->
         <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addItemModal">Add Item</button>
-        <!-- Button to open the Create Meal modal -->
         <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createMealModal">Create Meal</button>
     </div>
 
+     <!-- Tables to display Items and Meals -->
+     <div class="container mt-4">
+        <h3>Items</h3>
+        <div class="table-container table-responsive">
+            <table class="table table-striped table-bordered" id="ItemsTable">
+                <thead>
+                    <tr>
+                        <th data-field="id" data-sortable="true" data-filter-control="input">ID</th>
+                        <th data-field="name" data-sortable="true" data-filter-control="input">Name</th>
+                        <th data-field="category" data-sortable="true" data-filter-control="select">Category</th>
+                        <th data-field="description" data-sortable="true" data-filter-control="input">Description</th>
+                        <th data-field="ingredients" data-sortable="true" data-filter-control="input">Ingredients</th>
+                        <th data-field="allergens" data-sortable="true" data-filter-control="input">Allergens</th>
+                        <th data-field="size" data-sortable="true" data-filter-control="select">Size</th>
+                        <th data-field="image" data-sortable="true" data-filter-control="input">Image</th>
+                        <th data-field="price" data-sortable="true" data-filter-control="input">Price</th>
+                        <th data-field="stock" data-sortable="true" data-filter-control="select">Stock</th>
+                        <th data-field="visible" data-sortable="true" data-filter-control="select">Visible</th>
+                        <th data-field="created_at" data-sortable="true" data-filter-control="date">Created</th>
+                        <th data-field="actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ItemsBody">
+                    <!-- Dynamic rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="container mt-4">
+        <h3>Meals</h3>
+        <div class="table-container table-responsive">
+            <table class="table table-striped table-bordered" id="MealsTable">
+                <thead>
+                    <tr>
+                        <th data-field="id" data-sortable="true" data-filter-control="input">ID</th>
+                        <th data-field="name" data-sortable="true" data-filter-control="input">Name</th>
+                        <th data-field="description" data-sortable="true" data-filter-control="input">Description</th>
+                        <th data-field="hamburger_id" data-sortable="true" data-filter-control="input">Hamburger ID</th>
+                        <th data-field="wrap_id" data-sortable="true" data-filter-control="input">Wrap ID</th>
+                        <th data-field="chicken_burger_id" data-sortable="true" data-filter-control="input">Chicken Burger ID</th>
+                        <th data-field="vegan_id" data-sortable="true" data-filter-control="input">Vegan ID</th>
+                        <th data-field="side_id" data-sortable="true" data-filter-control="input">Side ID</th>
+                        <th data-field="breakfast_id" data-sortable="true" data-filter-control="input">Breakfast ID</th>
+                        <th data-field="dessert_id" data-sortable="true" data-filter-control="input">Dessert ID</th>
+                        <th data-field="drink_id" data-sortable="true" data-filter-control="input">Drink ID</th>
+                        <th data-field="image" data-sortable="true" data-filter-control="input">Image</th>
+                        <th data-field="price" data-sortable="true" data-filter-control="input">Price</th>
+                        <th data-field="stock" data-sortable="true" data-filter-control="select">Stock</th>
+                        <th data-field="visible" data-sortable="true" data-filter-control="select">Visible</th>
+                        <th data-field="created_at" data-sortable="true" data-filter-control="date">Created</th>
+                        <th data-field="actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="MealsBody">
+                    <!-- Dynamic rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    
+    <script>
+        function initializeTable(tableId, pageSize) {
+    $(tableId).bootstrapTable({
+        search: true,       // Enable search
+        pagination: true,   // Enable pagination
+        pageSize: pageSize, // Set number of items per page
+        sortable: true,     // Enable sorting
+        filterControl: true, // Enable filter control
+    });
+}
 
-     <!-- Table to display Items -->
-     <table class="table" id="ItemsTable">
-        <thead>
-            <tr>
-                <th data-field="id">ID</th>
-                <th data-field="name">Name</th>
-                <th data-field="category">Category</th>
-                <th data-field="description">Description</th>
-                <th data-field="nutrition">Ingredients</th>
-                <th data-field="allergens">Allergens</th>
-                <th data-field="size">Size</th>
-                <th data-field="image">Image</th>
-                <th data-field="price">Price</th>
-                <th data-field="stock">Stock</th>
-                <th data-field="visible">Visible</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="ItemsBody">
-            <!-- Dynamic rows will be inserted here -->
-        </tbody>
-    </table>
-</div>
+    </script>
 
-     <!-- Table to display Items -->
-     <table class="table" id="MealsTable">
-        <thead>
-            <tr>
-                <th data-field="id">ID</th>
-                <th data-field="name">Name</th>
-                <th data-field="description">Description</th>
-                <th data-field="hamburger_id">Hamburger ID</th>
-                <th data-field="wrap_id">Wrap ID</th>
-                <th data-field="chicken_burger_id">Chicken Burger ID</th>
-                <th data-field="vegan_id">Vegan ID</th>
-                <th data-field="side_id">Side ID</th>
-                <th data-field="breakfast_id">Breakfast ID</th>
-                <th data-field="dessert_id">Dessert ID</th>
-                <th data-field="drink_id">Drink ID</th>
-                <th data-field="image">Image</th>
-                <th data-field="price">Price</th>
-                <th data-field="stock">Stock</th>
-                <th data-field="visible">Visible</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="MealsBody">
-            <!-- Dynamic rows will be inserted here -->
-        </tbody>
-    </table>
-</div>
 
     <!-- Add Menu Item Modal -->
     <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
@@ -626,17 +672,6 @@
         });
     </script>
 
-    <!-- Bootstrap JS & Popper.js -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.js"></script>
-
-
-    <script src="script.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.js"></script>
-    <!-- Bootstrap Table Filter Extension -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
-
 
 
     <script>
@@ -666,6 +701,12 @@
             window.location.href = '../login.html';
         });
     </script>
+
+
+    <!-- Bootstrap JS & Popper.js -->
+       <script src="menu.js"></script>
+
+
     
 </body>
 </html>
