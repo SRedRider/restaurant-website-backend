@@ -27,8 +27,30 @@ const getItems = async (url) => {
     return result;
 };
 
+const getOneItem = async (url, id) => {
+    const response = await request(url)
+        .get(`/api/v1/items/${id}`)
+        .expect(200); // Expecting HTTP 200 OK
 
-const createItem = async (url, newItem) => {
+    const result = response.body;
+    expect(result).toHaveProperty('id', id);
+    expect(result).toHaveProperty('category');
+    expect(result).toHaveProperty('name');
+    expect(result).toHaveProperty('description');
+    expect(result).toHaveProperty('ingredients');
+    expect(result).toHaveProperty('allergens');
+    expect(result).toHaveProperty('size');
+    expect(result).toHaveProperty('price');
+    expect(result).toHaveProperty('image_url');
+    expect(result).toHaveProperty('stock');
+    expect(result).toHaveProperty('visible');
+    expect(result).toHaveProperty('created_at');
+
+    return result;
+}
+
+
+const postItem = async (url, newItem) => {
     return new Promise((resolve, reject) => {
         request(url)
             .post('/api/v1/items/')
@@ -50,5 +72,6 @@ const createItem = async (url, newItem) => {
 
 export {
     getItems,
-    createItem,
+    getOneItem,
+    postItem,
 }

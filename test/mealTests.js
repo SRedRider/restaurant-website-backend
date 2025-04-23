@@ -29,6 +29,29 @@ const getMeals = async (url) => {
     return result;
 };
 
+const getOneMeal = async (url, id) => {
+    const response = await request(url)
+        .get(`/api/v1/meals/${id}`)
+        .expect(200); // Expecting HTTP 200 OK
+
+    const result = response.body;
+    expect(result).toHaveProperty('id', id);
+    expect(result).toHaveProperty('name');
+    expect(result).toHaveProperty('description');
+    expect(result).toHaveProperty('price');
+    expect(result).toHaveProperty('hamburger_id');
+    expect(result).toHaveProperty("wrap_id");
+    expect(result).toHaveProperty('chicken_burger_id');
+    expect(result).toHaveProperty('vegan_id');
+    expect(result).toHaveProperty('side_id');
+    expect(result).toHaveProperty('breakfast_id');
+    expect(result).toHaveProperty('dessert_id');
+    expect(result).toHaveProperty('drink_id');
+    expect(result).toHaveProperty('image_url');
+    expect(result).toHaveProperty('created_at');
+
+    return result;
+}
 
 const createMeal = async (url, newMeal) => {
     return new Promise((resolve, reject) => {
@@ -53,5 +76,6 @@ const createMeal = async (url, newMeal) => {
 
 export {
     getMeals,
+    getOneMeal,
     createMeal,
 }
