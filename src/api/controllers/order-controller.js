@@ -10,10 +10,11 @@ const createNewOrder = async (req, res) => {
     return res.status(400).json({ message: 'Customer name is required and must be a non-empty string' });
   }
 
-  const phoneRegex = /^[0-9]{3}-[0-9]{4}$/;
+  const phoneRegex = /^(?:\+358|0)\d{8,9}$/;
   if (!customer_phone || !phoneRegex.test(customer_phone)) {
-    return res.status(400).json({ message: 'Invalid phone number format. Expected format: xxx-xxxx' });
+    return res.status(400).json({ message: 'Invalid phone number format. Expected Finnish format: +358XXXXXXXXX or 0XXXXXXXXX' });
   }
+  
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ message: 'Items must be an array and cannot be empty' });

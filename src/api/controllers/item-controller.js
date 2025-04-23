@@ -4,39 +4,57 @@ const addItem = async (req, res) => {
     const { category, name, description, ingredients, allergens, size, price, stock, visible } = req.body;
     const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
 
+    // Validate stock and visible values
+    const validOptions = ['yes', 'no'];
+    if (!validOptions.includes(stock?.toLowerCase()) || !validOptions.includes(visible?.toLowerCase())) {
+        return res.status(400).json({ error: 'Stock and visible fields must be either "yes" or "no"' });
+    }
+
     // Ensure allergens is a string before attempting to split it
     let allergensString = '';
     if (allergens) {
-        // If allergens is an array, join it as a comma-separated string
         if (Array.isArray(allergens)) {
             allergensString = allergens.join(',');
         } else if (typeof allergens === 'string') {
             allergensString = allergens;
         }
 
-        // Remove any duplicates from allergens (just in case)
-        const allergensArray = allergensString.split(',').filter(Boolean); // Split and filter out empty values
-        const uniqueAllergens = [...new Set(allergensArray)]; // Remove duplicates using Set
-        allergensString = uniqueAllergens.join(','); // Join back into a string
+        const allergensArray = allergensString.split(',').filter(Boolean);
+        const uniqueAllergens = [...new Set(allergensArray)];
+        allergensString = uniqueAllergens.join(',');
     }
 
-    // Handle empty size values (set to NULL if not provided)
     const sizeValue = size && size.trim() ? size : null;
 
     // Validate required fields
-    if (!category || !name || !price) {
-        return res.status(400).json({ error: 'Category, name, and price are required' });
+    if (!category || !name || !description || !ingredients || !allergensString || !price || !image_url) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    if (isNaN(price) || price <= 0) {
+        return res.status(400).json({ error: 'Price must be a positive number' });
     }
 
     try {
-        // Call the createItem function with the allergens string
-        const itemId = await Item.createItem(category, name, description, ingredients, allergensString, sizeValue, price, image_url, stock, visible);
+        const itemId = await Item.createItem(
+            category,
+            name,
+            description,
+            ingredients,
+            allergensString,
+            sizeValue,
+            price,
+            image_url,
+            stock.toLowerCase(),   
+            visible.toLowerCase()   
+        );
         res.status(201).json({ message: 'Item added successfully', id: itemId, image_url });
     } catch (error) {
         console.error('Error adding item:', error);
         res.status(500).json({ error: 'Database error', details: error.message });
     }
 };
+
 
 
 

@@ -7,12 +7,29 @@ require('dotenv').config();
 
 // Register a new user
 const registerUser = async (req, res) => {
-    const { email, name, password, role } = req.body;
+    const { email, name, password, retype_password } = req.body;
 
     // Check if user already exists
     const existingUser = await userModel.getUserByEmail(email);
     if (existingUser) {
         return res.status(400).json({ message: 'Email already in use.' });
+    }
+
+    if (!email || !name || !password) {
+        return res.status(400).json({ message: 'Email, name, and password are required.' });
+    }
+
+    if (password !== retype_password) {
+        return res.status(400).json({ message: 'Passwords do not match.' });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters long.' });
+    }
+
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ message: 'Invalid email format.' });
     }
 
     // Hash password
@@ -23,7 +40,7 @@ const registerUser = async (req, res) => {
 
     // Create user in the database
     const userId = await userModel.createUser({
-        email, name, password: hashedPassword, role: role || 'customer', verification_token: verificationToken
+        email, name, password: hashedPassword, role: 'customer', verification_token: verificationToken
     });
 
     // Send email with verification link
@@ -101,6 +118,19 @@ const forgotPassword = async (req, res) => {
         return res.status(400).json({ message: 'Email not found.' });
     }
 
+    if (user.status !== 'enabled') {
+        return res.status(400).json({ message: 'Account is disabled.' });
+    }
+
+    if (!user.verified) {
+        return res.status(400).json({ message: 'Email not verified.' });
+    }
+
+    // Check if the user has a reset token already
+    if (user.reset_token && new Date() < new Date(user.reset_token_expiry)) {
+        return res.status(400).json({ message: 'A password reset link has already been sent. Please check your email.' });
+    }
+
     // Generate a password reset token
     const resetToken = crypto.randomBytes(20).toString('hex');
     const resetTokenExpiry = new Date(Date.now() + 3600000); // Token expires in 1 hour
@@ -138,7 +168,7 @@ const forgotPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
     try {
         const { token } = req.query;
-        const { newPassword } = req.body;
+        const { newPassword, retypePassword } = req.body;
 
         console.log("Token:", token);  // Log the token
         console.log("New Password:", newPassword);  // Log the new password
@@ -148,6 +178,14 @@ const resetPassword = async (req, res) => {
 
         if (!user || new Date() > new Date(user.reset_token_expiry)) {
             return res.status(400).json({ message: 'Invalid or expired token.' });
+        }
+
+        if (!newPassword || newPassword.length < 6) {
+            return res.status(400).json({ message: 'New password must be at least 6 characters long.' });
+        }
+
+        if (newPassword !== retypePassword) {
+            return res.status(400).json({ message: 'Passwords do not match.' });
         }
 
         // Hash the new password

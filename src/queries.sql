@@ -16,9 +16,9 @@
 
 
 -- Dumping database structure for restaurant
-DROP DATABASE IF EXISTS `restaurant`;
 CREATE DATABASE IF NOT EXISTS `restaurant` /*!40100 DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci */;
 USE `restaurant`;
+
 
 -- Dumping structure for table restaurant.users
 DROP TABLE IF EXISTS `users`;
@@ -39,13 +39,11 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Data exporting was unselected.
-
 -- Dumping structure for table restaurant.items
 DROP TABLE IF EXISTS `items`;
 CREATE TABLE IF NOT EXISTS `items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `category` enum('hamburgers','wraps','chicken_burgers','vegan','sides','breakfast','dessert','drinks') DEFAULT NULL,
+  `category` enum('hamburger','wrap','chicken_burger','vegan','side','breakfast','dessert','drink') DEFAULT NULL,
   `name` varchar(255) NOT NULL,
   `description` mediumtext DEFAULT NULL,
   `ingredients` mediumtext DEFAULT NULL,
@@ -56,43 +54,27 @@ CREATE TABLE IF NOT EXISTS `items` (
   `stock` enum('yes','no') DEFAULT 'yes',
   `visible` enum('yes','no') DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Data exporting was unselected.
-
--- Dumping data for table restaurant.items
-INSERT INTO `items` (`category`, `name`, `description`, `ingredients`, `allergens`, `size`, `price`, `image_url`, `stock`, `visible`) VALUES
--- Hamburgers
-('hamburgers', 'Double Cheeseburger', 'Two juicy beef patties, cheddar cheese, and our signature sauce.', 'Beef, Cheddar, Bun, Sauce', 'Gluten, Dairy', 'large', 7.99, 'images/double_cheeseburger.jpg', 'yes', 'yes'),
-('hamburgers', 'BBQ Bacon Burger', 'Grilled beef patty, crispy bacon, BBQ sauce, and onion rings.', 'Beef, Bacon, BBQ Sauce, Onion Rings, Bun', 'Gluten', 'large', 8.49, 'images/bbq_bacon_burger.jpg', 'yes', 'yes'),
-
--- Wraps
-('wraps', 'Falafel Wrap', 'Homemade falafel with hummus, lettuce, and tahini dressing.', 'Falafel, Hummus, Lettuce, Tortilla, Tahini', 'Sesame, Gluten', 'medium', 5.99, 'images/falafel_wrap.jpg', 'yes', 'yes'),
-('wraps', 'Grilled Veggie Wrap', 'Seasonal grilled veggies with pesto in a soft tortilla.', 'Zucchini, Peppers, Onions, Pesto, Tortilla', 'Nuts, Gluten', 'medium', 5.49, 'images/veggie_wrap.jpg', 'yes', 'yes'),
-
--- Chicken Burgers
-('chicken_burgers', 'Grilled Chicken Club', 'Grilled chicken breast with bacon, lettuce, tomato, and mayo.', 'Chicken, Bacon, Lettuce, Tomato, Mayo, Bun', 'Gluten, Egg', 'medium', 6.79, 'images/grilled_chicken_club.jpg', 'yes', 'yes'),
-
--- Vegan
-('vegan', 'Tofu Banh Mi', 'Marinated tofu, pickled veggies, and vegan sriracha mayo in a baguette.', 'Tofu, Carrots, Radish, Cucumber, Sriracha Mayo, Baguette', 'Gluten, Soy', 'medium', 6.49, 'images/tofu_banhmi.jpg', 'yes', 'yes'),
-
--- Sides
-('sides', 'Onion Rings', 'Crispy battered onion rings.', 'Onions, Batter, Oil', 'Gluten', 'medium', 3.29, 'images/onion_rings.jpg', 'yes', 'yes'),
-('sides', 'Side Salad', 'Fresh garden salad with your choice of dressing.', 'Lettuce, Tomato, Cucumber, Carrot', 'None', 'small', 2.99, 'images/side_salad.jpg', 'yes', 'yes'),
-
--- Breakfast
-('breakfast', 'Veggie Breakfast Burrito', 'Eggs, spinach, mushrooms, and cheese in a warm tortilla.', 'Eggs, Spinach, Mushrooms, Cheese, Tortilla', 'Egg, Dairy, Gluten', 'medium', 4.49, 'images/veggie_burrito.jpg', 'yes', 'yes'),
-('breakfast', 'Pancake Stack', 'Fluffy pancakes served with maple syrup.', 'Flour, Eggs, Milk, Syrup', 'Gluten, Egg, Dairy', 'large', 4.99, 'images/pancake_stack.jpg', 'yes', 'yes'),
-
--- Dessert
-('dessert', 'Apple Pie', 'Warm apple pie with a flaky crust.', 'Apples, Flour, Butter, Sugar', 'Gluten, Dairy', 'medium', 3.49, 'images/apple_pie.jpg', 'yes', 'yes'),
-('dessert', 'Vegan Brownie', 'Rich and fudgy vegan chocolate brownie.', 'Cocoa, Flour, Coconut Oil, Sugar', 'Gluten', 'small', 2.99, 'images/vegan_brownie.jpg', 'yes', 'yes'),
-
--- Drinks
-('drinks', 'Lemonade', 'Freshly squeezed lemonade.', 'Lemon, Sugar, Water', 'None', 'medium', 1.99, 'images/lemonade.jpg', 'yes', 'yes'),
-('drinks', 'Strawberry Milkshake', 'Creamy milkshake made with real strawberries.', 'Milk, Strawberries, Sugar', 'Dairy', 'large', 3.99, 'images/strawberry_milkshake.jpg', 'yes', 'yes');
-
+-- Dumping data for table restaurant.items: ~14 rows (approximately)
+DELETE FROM `items`;
+INSERT INTO `items` (`id`, `category`, `name`, `description`, `ingredients`, `allergens`, `size`, `price`, `image_url`, `stock`, `visible`, `created_at`, `updated_at`) VALUES
+	(28, 'hamburger', 'Double Cheeseburger', 'Two juicy beef patties, cheddar cheese, and our signature sauce.', 'Beef, Cheddar, Bun, Sauce', 'Gluten,Dairy', 'large', 7.99, 'images/double_cheeseburger.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(29, 'hamburger', 'BBQ Bacon Burger', 'Grilled beef patty, crispy bacon, BBQ sauce, and onion rings.', 'Beef, Bacon, BBQ Sauce, Onion Rings, Bun', 'Gluten', 'large', 8.49, 'images/bbq_bacon_burger.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(30, 'wrap', 'Falafel Wrap', 'Homemade falafel with hummus, lettuce, and tahini dressing.', 'Falafel, Hummus, Lettuce, Tortilla, Tahini', 'Sesame,Gluten', 'medium', 5.99, 'images/falafel_wrap.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(31, 'wrap', 'Grilled Veggie Wrap', 'Seasonal grilled veggies with pesto in a soft tortilla.', 'Zucchini, Peppers, Onions, Pesto, Tortilla', 'Nuts,Gluten', 'medium', 5.49, 'images/veggie_wrap.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(32, 'chicken_burger', 'Grilled Chicken Club', 'Grilled chicken breast with bacon, lettuce, tomato, and mayo.', 'Chicken, Bacon, Lettuce, Tomato, Mayo, Bun', 'Gluten,Egg', 'medium', 6.79, 'images/grilled_chicken_club.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(33, 'vegan', 'Tofu Banh Mi', 'Marinated tofu, pickled veggies, and vegan sriracha mayo in a baguette.', 'Tofu, Carrots, Radish, Cucumber, Sriracha Mayo, Baguette', 'Gluten,Soy', 'medium', 6.49, 'images/tofu_banhmi.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(34, 'side', 'Onion Rings', 'Crispy battered onion rings.', 'Onions, Batter, Oil', 'Gluten', 'medium', 3.29, 'images/onion_rings.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(35, 'side', 'Side Salad', 'Fresh garden salad with your choice of dressing.', 'Lettuce, Tomato, Cucumber, Carrot', 'None', 'small', 2.99, 'images/side_salad.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(36, 'breakfast', 'Veggie Breakfast Burrito', 'Eggs, spinach, mushrooms, and cheese in a warm tortilla.', 'Eggs, Spinach, Mushrooms, Cheese, Tortilla', 'Egg,Dairy,Gluten', 'medium', 4.49, 'images/veggie_burrito.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(37, 'breakfast', 'Pancake Stack', 'Fluffy pancakes served with maple syrup.', 'Flour, Eggs, Milk, Syrup', 'Gluten,Egg,Dairy', 'large', 4.99, 'images/pancake_stack.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(38, 'dessert', 'Apple Pie', 'Warm apple pie with a flaky crust.', 'Apples, Flour, Butter, Sugar', 'Gluten,Dairy', 'medium', 3.49, 'images/apple_pie.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(39, 'dessert', 'Vegan Brownie', 'Rich and fudgy vegan chocolate brownie.', 'Cocoa, Flour, Coconut Oil, Sugar', 'Gluten', 'small', 2.99, 'images/vegan_brownie.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(40, 'drink', 'Lemonade', 'Freshly squeezed lemonade.', 'Lemon, Sugar, Water', 'None', 'medium', 1.99, 'images/lemonade.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(41, 'drink', 'Strawberry Milkshake', 'Creamy milkshake made with real strawberries.', 'Milk, Strawberries, Sugar', 'Dairy', 'large', 3.99, 'images/strawberry_milkshake.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56');
 
 -- Dumping structure for table restaurant.meals
 DROP TABLE IF EXISTS `meals`;
@@ -113,6 +95,7 @@ CREATE TABLE IF NOT EXISTS `meals` (
   `stock` enum('yes','no') DEFAULT 'yes',
   `visible` enum('yes','no') DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `hamburger_id` (`hamburger_id`),
   KEY `wrap_id` (`wrap_id`),
@@ -132,7 +115,8 @@ CREATE TABLE IF NOT EXISTS `meals` (
   CONSTRAINT `meals_ibfk_8` FOREIGN KEY (`drink_id`) REFERENCES `items` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Data exporting was unselected.
+-- Dumping data for table restaurant.meals: ~0 rows (approximately)
+DELETE FROM `meals`;
 
 -- Dumping structure for table restaurant.orders
 DROP TABLE IF EXISTS `orders`;
@@ -150,12 +134,23 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `total_price` decimal(10,2) DEFAULT NULL,
   `status` enum('processing','preparing','ready','completed') DEFAULT 'processing',
   `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `fk_user_order` (`user_id`),
   CONSTRAINT `fk_user_order` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Data exporting was unselected.
+-- Dumping data for table restaurant.orders: ~2 rows (approximately)
+DELETE FROM `orders`;
+INSERT INTO `orders` (`id`, `user_id`, `order_id`, `customer_name`, `customer_phone`, `items`, `method`, `address`, `scheduled_time`, `notes`, `total_price`, `status`, `created_at`, `updated_at`) VALUES
+	(33, NULL, '62636', 'Jane Smith', '+358501112223', '[{"id":3,"quantity":1,"price":12},{"id":5,"quantity":3,"price":8.5}]', 'pickup', NULL, '2025-04-23 18:00:00', 'I\'ll arrive around 6 PM.', 37.50, 'processing', '2025-04-23 08:31:10', '2025-04-23 11:01:40'),
+	(34, NULL, '12621', 'Marko Lehtonen', '+358449876543', '[{"id":7,"quantity":2,"price":10},{"id":9,"quantity":1,"price":18}]', 'delivery', '{"street":"Itäinen Pitkäkatu 4","city":"Turku","postalCode":"20520"}', '2025-04-23 11:31:54', 'Call upon arrival.', 38.00, 'processing', '2025-04-23 08:31:54', '2025-04-23 11:01:40');
+
+-- Dumping data for table restaurant.users: ~2 rows (approximately)
+DELETE FROM `users`;
+INSERT INTO `users` (`id`, `email`, `name`, `password`, `role`, `status`, `verified`, `verification_token`, `reset_token`, `reset_token_expiry`, `created_at`, `updated_at`) VALUES
+	(6, 'johndoe@example.com', 'John Doe', '$2b$10$sYqRREGoU7DtlTxzAyhq8O3f2aHKeYKTuU/mFb0JgTqM2RbmJMQm6', 'customer', 'enabled', 1, '054e62b48bc79605d8297ae8dd3c0991af07a1bdfec871f006ec14658d23b9bb', NULL, NULL, '2025-04-23 10:06:08', '2025-04-23 10:09:02'),
+	(7, 'johnadmin@example.com', 'John Admin', '$2b$10$rQkRqZsT3HP.4/Q1S0O2D.3m2OUmDveEdlmUzpfhCtLk3Ebwutm2y', 'admin', 'enabled', 1, 'a559ef68db2f7087981860d45833105d69c80dd1e13743eb62db456785913e58', NULL, NULL, '2025-04-23 10:56:38', '2025-04-23 10:57:01');
 
 -- Dumping structure for trigger restaurant.restore_meal_stock
 DROP TRIGGER IF EXISTS `restore_meal_stock`;
