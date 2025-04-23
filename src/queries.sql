@@ -16,10 +16,12 @@
 
 
 -- Dumping database structure for restaurant
+DROP DATABASE IF EXISTS `restaurant`;
 CREATE DATABASE IF NOT EXISTS `restaurant` /*!40100 DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci */;
 USE `restaurant`;
 
 -- Dumping structure for table restaurant.items
+DROP TABLE IF EXISTS `items`;
 CREATE TABLE IF NOT EXISTS `items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `category` enum('hamburgers','wraps','chicken_burgers','vegan','sides','breakfast','dessert','drinks') DEFAULT NULL,
@@ -30,6 +32,8 @@ CREATE TABLE IF NOT EXISTS `items` (
   `size` enum('small','medium','large') DEFAULT NULL,
   `price` decimal(10,2) DEFAULT NULL,
   `image_url` varchar(255) DEFAULT NULL,
+  `stock` enum('yes','no') DEFAULT 'yes',
+  `visible` enum('yes','no') DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -37,6 +41,7 @@ CREATE TABLE IF NOT EXISTS `items` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table restaurant.meals
+DROP TABLE IF EXISTS `meals`;
 CREATE TABLE IF NOT EXISTS `meals` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -51,6 +56,8 @@ CREATE TABLE IF NOT EXISTS `meals` (
   `dessert_id` int(11) DEFAULT NULL,
   `drink_id` int(11) DEFAULT NULL,
   `image_url` varchar(255) DEFAULT NULL,
+  `stock` enum('yes','no') DEFAULT 'yes',
+  `visible` enum('yes','no') DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `hamburger_id` (`hamburger_id`),
@@ -73,37 +80,54 @@ CREATE TABLE IF NOT EXISTS `meals` (
 
 -- Data exporting was unselected.
 
--- ----------------------------------------
--- Trigger: Set meals.stock = 'no' if any linked item is out of stock
--- ----------------------------------------
+-- Dumping structure for table restaurant.orders
+DROP TABLE IF EXISTS `orders`;
+CREATE TABLE IF NOT EXISTS `orders` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `order_id` varchar(5) NOT NULL,
+  `customer_name` varchar(255) NOT NULL,
+  `customer_phone` varchar(15) NOT NULL,
+  `items` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`items`)),
+  `method` enum('delivery','pickup') DEFAULT 'pickup',
+  `address` text DEFAULT NULL,
+  `scheduled_time` datetime DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `total_price` decimal(10,2) DEFAULT NULL,
+  `status` enum('processing','preparing','ready','completed') DEFAULT 'processing',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_user_order` (`user_id`),
+  CONSTRAINT `fk_user_order` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table restaurant.users
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('admin','employee','customer') DEFAULT 'customer',
+  `status` enum('enabled','disabled') DEFAULT 'enabled',
+  `verified` tinyint(1) DEFAULT 0,
+  `verification_token` varchar(255) DEFAULT NULL,
+  `reset_token` varchar(255) DEFAULT NULL,
+  `reset_token_expiry` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for trigger restaurant.restore_meal_stock
+DROP TRIGGER IF EXISTS `restore_meal_stock`;
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 DELIMITER //
-
-CREATE TRIGGER update_meal_stock
-AFTER UPDATE ON items
-FOR EACH ROW
-BEGIN
-  IF NEW.stock = 'no' THEN
-    UPDATE meals
-    SET stock = 'no'
-    WHERE hamburger_id = NEW.id
-       OR wrap_id = NEW.id
-       OR chicken_burger_id = NEW.id
-       OR vegan_id = NEW.id
-       OR side_id = NEW.id
-       OR breakfast_id = NEW.id
-       OR dessert_id = NEW.id
-       OR drink_id = NEW.id;
-  END IF;
-END;
-//
-
-DELIMITER ;
-
--- ----------------------------------------
--- Trigger: Restore meals.stock = 'yes' if ALL linked items are in stock
--- ----------------------------------------
-DELIMITER //
-
 CREATE TRIGGER restore_meal_stock
 AFTER UPDATE ON items
 FOR EACH ROW
@@ -122,17 +146,38 @@ BEGIN
       (drink_id IS NULL OR (drink_id IS NOT NULL AND (SELECT stock FROM items WHERE id = drink_id) = 'yes'))
     );
   END IF;
-END;
-//
-
+END//
 DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
 
-
--- ----------------------------------------
--- Trigger: Set meals.stock = 'yes' if all linked items are in stock or set  meals.stock = 'no' if any linked item is out of stock
--- ----------------------------------------
+-- Dumping structure for trigger restaurant.update_meal_stock
+DROP TRIGGER IF EXISTS `update_meal_stock`;
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 DELIMITER //
+CREATE TRIGGER update_meal_stock
+AFTER UPDATE ON items
+FOR EACH ROW
+BEGIN
+  IF NEW.stock = 'no' THEN
+    UPDATE meals
+    SET stock = 'no'
+    WHERE hamburger_id = NEW.id
+       OR wrap_id = NEW.id
+       OR chicken_burger_id = NEW.id
+       OR vegan_id = NEW.id
+       OR side_id = NEW.id
+       OR breakfast_id = NEW.id
+       OR dessert_id = NEW.id
+       OR drink_id = NEW.id;
+  END IF;
+END//
+DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
 
+-- Dumping structure for trigger restaurant.update_meal_stock_on_item_change
+DROP TRIGGER IF EXISTS `update_meal_stock_on_item_change`;
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
 CREATE TRIGGER update_meal_stock_on_item_change
 BEFORE UPDATE ON meals
 FOR EACH ROW
@@ -161,53 +206,9 @@ BEGIN
       SET NEW.stock = 'no';
     END IF;
   END IF;
-END;
-//
-
+END//
 DELIMITER ;
-
-
-
--- Dumping structure for table restaurant.orders
-CREATE TABLE IF NOT EXISTS `orders` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
-  `customer_name` varchar(255) NOT NULL,
-  `customer_phone` varchar(15) NOT NULL,
-  `items` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`items`)),
-  `notes` text DEFAULT NULL,
-  `method` enum('delivery','pickup') DEFAULT 'pickup',
-  `status` enum('processing','preparing','ready','completed') DEFAULT 'processing',
-  `address` text DEFAULT NULL,
-  `scheduled_time` datetime DEFAULT NULL,
-  `order_id` varchar(5) NOT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `fk_user_order` (`user_id`),
-  CONSTRAINT `fk_user_order` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
--- Data exporting was unselected.
-
--- Dumping structure for table restaurant.users
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `email` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `role` enum('admin','employee','customer') DEFAULT 'customer',
-  `status` enum('enabled','disabled') DEFAULT 'enabled',
-  `verified` tinyint(1) DEFAULT 0,
-  `verification_token` varchar(255) DEFAULT NULL,
-  `reset_token` varchar(255) DEFAULT NULL,
-  `reset_token_expiry` timestamp NULL DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
--- Data exporting was unselected.
+SET SQL_MODE=@OLDTMP_SQL_MODE;
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
