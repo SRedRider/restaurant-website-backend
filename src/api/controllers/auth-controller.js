@@ -1,9 +1,22 @@
+const fs = require('fs');
+const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const userModel = require('../models/user-model');
 require('dotenv').config();
+
+// Helper function to read email templates
+const readTemplate = (fileName, replacements) => {
+    let template = fs.readFileSync(path.join(__dirname, '../../email-templates', fileName), 'utf-8');
+    for (const key in replacements) {
+        const regex = new RegExp(`{{${key}}}`, 'g');
+        template = template.replace(regex, replacements[key]);
+    }
+    return template;
+};
+
 
 // Register a new user
 const registerUser = async (req, res) => {
@@ -26,7 +39,6 @@ const registerUser = async (req, res) => {
     if (password.length < 6) {
         return res.status(400).json({ message: 'Password must be at least 6 characters long.' });
     }
-
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return res.status(400).json({ message: 'Invalid email format.' });
@@ -54,11 +66,13 @@ const registerUser = async (req, res) => {
 
     const verificationLink = `https://users.metropolia.fi/~quangth/restaurant/verify.html?token=${verificationToken}`;
 
+    const emailHtml = readTemplate('verification.html', { verification_link: verificationLink });
+
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: email,
         subject: 'Email Verification',
-        text: `Click the following link to verify your email: ${verificationLink}`
+        html: emailHtml,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -149,11 +163,13 @@ const forgotPassword = async (req, res) => {
 
     const resetLink = `https://users.metropolia.fi/~quangth/restaurant/new-password.html?token=${resetToken}`;
 
+    const emailHtml = readTemplate('password-reset.html', { reset_link: resetLink });
+
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: email,
         subject: 'Password Reset Request',
-        text: `Click the following link to reset your password: ${resetLink}`
+        html: emailHtml, // Send the HTML email
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
