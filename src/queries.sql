@@ -20,6 +20,27 @@ DROP DATABASE IF EXISTS `restaurant`;
 CREATE DATABASE IF NOT EXISTS `restaurant` /*!40100 DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci */;
 USE `restaurant`;
 
+-- Dumping structure for table restaurant.users
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('admin','employee','customer') DEFAULT 'customer',
+  `status` enum('enabled','disabled') DEFAULT 'enabled',
+  `verified` tinyint(1) DEFAULT 0,
+  `verification_token` varchar(255) DEFAULT NULL,
+  `reset_token` varchar(255) DEFAULT NULL,
+  `reset_token_expiry` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Data exporting was unselected.
+
 -- Dumping structure for table restaurant.items
 DROP TABLE IF EXISTS `items`;
 CREATE TABLE IF NOT EXISTS `items` (
@@ -39,6 +60,39 @@ CREATE TABLE IF NOT EXISTS `items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
+
+-- Dumping data for table restaurant.items
+INSERT INTO `items` (`category`, `name`, `description`, `ingredients`, `allergens`, `size`, `price`, `image_url`, `stock`, `visible`) VALUES
+-- Hamburgers
+('hamburgers', 'Double Cheeseburger', 'Two juicy beef patties, cheddar cheese, and our signature sauce.', 'Beef, Cheddar, Bun, Sauce', 'Gluten, Dairy', 'large', 7.99, 'images/double_cheeseburger.jpg', 'yes', 'yes'),
+('hamburgers', 'BBQ Bacon Burger', 'Grilled beef patty, crispy bacon, BBQ sauce, and onion rings.', 'Beef, Bacon, BBQ Sauce, Onion Rings, Bun', 'Gluten', 'large', 8.49, 'images/bbq_bacon_burger.jpg', 'yes', 'yes'),
+
+-- Wraps
+('wraps', 'Falafel Wrap', 'Homemade falafel with hummus, lettuce, and tahini dressing.', 'Falafel, Hummus, Lettuce, Tortilla, Tahini', 'Sesame, Gluten', 'medium', 5.99, 'images/falafel_wrap.jpg', 'yes', 'yes'),
+('wraps', 'Grilled Veggie Wrap', 'Seasonal grilled veggies with pesto in a soft tortilla.', 'Zucchini, Peppers, Onions, Pesto, Tortilla', 'Nuts, Gluten', 'medium', 5.49, 'images/veggie_wrap.jpg', 'yes', 'yes'),
+
+-- Chicken Burgers
+('chicken_burgers', 'Grilled Chicken Club', 'Grilled chicken breast with bacon, lettuce, tomato, and mayo.', 'Chicken, Bacon, Lettuce, Tomato, Mayo, Bun', 'Gluten, Egg', 'medium', 6.79, 'images/grilled_chicken_club.jpg', 'yes', 'yes'),
+
+-- Vegan
+('vegan', 'Tofu Banh Mi', 'Marinated tofu, pickled veggies, and vegan sriracha mayo in a baguette.', 'Tofu, Carrots, Radish, Cucumber, Sriracha Mayo, Baguette', 'Gluten, Soy', 'medium', 6.49, 'images/tofu_banhmi.jpg', 'yes', 'yes'),
+
+-- Sides
+('sides', 'Onion Rings', 'Crispy battered onion rings.', 'Onions, Batter, Oil', 'Gluten', 'medium', 3.29, 'images/onion_rings.jpg', 'yes', 'yes'),
+('sides', 'Side Salad', 'Fresh garden salad with your choice of dressing.', 'Lettuce, Tomato, Cucumber, Carrot', 'None', 'small', 2.99, 'images/side_salad.jpg', 'yes', 'yes'),
+
+-- Breakfast
+('breakfast', 'Veggie Breakfast Burrito', 'Eggs, spinach, mushrooms, and cheese in a warm tortilla.', 'Eggs, Spinach, Mushrooms, Cheese, Tortilla', 'Egg, Dairy, Gluten', 'medium', 4.49, 'images/veggie_burrito.jpg', 'yes', 'yes'),
+('breakfast', 'Pancake Stack', 'Fluffy pancakes served with maple syrup.', 'Flour, Eggs, Milk, Syrup', 'Gluten, Egg, Dairy', 'large', 4.99, 'images/pancake_stack.jpg', 'yes', 'yes'),
+
+-- Dessert
+('dessert', 'Apple Pie', 'Warm apple pie with a flaky crust.', 'Apples, Flour, Butter, Sugar', 'Gluten, Dairy', 'medium', 3.49, 'images/apple_pie.jpg', 'yes', 'yes'),
+('dessert', 'Vegan Brownie', 'Rich and fudgy vegan chocolate brownie.', 'Cocoa, Flour, Coconut Oil, Sugar', 'Gluten', 'small', 2.99, 'images/vegan_brownie.jpg', 'yes', 'yes'),
+
+-- Drinks
+('drinks', 'Lemonade', 'Freshly squeezed lemonade.', 'Lemon, Sugar, Water', 'None', 'medium', 1.99, 'images/lemonade.jpg', 'yes', 'yes'),
+('drinks', 'Strawberry Milkshake', 'Creamy milkshake made with real strawberries.', 'Milk, Strawberries, Sugar', 'Dairy', 'large', 3.99, 'images/strawberry_milkshake.jpg', 'yes', 'yes');
+
 
 -- Dumping structure for table restaurant.meals
 DROP TABLE IF EXISTS `meals`;
@@ -99,27 +153,6 @@ CREATE TABLE IF NOT EXISTS `orders` (
   PRIMARY KEY (`id`),
   KEY `fk_user_order` (`user_id`),
   CONSTRAINT `fk_user_order` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
--- Data exporting was unselected.
-
--- Dumping structure for table restaurant.users
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `email` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `role` enum('admin','employee','customer') DEFAULT 'customer',
-  `status` enum('enabled','disabled') DEFAULT 'enabled',
-  `verified` tinyint(1) DEFAULT 0,
-  `verification_token` varchar(255) DEFAULT NULL,
-  `reset_token` varchar(255) DEFAULT NULL,
-  `reset_token_expiry` timestamp NULL DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Data exporting was unselected.
