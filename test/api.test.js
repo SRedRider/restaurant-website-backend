@@ -2,6 +2,8 @@ import * as jestGlobals from '@jest/globals';
 import app from '../src/app.js';
 import { closePool } from '../src/db.js';
 
+// Testing
+
 import {
     getItems,
     getOneItem,
