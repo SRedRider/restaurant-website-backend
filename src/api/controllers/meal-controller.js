@@ -35,13 +35,22 @@ const getAllMeals = async (req, res) => {
 
 const getMealById = async (req, res) => {
     try {
-        const meal = await Meal.getMealById(req.params.id);
-        if (!meal) return res.status(404).json({ error: 'Meal not found' });
+        const meal = await Meal.getMealById(req.params.id, req.isAdmin); // Assuming `req.user.isAdmin` is available
+
+        // If meal is not found or it's not visible for non-admin users, return 404
+        if (!meal) {
+            return res.status(404).json({ error: 'Meal not found' });
+        }
+
+        // If everything is good, return the meal data
         res.json(meal);
     } catch (error) {
+        // If there's a database error or other issues, return 500
+        console.error("Error occurred while fetching meal:", error);
         res.status(500).json({ error: 'Database error' });
     }
 };
+
 
 const updateMeal = async (req, res) => {
     const { name, description, price, hamburger_id, wrap_id, chicken_burger_id, vegan_id, side_id, breakfast_id, dessert_id,  drink_id, visible } = req.body;
@@ -57,7 +66,10 @@ const updateMeal = async (req, res) => {
     const drink_idValue = drink_id && drink_id.trim() ? drink_id : null;
 
     // If no image is uploaded, keep the existing image
-    const currentMeal = await Meal.getMealById(req.params.id);
+    const currentMeal = await Meal.getMealById(req.params.id, req.isAdmin);
+    if (!currentMeal) {
+        return res.status(404).json({ message: 'Meal not found' });
+    }
     const finalImageUrl = image_url || currentMeal.image_url;
 
     if (!name || !description || !price || !finalImageUrl) {

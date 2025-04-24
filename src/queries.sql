@@ -38,12 +38,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table restaurant.users: ~2 rows (approximately)
-DELETE FROM `users`;
-INSERT INTO `users` (`id`, `email`, `name`, `password`, `role`, `status`, `verified`, `verification_token`, `reset_token`, `reset_token_expiry`, `created_at`, `updated_at`) VALUES
-	(6, 'johndoe@example.com', 'John Doe', '$2b$10$sYqRREGoU7DtlTxzAyhq8O3f2aHKeYKTuU/mFb0JgTqM2RbmJMQm6', 'customer', 'enabled', 1, '054e62b48bc79605d8297ae8dd3c0991af07a1bdfec871f006ec14658d23b9bb', NULL, NULL, '2025-04-23 10:06:08', '2025-04-23 10:09:02'),
-	(7, 'johnadmin@example.com', 'John Admin', '$2b$10$rQkRqZsT3HP.4/Q1S0O2D.3m2OUmDveEdlmUzpfhCtLk3Ebwutm2y', 'admin', 'enabled', 1, 'a559ef68db2f7087981860d45833105d69c80dd1e13743eb62db456785913e58', NULL, NULL, '2025-04-23 10:56:38', '2025-04-23 10:57:01');
-
 -- Dumping structure for table restaurant.items
 DROP TABLE IF EXISTS `items`;
 CREATE TABLE IF NOT EXISTS `items` (
@@ -63,10 +57,10 @@ CREATE TABLE IF NOT EXISTS `items` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table restaurant.items: ~0 rows (approximately)
+-- Dumping data for table restaurant.items: ~14 rows (approximately)
 DELETE FROM `items`;
 INSERT INTO `items` (`id`, `category`, `name`, `description`, `ingredients`, `allergens`, `size`, `price`, `image_url`, `stock`, `visible`, `created_at`, `updated_at`) VALUES
-	(28, 'hamburger', 'Double Cheeseburger', 'Two juicy beef patties, cheddar cheese, and our signature sauce.', 'Beef, Cheddar, Bun, Sauce', 'Gluten,Dairy', 'large', 7.99, 'images/double_cheeseburger.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(28, 'hamburger', 'Double Cheeseburger', 'Two juicy beef patties, cheddar cheese, and our signature sauce.', 'Beef, Cheddar, Bun, Sauce', 'Gluten,Dairy', 'large', 7.99, '/public/uploads/1745534772728-315853478.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-24 22:47:41'),
 	(29, 'hamburger', 'BBQ Bacon Burger', 'Grilled beef patty, crispy bacon, BBQ sauce, and onion rings.', 'Beef, Bacon, BBQ Sauce, Onion Rings, Bun', 'Gluten', 'large', 8.49, 'images/bbq_bacon_burger.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
 	(30, 'wrap', 'Falafel Wrap', 'Homemade falafel with hummus, lettuce, and tahini dressing.', 'Falafel, Hummus, Lettuce, Tortilla, Tahini', 'Sesame,Gluten', 'medium', 5.99, 'images/falafel_wrap.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
 	(31, 'wrap', 'Grilled Veggie Wrap', 'Seasonal grilled veggies with pesto in a soft tortilla.', 'Zucchini, Peppers, Onions, Pesto, Tortilla', 'Nuts,Gluten', 'medium', 5.49, 'images/veggie_wrap.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
@@ -80,7 +74,6 @@ INSERT INTO `items` (`id`, `category`, `name`, `description`, `ingredients`, `al
 	(39, 'dessert', 'Vegan Brownie', 'Rich and fudgy vegan chocolate brownie.', 'Cocoa, Flour, Coconut Oil, Sugar', 'Gluten', 'small', 2.99, 'images/vegan_brownie.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
 	(40, 'drink', 'Lemonade', 'Freshly squeezed lemonade.', 'Lemon, Sugar, Water', 'None', 'medium', 1.99, 'images/lemonade.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
 	(41, 'drink', 'Strawberry Milkshake', 'Creamy milkshake made with real strawberries.', 'Milk, Strawberries, Sugar', 'Dairy', 'large', 3.99, 'images/strawberry_milkshake.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56');
-
 
 -- Dumping structure for table restaurant.meals
 DROP TABLE IF EXISTS `meals`;
@@ -121,8 +114,11 @@ CREATE TABLE IF NOT EXISTS `meals` (
   CONSTRAINT `meals_ibfk_8` FOREIGN KEY (`drink_id`) REFERENCES `items` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table restaurant.meals: ~0 rows (approximately)
+-- Dumping data for table restaurant.meals: ~2 rows (approximately)
 DELETE FROM `meals`;
+INSERT INTO `meals` (`id`, `name`, `description`, `price`, `hamburger_id`, `wrap_id`, `chicken_burger_id`, `vegan_id`, `side_id`, `breakfast_id`, `dessert_id`, `drink_id`, `image_url`, `stock`, `visible`, `created_at`, `updated_at`) VALUES
+	(1, 'Happy Meal™ Chicken Burger', 'Savor the deliciousness of our signature Chicken Burger, a tender, juicy grilled chicken fillet served in a soft, toasted bun. This Happy Meal™ includes a side of crispy, golden fries, and a refreshing soft drink to quench your thirst. Whether you\'re craving a quick snack or a satisfying meal, this delightful combination will hit the spot!', 20.00, 28, 30, 32, 33, 34, 36, 38, NULL, '/public/uploads/1745527267932-12650273.jpg', 'yes', 'yes', '2025-04-24 20:41:07', '2025-04-24 23:03:36'),
+	(2, 'Sunshine Veggie Wrap', 'Wrap yourself in freshness with the Sunshine Veggie Wrap, a vibrant mix of crunchy vegetables, creamy hummus, and a tangy lemon dressing, all wrapped in a soft whole-wheat tortilla. This delightful wrap is not only packed with nutrients but also bursting with flavors that will energize your day!', 12.00, 29, NULL, 32, NULL, NULL, NULL, 38, 40, '/public/uploads/1745530580120-650648379.jpg', 'yes', 'yes', '2025-04-24 21:28:40', '2025-04-24 23:04:09');
 
 -- Dumping structure for table restaurant.orders
 DROP TABLE IF EXISTS `orders`;
@@ -149,6 +145,13 @@ CREATE TABLE IF NOT EXISTS `orders` (
 
 -- Dumping data for table restaurant.orders: ~0 rows (approximately)
 DELETE FROM `orders`;
+
+
+-- Dumping data for table restaurant.users: ~2 rows (approximately)
+DELETE FROM `users`;
+INSERT INTO `users` (`id`, `email`, `name`, `password`, `role`, `status`, `verified`, `verification_token`, `reset_token`, `reset_token_expiry`, `created_at`, `updated_at`) VALUES
+	(6, 'johndoe@example.com', 'John Doe', '$2b$10$sYqRREGoU7DtlTxzAyhq8O3f2aHKeYKTuU/mFb0JgTqM2RbmJMQm6', 'customer', 'enabled', 1, '054e62b48bc79605d8297ae8dd3c0991af07a1bdfec871f006ec14658d23b9bb', NULL, NULL, '2025-04-23 10:06:08', '2025-04-23 10:09:02'),
+	(7, 'johnadmin@example.com', 'John Admin', '$2b$10$rQkRqZsT3HP.4/Q1S0O2D.3m2OUmDveEdlmUzpfhCtLk3Ebwutm2y', 'admin', 'enabled', 1, 'a559ef68db2f7087981860d45833105d69c80dd1e13743eb62db456785913e58', NULL, NULL, '2025-04-23 10:56:38', '2025-04-23 10:57:01');
 
 -- Dumping structure for trigger restaurant.restore_meal_stock
 DROP TRIGGER IF EXISTS `restore_meal_stock`;

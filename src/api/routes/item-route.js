@@ -24,10 +24,10 @@ const upload = multer({ storage });
 
 router.post('/', isAdmin, upload.single('image'), itemController.addItem);
 router.get('/', checkVisibleAccess, itemController.getAllItems);
-router.get('/:id', itemController.getItemById);
+router.get('/:id', checkVisibleAccess, itemController.getItemById);
 router.delete('/:id', isAdmin, itemController.deleteItem);
 router.get('/:id/checkMeal', itemController.checkItemMealAssociation);
-router.put('/:id', isAdmin, upload.single('image'), itemController.updateItem);
+router.put('/:id', isAdmin, checkVisibleAccess, upload.single('image'), itemController.updateItem);
 
 
 module.exports = router;

@@ -18,7 +18,7 @@ const createItem = async (category, name, description, ingredients, allergens, s
 
 const getAllItems = async (isAdmin) => {
   let query = 'SELECT * FROM items';
-  
+
   // If not admin, only return items that are visible
   if (!isAdmin) {
       query += " WHERE visible = 'yes'";
@@ -29,9 +29,16 @@ const getAllItems = async (isAdmin) => {
       
       // Map through the rows to adjust any time fields (e.g., created_at)
       const adjustedRows = rows.map(item => {
-          if (item.created_at) {
+          if (!isAdmin) {
+              // Remove admin-specific fields for non-admin users
+              delete item.visible;
+              delete item.created_at;
+              delete item.updated_at;
+          } else {
               // Adjust the `created_at` field to Finland's time zone (Europe/Helsinki)
-              item.created_at = moment.utc(item.created_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
+              if (item.created_at) {
+                  item.created_at = moment.utc(item.created_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
+              }
           }
           
           return item;
@@ -46,32 +53,49 @@ const getAllItems = async (isAdmin) => {
 
 
 
-const getItemById = async (id) => {
+const getItemById = async (id, isAdmin) => {
   try {
-      const [rows] = await db.query(`SELECT * FROM items WHERE id = ?`, [id]);
+    console.log("Fetching item with ID:", id); // Debugging line to check the ID being fetched
+    console.log("Is admin:", isAdmin); // Debugging line to check if the user is admin
+      let query = 'SELECT * FROM items WHERE id = ?';
+
+      // If not admin, ensure the item is visible
+      if (!isAdmin) {
+          query += " AND visible = 'yes'";
+          console.log("Query for non-admin:", query); // Debugging line to check the query
+      }
+
+      const [rows] = await db.query(query, [id]);
       
-      if (rows.length > 0) {
+      if (rows.length === 0) {
+          console.log("No item found with the given ID:", id); // Debugging line to check if meal exists
+          return null; // No meal found with the given ID
+      }
           const item = rows[0];
           
-          // Adjust any time-related fields (e.g., created_at, updated_at)
-          if (item.created_at) {
-              item.created_at = moment.utc(item.created_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
+          if (!isAdmin) {
+              // Remove admin-specific fields for non-admin users
+              delete item.visible;
+              delete item.created_at;
+              delete item.updated_at;
+          } else {
+              // Adjust any time-related fields (e.g., created_at, updated_at)
+              if (item.created_at) {
+                  item.created_at = moment.utc(item.created_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
+              }
+              if (item.updated_at) {
+                  item.updated_at = moment.utc(item.updated_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
+              }
           }
-          if (item.updated_at) {
-              item.updated_at = moment.utc(item.updated_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
-          }
-          // Add any other time fields here as necessary
           
           return item;
-      } else {
-          // No item found with the given ID
-          return null;
-      }
+      
   } catch (error) {
       console.error('Error fetching item by ID:', error);
       throw new Error('Database error');
   }
 };
+
 
 const checkIfItemIsInMeal = async (id) => {
   try {

@@ -11,6 +11,6 @@ router.post('/', checkVisibleAccess, createNewOrder);
 // Route to get all orders
 router.get('/', checkVisibleAccess, getOrders);
 
-router.get('/:orderId', isAdminOrUser, getOrder);
+router.get('/:orderId', isAdminOrUser, checkVisibleAccess, getOrder);
 
 module.exports = router;

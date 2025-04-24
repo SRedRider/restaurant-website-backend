@@ -71,7 +71,7 @@ const getAllItems = async (req, res) => {
 
 const getItemById = async (req, res) => {
     try {
-        const item = await Item.getItemById(req.params.id);
+        const item = await Item.getItemById(req.params.id, req.isAdmin); // Assuming `req.user.isAdmin` is available
         if (!item) return res.status(404).json({ error: 'Item not found' });
         res.json(item);
     } catch (error) {
@@ -114,7 +114,10 @@ const updateItem = async (req, res) => {
     const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
 
     // If no image is uploaded, keep the existing image
-    const currentItem = await Item.getItemById(req.params.id);
+    const currentItem = await Item.getItemById(req.params.id, req.isAdmin);
+    if (!currentItem) {
+        return res.status(404).json({ message: 'Item not found' });
+    }
     const finalImageUrl = image_url || currentItem.image_url;
 
     const sizeValue = size && size.trim() ? size : null;

@@ -1,5 +1,7 @@
 const nodemailer = require('nodemailer');
-const { createOrder, getAllOrders, getOrderById, getItemDetailsById, getMealDetailsById } = require('../models/order-model');
+const { createOrder, getAllOrders, getOrderById} = require('../models/order-model');
+const { getItemById } = require('../models/item-model');
+const { getMealById } = require('../models/meal-model');
 
 // Controller to create a new order
 const createNewOrder = async (req, res) => {
@@ -43,12 +45,12 @@ const createNewOrder = async (req, res) => {
     // Check if the item type is valid
     for (const item of items) {
       if (item.type === 'item') {
-        const { error, data: itemDetails } = await getItemDetailsById(item.id, req.isAdmin); // Pass the isAdmin flag
+        const { error, data: itemDetails } = await getItemById(item.id, req.isAdmin); // Pass the isAdmin flag
         if (error) {
           return res.status(400).json({ message: error });
         }
       } else if (item.type === 'meal') {
-        const { error, data: mealDetails } = await getMealDetailsById(item.id, req.isAdmin); // Pass the isAdmin flag
+        const { error, data: mealDetails } = await getMealById(item.id, req.isAdmin); // Pass the isAdmin flag
         if (error) {
           return res.status(400).json({ message: error });
         }
@@ -146,9 +148,9 @@ const enrichOrderItems = async (orderId, isAdmin) => {
 
         // Fetch details based on the type (item or meal)
         if (item.type === 'item') {
-          itemDetails = await getItemDetailsById(item.id, isAdmin); // Pass isAdmin flag here
+          itemDetails = await getItemById(item.id, isAdmin); // Pass isAdmin flag here
         } else if (item.type === 'meal') {
-          itemDetails = await getMealDetailsById(item.id, isAdmin); // Pass isAdmin flag here
+          itemDetails = await getMealById(item.id, isAdmin); // Pass isAdmin flag here
         }
 
         // If details for the item are not found, return an error
@@ -180,7 +182,7 @@ const enrichOrderItems = async (orderId, isAdmin) => {
 const getOrders = async (req, res) => {
   try {
     // Fetch all orders first
-    const orders = await getAllOrders();
+    const orders = await getAllOrders(req.isAdmin);
 
     // If no orders are found, return an empty array
     if (orders.length === 0) {

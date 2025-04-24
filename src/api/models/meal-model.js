@@ -44,15 +44,30 @@ const getAllMeals = async (isAdmin) => {
     try {
         const [rows] = await db.query(query);
 
-        // Adjust time-related fields (e.g., created_at, updated_at) if they exist
+        // Adjust time-related fields and exclude sensitive fields if not admin
         const adjustedRows = rows.map(meal => {
-            if (meal.created_at) {
-                meal.created_at = moment.utc(meal.created_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
+            // Remove null fields for non-admin users
+            if (!isAdmin) {
+                // Exclude created_at, updated_at, and visible for non-admin
+                delete meal.created_at;
+                delete meal.updated_at;
+                delete meal.visible;
+
+                // Remove fields with null values for non-admin
+                Object.keys(meal).forEach(key => {
+                    if (meal[key] === null) {
+                        delete meal[key];
+                    }
+                });
+            } else {
+                // Admin: Adjust time-related fields
+                if (meal.created_at) {
+                    meal.created_at = moment.utc(meal.created_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
+                }
+                if (meal.updated_at) {
+                    meal.updated_at = moment.utc(meal.updated_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
+                }
             }
-            if (meal.updated_at) {
-                meal.updated_at = moment.utc(meal.updated_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
-            }
-            // Add more time fields if needed
 
             return meal;
         });
@@ -66,10 +81,10 @@ const getAllMeals = async (isAdmin) => {
 
 
 
-const getMealById = async (id) => {
+const getMealById = async (id, isAdmin) => {
     try {
-        const [rows] = await db.query(
-            `SELECT m.*, 
+        let query = `
+            SELECT m.*, 
             m.hamburger_id AS hamburger_id,
             m.wrap_id AS wrap_id,
             m.chicken_burger_id AS chicken_burger_id,
@@ -79,20 +94,45 @@ const getMealById = async (id) => {
             m.dessert_id AS dessert_id,
             m.drink_id AS drink_id
             FROM meals m
-            WHERE m.id = ?`, 
-            [id]
-        );
+            WHERE m.id = ?`;
+
+        // If not admin, only return meals that are visible
+        if (!isAdmin) {
+            query += " AND m.visible = 'yes'";
+        }
+
+        const [rows] = await db.query(query, [id]);
+
+        if (rows.length === 0) {
+            console.log("No meal found with the given ID:", id); // Debugging line to check if meal exists
+            return null; // No meal found with the given ID
+        }
 
         const meal = rows[0];
 
-        // Adjust time-related fields (e.g., created_at, updated_at) if they exist
-        if (meal.created_at) {
-            meal.created_at = moment.utc(meal.created_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
+        // Admin: Adjust time-related fields (e.g., created_at, updated_at) if they exist
+        if (isAdmin) {
+            if (meal.created_at) {
+                meal.created_at = moment.utc(meal.created_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
+            }
+            if (meal.updated_at) {
+                meal.updated_at = moment.utc(meal.updated_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
+            }
+
+        } else {
+            // Non-admin: Remove sensitive information (e.g., created_at, updated_at, visible)
+            delete meal.created_at;
+            delete meal.updated_at;
+            delete meal.visible;  // Don't expose the visible field to non-admins
+
+            // Remove fields with null values for non-admin
+            Object.keys(meal).forEach(key => {
+                if (meal[key] === null) {
+                    delete meal[key];
+                }
+            });
         }
-        if (meal.updated_at) {
-            meal.updated_at = moment.utc(meal.updated_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
-        }
-        // Add more time fields if needed
+
 
         return meal;
     } catch (error) {

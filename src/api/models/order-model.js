@@ -1,6 +1,8 @@
 // api/models/order-model.js
 const promisePool = require('../../utils/database');
 const moment = require('moment-timezone');
+const { getItemById } = require('../models/item-model');
+const { getMealById } = require('../models/meal-model');
 
 
 // Function to create a new order
@@ -31,7 +33,7 @@ const createOrder = async (user_id = null, customer_name, customer_phone, custom
   
 
 
-  const getAllOrders = async () => {
+  const getAllOrders = async (isAdmin) => {
     const [rows] = await promisePool.query('SELECT * FROM orders');
   
     if (rows.length === 0) {
@@ -50,9 +52,9 @@ const createOrder = async (user_id = null, customer_name, customer_phone, custom
   
             // Fetch details based on the type (item or meal)
             if (item.type === 'item') {
-              itemDetails = await getItemDetailsById(item.id);
+              itemDetails = await getItemById(item.id, isAdmin); // Assuming isAdmin is available in the order object
             } else if (item.type === 'meal') {
-              itemDetails = await getMealDetailsById(item.id);
+              itemDetails = await getMealById(item.id, isAdmin); // Assuming isAdmin is available in the order object
             }
   
             // If details for the item are not found, log an error and return the item as is
@@ -113,67 +115,9 @@ const getOrderById = async (orderId) => {
 };
 
 
-// Function to get item details from the items table by ID
-const getItemDetailsById = async (itemId, isAdmin) => {
-  try {
-    // Adjust the query to check visibility if not admin
-    const query = isAdmin
-      ? 'SELECT * FROM items WHERE id = ?' 
-      : 'SELECT * FROM items WHERE id = ? AND visible = "yes"';
-    
-    const [rows] = await promisePool.query(query, [itemId]);
-
-    if (rows.length === 0) {
-      return { error: `Item not found `, data: null }; // Return error if not found or not visible
-    }
-    
-    const item = rows[0];
-
-    // Format the created_at and updated_at dates if they exist
-    if (item.created_at) {
-      item.created_at = moment.utc(item.created_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
-    }
-    if (item.updated_at) {
-      item.updated_at = moment.utc(item.updated_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
-    }
-
-    return { error: null, data: item }; // Return data if found and visible
-  } catch (error) {
-    console.error('Error fetching item details:', error);
-    return { error: 'An error occurred while fetching item details', data: null };
-  }
-};
-
-const getMealDetailsById = async (mealId, isAdmin) => {
-  try {
-    // Adjust the query to check visibility if not admin
-    const query = isAdmin
-      ? 'SELECT * FROM meals WHERE id = ?' 
-      : 'SELECT * FROM meals WHERE id = ? AND visible = "yes"';
-    
-    const [rows] = await promisePool.query(query, [mealId]);
-
-    if (rows.length === 0) {
-      return { error: `Meal not found`, data: null }; // Return error if not found or not visible
-    }
-
-    const meal = rows[0];
-
-    // Format the created_at and updated_at dates if they exist
-    if (meal.created_at) {
-      meal.created_at = moment.utc(meal.created_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
-    }
-    if (meal.updated_at) {
-      meal.updated_at = moment.utc(meal.updated_at).tz('Europe/Helsinki').format('YYYY-MM-DD HH:mm:ss');
-    }
-
-    return { error: null, data: meal }; // Return data if found and visible
-  } catch (error) {
-    console.error('Error fetching meal details:', error);
-    return { error: 'An error occurred while fetching meal details', data: null };
-  }
-};
 
 
 
-module.exports = { createOrder, getAllOrders, getOrderById, getMealDetailsById, getItemDetailsById };
+
+
+module.exports = { createOrder, getAllOrders, getOrderById };

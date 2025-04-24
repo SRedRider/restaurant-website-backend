@@ -22,7 +22,7 @@ const upload = multer({ storage });
 
 router.post('/', isAdmin, upload.single('image'), mealController.addMeal);
 router.get('/', checkVisibleAccess, mealController.getAllMeals);
-router.get('/:id', mealController.getMealById);
-router.put('/:id', isAdmin, upload.single('image'), mealController.updateMeal);
+router.get('/:id', checkVisibleAccess, mealController.getMealById);
+router.put('/:id', isAdmin, checkVisibleAccess, upload.single('image'), mealController.updateMeal);
 
 module.exports = router;
