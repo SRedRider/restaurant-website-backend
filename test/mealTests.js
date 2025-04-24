@@ -74,8 +74,49 @@ const createMeal = async (url, newMeal) => {
     });
 };
 
+// PUT Meal
+const putMeal = async (url, mealId, updatedMeal) => {
+    return new Promise((resolve, reject) => {
+        request(url)
+            .put(`/api/v1/meals/${mealId}`)
+            .set('Content-Type', 'application/json')
+            .send(updatedMeal)
+            .expect(200, (err, response) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    const result = response.body;
+                    expect(result.message).toBe('Meal updated successfully');
+                    expect(result.id).toBe(mealId);
+                    resolve(result);
+                }
+            });
+    });
+};
+
+// DELETE Meal
+const deleteMeal = async (url, mealId) => {
+    return new Promise((resolve, reject) => {
+        request(url)
+            .delete(`/api/v1/meals/${mealId}`)
+            .expect(200)
+            .end((err, response) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    const result = response.body;
+                    expect(result.message).toBe('Meal deleted successfully');
+                    expect(result.id).toBe(mealId);
+                    resolve(result);
+                }
+            });
+    });
+};
+
 export {
     getMeals,
     getOneMeal,
     createMeal,
+    putMeal,
+    deleteMeal,
 }

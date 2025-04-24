@@ -70,8 +70,47 @@ const postItem = async (url, newItem) => {
     });
 };
 
+const putItem = async (url, itemId, updatedItem) => {
+    return new Promise((resolve, reject) => {
+        request(url)
+            .put(`/api/v1/items/${itemId}`)
+            .set('Content-Type', 'application/json')
+            .send(updatedItem)
+            .expect(200, (err, response) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    const result = response.body;
+                    expect(result.message).toBe('Item updated successfully');
+                    expect(result.id).toBe(itemId);
+                    resolve(result);
+                }
+            });
+    });
+};
+
+const deleteItem = async (url, itemId) => {
+    return new Promise((resolve, reject) => {
+        request(url)
+            .delete(`/api/v1/items/${itemId}`)
+            .expect(200) // Expecting HTTP 200 OK
+            .end((err, response) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    const result = response.body;
+                    expect(result.message).toBe('Item deleted successfully');
+                    expect(result.id).toBe(itemId);
+                    resolve(result);
+                }
+            });
+    });
+};
+
 export {
     getItems,
     getOneItem,
     postItem,
+    putItem,
+    deleteItem,
 }
