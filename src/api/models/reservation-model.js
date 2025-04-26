@@ -1,64 +1,75 @@
 const db = require('../../utils/database');
 
 
-// Check availability and book reservation
-const checkAndBookReservation=  async (date, time, peopleCount, details) => {
+
+const MAX_CHAIRS = 20;
+
+// Check availability and book reservation with transaction safety
+const checkAndBookReservation = async (date, time, peopleCount, details) => {
+  const connection = await db.getConnection(); // Get a connection for transaction
+
   try {
-    // First, check if there are available chairs on the requested date and time
-    const [rows] = await db.query(
-      'SELECT * FROM reservations WHERE date = ? AND time = ?',
-      [date, time]
-    );
+    // Start transaction
+    await connection.beginTransaction();
 
-    if (rows.length === 0) {
-      // No reservation exists, so create a new one
-      await db.query(
-        'INSERT INTO reservations (date, time, remaining_chairs) VALUES (?, ?, ?)',
-        [date, time, 20 - peopleCount]
-      );
-
-      // Fetch the newly created reservation ID
-      const [newReservation] = await db.query(
-        'SELECT * FROM reservations WHERE date = ? AND time = ?',
-        [date, time]
-      );
-
-      const reservationId = newReservation[0].id;
-
-      // Insert the customer details into reservation_details
-      await db.query(
-        'INSERT INTO reservation_details (reservation_id, name, phone, email, people_count, notes) VALUES (?, ?, ?, ?, ?, ?)',
-        [reservationId, details.name, details.phone, details.email, details.peopleCount, details.notes]
-      );
-
-      return { success: true, reservationId };
+    // Validate input
+    if (!date || !time || !details.name || !details.phone || peopleCount <= 0) {
+      throw new Error('Invalid input');
     }
 
-    // If a reservation exists, check if there are enough chairs
-    const remainingChairs = rows[0].remaining_chairs;
+    // Check if there's already a reservation for the date
+    const [rows] = await connection.query(
+      'SELECT * FROM reservations WHERE date = ? FOR UPDATE', // Lock the row!
+      [date]
+    );
 
-    if (remainingChairs >= peopleCount) {
-      // Update the remaining chairs
-      await db.query(
+    const reservationId = Math.floor(10000 + Math.random() * 90000); // 5-digit random number
+
+    if (rows.length === 0) {
+      // No reservation exists for that day, create a new one
+      if (peopleCount > MAX_CHAIRS) {
+        throw new Error('Not enough chairs available for a new reservation');
+      }
+
+      const [result] = await connection.query(
+        'INSERT INTO reservations (date, remaining_chairs) VALUES (?, ?)',
+        [date, MAX_CHAIRS - peopleCount]
+      );
+    } else {
+      // Reservation exists, check remaining chairs
+      const remainingChairs = rows[0].remaining_chairs;
+      if (remainingChairs < peopleCount) {
+        throw new Error('Not enough chairs available for the selected day');
+      }
+
+      // Update remaining chairs
+      await connection.query(
         'UPDATE reservations SET remaining_chairs = ? WHERE id = ?',
         [remainingChairs - peopleCount, rows[0].id]
       );
-
-      // Insert customer details into reservation_details
-      await db.query(
-        'INSERT INTO reservation_details (reservation_id, name, phone, email, people_count, notes) VALUES (?, ?, ?, ?, ?, ?)',
-        [rows[0].id, details.name, details.phone, details.email, details.peopleCount, details.notes]
-      );
-
-      return { success: true, reservationId: rows[0].id };
     }
 
-    return { success: false, message: 'Not enough chairs available for the selected time' };
+    // Insert into reservation_details
+    await connection.query(
+      'INSERT INTO reservation_details (reservation_id, name, phone, email, people_count, date, time, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [reservationId, details.name, details.phone, details.email, peopleCount, date, time, details.notes || '']
+    );
+
+    // Commit the transaction
+    await connection.commit();
+    connection.release();
+
+    return { success: true, reservationId };
   } catch (err) {
     console.error(err);
-    return { success: false, message: 'An error occurred while processing the reservation' };
+    if (connection) {
+      await connection.rollback(); // Undo any changes
+      connection.release();
+    }
+    return { success: false, message: err.message || 'An error occurred while processing the reservation' };
   }
-}
+};
+
 
 // Fetch all reservations
 const getAllReservations = async () => {
