@@ -16,6 +16,7 @@
 
 
 -- Dumping database structure for restaurant
+DROP DATABASE IF EXISTS `restaurant`;
 CREATE DATABASE IF NOT EXISTS `restaurant` /*!40100 DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci */;
 USE `restaurant`;
 
@@ -145,6 +146,82 @@ CREATE TABLE IF NOT EXISTS `orders` (
 
 -- Dumping data for table restaurant.orders: ~0 rows (approximately)
 DELETE FROM `orders`;
+
+-- Dumping structure for table restaurant.reservations
+DROP TABLE IF EXISTS `reservations`;
+CREATE TABLE IF NOT EXISTS `reservations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` date NOT NULL,
+  `remaining_chairs` int(11) DEFAULT 20,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Dumping data for table restaurant.reservations: ~8 rows (approximately)
+DELETE FROM `reservations`;
+INSERT INTO `reservations` (`id`, `date`, `remaining_chairs`) VALUES
+	(16, '2025-04-19', 15),
+	(17, '2025-04-26', 0),
+	(18, '2025-04-24', 2),
+	(19, '2025-04-23', 3),
+	(21, '2025-04-28', 0),
+	(22, '2025-04-21', 0),
+	(23, '2025-04-27', 0),
+	(24, '2025-04-22', 0);
+
+-- Dumping structure for table restaurant.reservation_details
+DROP TABLE IF EXISTS `reservation_details`;
+CREATE TABLE IF NOT EXISTS `reservation_details` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reservation_id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `phone` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `people_count` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `time` time NOT NULL,
+  `notes` text DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Dumping data for table restaurant.reservation_details: ~15 rows (approximately)
+DELETE FROM `reservation_details`;
+INSERT INTO `reservation_details` (`id`, `reservation_id`, `name`, `phone`, `email`, `people_count`, `date`, `time`, `notes`) VALUES
+	(27, 16, 'John Doe', '+1234567890', 'johndoe@example.com', 5, '0000-00-00', '00:00:00', 'Celebrating anniversary'),
+	(28, 17, 'asd', '123', 'asd@asd.com', 15, '0000-00-00', '00:00:00', 'asdasdasd'),
+	(29, 17, 'asd', 'asdasd', 'asd@asd.com', 4, '0000-00-00', '00:00:00', 'asd'),
+	(30, 17, 'asd', '123', 'asd@asd.com', 1, '0000-00-00', '00:00:00', 'asdad'),
+	(31, 18, 'asd', '123', 'asd@asd.com', 18, '0000-00-00', '00:00:00', 'asdasdsad'),
+	(32, 19, 'asd', '123as', 'asd@asd.com', 17, '0000-00-00', '00:00:00', 'asdasd'),
+	(33, 21, 'asd', '123', 'asd@asd.com', 16, '2025-04-28', '23:05:00', 'asdasdasd'),
+	(34, 22, 'asd', '123', 'asd@asd.com', 19, '2025-04-21', '23:01:00', 'asdasd'),
+	(35, 88122, 'asd', '123', 'asd@asd.com', 1, '2025-04-21', '03:05:00', 'asdada'),
+	(36, 71760, 'asd', '123', 'asd@asd.com', 20, '2025-04-27', '00:07:00', 'adadasd'),
+	(37, 58350, 'asd', 'asdasd', 'asd@asd.com', 19, '2025-04-22', '00:14:00', 'asdasd'),
+	(38, 57526, 'asd', '123', 'asd@asd.com', 1, '2025-04-22', '00:14:00', 'asdasd'),
+	(39, 73939, 'asd', '123', 'hotah24133@naobk.com', 4, '2025-04-28', '00:46:00', 'asdasd'),
+	(40, 27555, 'asd', '123', 'asd@asd.com', 15, '2025-04-27', '00:52:00', 'asdasd'),
+	(41, 88943, 'asd', '123', 'asd@asd.com', 5, '2025-04-27', '04:47:00', 'asdasd');
+
+-- Dumping structure for table restaurant.restaurant_schedule
+DROP TABLE IF EXISTS `restaurant_schedule`;
+CREATE TABLE IF NOT EXISTS `restaurant_schedule` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` date NOT NULL,
+  `open_time` time NOT NULL,
+  `close_time` time NOT NULL,
+  `status` enum('open','close') DEFAULT 'open',
+  `message` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `date` (`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Dumping data for table restaurant.restaurant_schedule: ~4 rows (approximately)
+DELETE FROM `restaurant_schedule`;
+INSERT INTO `restaurant_schedule` (`id`, `date`, `open_time`, `close_time`, `status`, `message`) VALUES
+	(1, '2025-04-30', '08:00:00', '22:00:00', 'open', NULL),
+	(5, '2025-04-20', '08:00:00', '22:00:00', 'close', 'Holiday Special from 12 PM - 3 PM'),
+	(7, '2025-04-19', '08:00:00', '22:00:00', 'open', 'Holiday Special from 12 PM - 3 PM'),
+	(9, '2025-04-18', '08:00:00', '22:00:00', 'open', 'Holiday Special from 12 PM - 3 PM');
 
 
 -- Dumping data for table restaurant.users: ~2 rows (approximately)
