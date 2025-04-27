@@ -4,21 +4,35 @@ const moment = require('moment-timezone');
 
 // Book reservation
 const bookReservation = async (req, res) => {
-  const { date, time, peopleCount, name, phone, email, notes } = req.body;
+  const { date, time, guestCount, name, phone, email, notes } = req.body;
 
-  if (!date || !time || !peopleCount || !name || !phone || !email) {
+  if (!date || !time || !guestCount || !name || !phone || !email) {
     return res.status(400).json({ success: false, message: 'All fields are required' });
   }
 
-  const details = { name, phone, email, peopleCount, notes };
+  if (guestCount <= 0 || guestCount > 10) { 
+    return res.status(400).json({ success: false, message: 'Invalid number of guests' });
+  }
 
-  const result = await reservationModel.checkAndBookReservation(date, time, peopleCount, details);
 
-  if (result.success) {
-    res.status(200).json({ success: true, reservationId: result.reservationId });
-    await sendConfirmationEmail(email, name, date, time, peopleCount, notes);
-  } else {
-    res.status(400).json({ success: false, message: result.message });
+  const details = { name, phone, email, guestCount, notes };
+
+  try {
+    const result = await reservationModel.checkAndBookReservation(date, time, guestCount, details);
+
+    if (result.success) {
+      res.status(200).json({
+        success: true,
+        reservationId: result.reservationId,
+        allocatedTables: result.allocatedTables
+      });
+      await sendConfirmationEmail(email, name, date, time, guestCount, notes);
+    } else {
+      res.status(400).json({ success: false, message: result.message });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'An error occurred while booking the reservation' });
   }
 }
 
@@ -36,34 +50,34 @@ const getReservations = async (req, res) => {
 // Fetch the days with no chairs and days with remaining chairs
 const getAvailableDays = async (req, res) => {
   try {
-    const rows = await reservationModel.getDaysWithChairs();
+    const rows = await reservationModel.getReservationDays();
 
-    let noChairs = [];
-    let remainingChairs = [];
+    let notAvailable = [];
+    let data = [];
 
     // Separate the days into no chairs and remaining chairs
     rows.forEach(row => {
-      const formattedDate = moment.utc(row.date).tz('Europe/Helsinki').format('YYYY-MM-DD');
-      if (row.remaining_chairs === 0) {
-        noChairs.push(formattedDate); // No chairs available
-      } else {
-        remainingChairs.push({
+      const formattedDate = moment.utc(row.date).tz('Europe/Helsinki').format('DD.MM.YYYY');
+
+
+        data.push({
           date: formattedDate,
-          remainingChairs: row.remaining_chairs
+          remainingChairs: row.remaining_chairs,
+          allocatedTables: row.allocated_tables,
+          status: row.status,
         });
-      }
     });
 
     // Respond with the separated days
     res.json({
-      noChairs,              // Days with no chairs
-      remainingChairs,       // Days with remaining chairs
+      data,       // Days with remaining chairs
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error fetching available days' });
   }
 }
+
 
 
 // Configure the nodemailer transporter
@@ -76,7 +90,7 @@ const getAvailableDays = async (req, res) => {
   });
 
 // Updated the email content to present reservation details as a single paragraph instead of separate sections
-const sendConfirmationEmail = async (email, name, reservationDate, reservationTime, peopleCount, notes) => {
+const sendConfirmationEmail = async (email, name, reservationDate, reservationTime, guestCount, notes) => {
   const formattedDate = moment(reservationDate, 'YYYY-MM-DD').format('DD.MM.YYYY');
 
   const mailOptions = {
@@ -154,11 +168,11 @@ const sendConfirmationEmail = async (email, name, reservationDate, reservationTi
     <div class="container">
         <h1>Reservation Confirmation</h1>
         <p>Dear <span class="highlight">${name}</span>,</p>
-        <p>Thank you for choosing our restaurant! We are delighted to confirm your reservation for <span class="highlight">${peopleCount}</span> guest(s) on <span class="highlight">${formattedDate}</span> at <span class="highlight">${reservationTime}</span>. ${notes ? `Additional notes: <span class="highlight">${notes}</span>.` : ''}</p>
+        <p>Thank you for choosing our restaurant! We are delighted to confirm your reservation for <span class="highlight">${guestCount}</span> guest(s) on <span class="highlight">${formattedDate}</span> at <span class="highlight">${reservationTime}</span>. ${notes ? `Additional notes: <span class="highlight">${notes}</span>.` : ''}</p>
 
         <p>Please arrive a few minutes early to ensure a smooth seating process. If you need to modify or cancel your reservation, contact us at least 24 hours in advance.</p>
 
-        <a href="mailto:@gmail.com" class="button">Contact Us</a>
+        <a href="mailto:burgersinhelsinki@gmail.com" class="button">Contact Us</a>
 
         <div class="footer">
             <p>We look forward to welcoming you!</p>
@@ -179,4 +193,41 @@ const sendConfirmationEmail = async (email, name, reservationDate, reservationTi
   }
 };
 
-module.exports = { bookReservation, getReservations, getAvailableDays };
+// Test reservation feasibility without booking
+const testReservationAvailability = async (req, res) => {
+  const { guestCount } = req.body;
+
+  if (!guestCount || guestCount <= 0) {
+    return res.status(400).json({ success: false, message: 'Invalid number of guests' });
+  }
+
+  try {
+    const rows = await reservationModel.getReservationDays();
+    const maxChairs = await reservationModel.getMaxChairs();
+    const requiredTables = Math.ceil(guestCount / 5); // Assuming 5 chairs per table
+
+    let unavailableDates = [];
+
+    for (const row of rows) {
+      const remainingChairs = row.remaining_chairs;
+      const allocatedTables = row.allocated_tables ? row.allocated_tables.split(',').length : 0;
+      const totalTables = Math.ceil(maxChairs / 5); // Total tables available in restaurant
+      const freeTables = totalTables - allocatedTables;
+
+      if (remainingChairs < guestCount || freeTables < requiredTables) {
+        unavailableDates.push({
+          date: moment.utc(row.date).tz('Europe/Helsinki').format('DD.MM.YYYY'),
+          remainingChairs,
+          freeTables,
+        });
+      }
+    }
+
+    res.status(200).json({ success: true, unavailableDates });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Error testing reservation availability' });
+  }
+};
+
+module.exports = { bookReservation, getReservations, getAvailableDays, testReservationAvailability };

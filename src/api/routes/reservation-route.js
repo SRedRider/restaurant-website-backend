@@ -11,4 +11,6 @@ router.get('/', reservationController.getReservations);
 
 router.get('/available-days', reservationController.getAvailableDays);
 
+router.post('/test', reservationController.testReservationAvailability);
+
 module.exports = router;

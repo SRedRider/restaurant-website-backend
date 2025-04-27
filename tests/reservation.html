@@ -171,8 +171,8 @@
 
 <div class="wrapper" id="calendar-section">
     <div class="input-container" id="date-input">
-        <label for="people">Number of People:</label>
-        <select id="people">
+        <label for="guest">Guests:</label>
+        <select id="guest">
           <option value="">Select</option>
         </select>
       </div>
@@ -224,7 +224,7 @@
     const daysTag = document.querySelector(".days"),
           currentDate = document.querySelector(".current-date"),
           prevNextIcon = document.querySelectorAll(".icons span"),
-          peopleInput = document.querySelector("#people"),
+          guestInput = document.querySelector("#guest"),
           messageContainer = document.querySelector("#message"),
           timeInputContainer = document.querySelector("#time-input"),
           timeInput = document.querySelector("#time"),
@@ -245,19 +245,28 @@
     let availableDays = {
       noChairs: [],
       remainingChairs: [],
-      closedDays: []  // Track closed days
+      closedDays: [],  // Track closed days
+      notAvailable: []  // Track not available days
     };
 
     let selectedDate = "";
     let selectedTime = "";
-    let selectedPeople = 1;  // To store the selected number of people
+    let selectedGuest = 1;  // To store the selected number of guest
+
+    const convertToISODate = (dateString) => {
+      const [day, month, year] = dateString.split('.');
+      return `${year}-${month}-${day}`;
+    };
 
     const fetchAvailableDays = async () => {
       try {
         const response = await fetch('http://localhost:3000/api/v1/reservations/available-days');
         const data = await response.json();
-        availableDays.noChairs = data.noChairs || [];
-        availableDays.remainingChairs = data.remainingChairs || [];
+        availableDays.noChairs = data.data.filter(item => item.status === 'full').map(item => convertToISODate(item.date));
+        availableDays.remainingChairs = data.data.filter(item => item.status === 'available').map(item => ({
+          date: convertToISODate(item.date),
+          remainingChairs: item.remainingChairs
+        }));
       } catch (error) {
         console.error('Error fetching available days:', error);
       }
@@ -276,7 +285,33 @@
       }
     };
 
-    const renderCalendar = () => {
+    const fetchUnavailableDates = async (guestCount) => {
+  try {
+    const response = await fetch('http://localhost:3000/api/v1/reservations/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guestCount })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
+        // Update unavailable dates based on the response
+        availableDays.notAvailable = data.unavailableDates.map(item => ({
+          date: convertToISODate(item.date),
+          remainingChairs: item.remainingChairs,
+          freeTables: item.freeTables
+        }));
+      }
+    } else {
+      console.error('Failed to fetch unavailable dates:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error fetching unavailable dates:', error);
+  }
+};
+
+    const renderCalendar = async () => {
   let firstDayofMonth = new Date(currYear, currMonth, 1).getDay(),
       lastDateofMonth = new Date(currYear, currMonth + 1, 0).getDate(),
       lastDayofMonth = new Date(currYear, currMonth, lastDateofMonth).getDay(),
@@ -292,48 +327,45 @@
 
   // Loop through the previous month's dates
   for (let i = firstDayofMonth; i > 0; i--) {
-    liTag += `<li class="inactive">${lastDateofLastMonth - i + 1}</li>`;
+    liTag += `<li class=\"inactive\">${lastDateofLastMonth - i + 1}</li>`;
   }
 
   // Loop through the current month's dates
   for (let i = 1; i <= lastDateofMonth; i++) {
     let isToday = i === todayDate && currMonth === todayMonth && currYear === todayYear ? "active" : "",
         currentDateString = `${currYear}-${(currMonth + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`,
-        status = "green";  // Default to green for available days
+        status = "green";  // Default
 
-    // Check if the day is in the past
     const currentDate = new Date(currYear, currMonth, i);
     const isPastDay = currentDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0);
 
-    // If it's a past day, disable it
     if (isPastDay) {
-      status = "disabled";  // Set the class for disabled past days
-    }
-    // Check if the date is closed
-    else if (availableDays.closedDays.some(item => item.date === currentDateString)) {
-      status = "closed";
+        status = "disabled";
+    } else if (availableDays.closedDays.some(item => item.date === currentDateString)) {
+        status = "closed";
     } else if (availableDays.noChairs.includes(currentDateString)) {
-      status = "no-chairs";
-    } else {
-      let remaining = availableDays.remainingChairs.find(item => item.date === currentDateString);
-      if (remaining && peopleInput.value && peopleInput.value > remaining.remainingChairs) {
+        status = "no-chairs";
+    } else if (availableDays.notAvailable.some(item => item.date === currentDateString)) {
         status = "not-available";
-      }
     }
 
-    // Add the 'selected' class if the day is the previously selected day
-    let selectedClass = currentDateString === selectedDate ? "selected" : "";
+    let isAvailable = status === "green";
+    let selectedClass = (currentDateString === selectedDate && isAvailable) ? "selected" : "";
+
     liTag += `<li class="${isToday} ${status} ${selectedClass}" data-date="${currentDateString}">${i}</li>`;
-  }
+}
+
 
   // Loop through the next month's dates (fill in empty cells)
   for (let i = lastDayofMonth; i < 6; i++) {
-    liTag += `<li class="inactive">${i - lastDayofMonth + 1}</li>`;
+    liTag += `<li class=\"inactive\">${i - lastDayofMonth + 1}</li>`;
   }
 
   currentDate.innerText = `${months[currMonth]} ${currYear}`;
   daysTag.innerHTML = liTag;
 };
+
+  
 
 
 
@@ -344,24 +376,28 @@ document.addEventListener("click", (e) => {
     const clickedDay = e.target.classList.contains("green");  // Check if clicked day is green (available)
 
     if (clickedDay) {
-      // Handle available date selection (green days)
-      selectedDate = clickedDate;
-      const formattedDate = formatDate(selectedDate);
-      messageContainer.innerHTML = `Selected Date: <strong>${formattedDate}</strong><br> Please select a time:`;
-      timeInputContainer.style.display = "block";
-      processBtn.style.display = "none";  // Hide proceed button until time is selected
-    } else {
-      // Handle special cases (closed, no chairs, not available)
-      const closedDay = availableDays.closedDays.find(item => item.date === clickedDate);
-      if (closedDay) {
-        messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> is closed.<br>${closedDay.message || "No special message available"}`;
-      } else if (availableDays.noChairs.includes(clickedDate)) {
-        messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> has no available space.`;
-      } else if (availableDays.remainingChairs.find(item => item.date === clickedDate && item.remainingChairs <= 0)) {
-        messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> is not available for ${selectedPeople} people.`;
-      }
-      timeInputContainer.style.display = "none";  // Hide time selection
-    }
+  // Available day (green)
+  selectedDate = clickedDate;
+  const formattedDate = formatDate(selectedDate);
+  messageContainer.innerHTML = `Selected Date: <strong>${formattedDate}</strong><br> Please select a time:`;
+  timeInputContainer.style.display = "block";
+  processBtn.style.display = "none";
+  renderCalendar();
+} else {
+  // Special cases
+  const closedDay = availableDays.closedDays.find(item => item.date === clickedDate);
+  if (closedDay) {
+    messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> is closed.<br>${closedDay.message || "No special message available"}`;
+  } else if (availableDays.noChairs.includes(clickedDate)) {
+    messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> has no available space.`;
+  } else if (availableDays.remainingChairs.find(item => item.date === clickedDate && item.remainingChairs <= 0)) {
+    messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> is not available for ${selectedGuest} guest(s).`;
+  } else if (availableDays.notAvailable.find(item => item.date === clickedDate)) {
+    messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> is not available for ${selectedGuest} guest(s).`;
+  }
+  timeInputContainer.style.display = "none"; 
+}
+
   }
 });
 
@@ -380,9 +416,8 @@ document.addEventListener("click", (e) => {
       });
     });
 
-    // Create the number of people options
-// Create the number of people options
-for (let i = 1; i <= 20; i++) {
+    // Create the number of guest options
+for (let i = 1; i <= 10; i++) {
   const option = document.createElement("option");
   option.value = i;
   option.text = i;
@@ -392,14 +427,24 @@ for (let i = 1; i <= 20; i++) {
     option.selected = true;
   }
 
-  peopleInput.appendChild(option);
+  guestInput.appendChild(option);
 }
 
-    // Event listener for when the user selects number of people
-peopleInput.addEventListener("change", () => {
-  selectedPeople = parseInt(peopleInput.value);
-  renderCalendar();  // Re-render the calendar
+    // Event listener for when the user selects number of guest
+    guestInput.addEventListener("change", async () => {
+  selectedGuest = parseInt(guestInput.value);
+  await fetchUnavailableDates(selectedGuest);
+  
+  // Check if selectedDate is now unavailable
+  if (availableDays.notAvailable.some(item => item.date === selectedDate)) {
+    selectedDate = ""; // Reset selection
+    messageContainer.innerHTML = ""; // Clear any previous selected date message
+    timeInputContainer.style.display = "none"; // Hide time input
+  }
+  
+  renderCalendar();
 });
+
 
     // Format selected date for displaying in the form
     function formatDate(dateString) {
@@ -407,33 +452,7 @@ peopleInput.addEventListener("change", () => {
       return new Date(dateString).toLocaleDateString('en-GB', options); // DD/MM/YYYY
     }
 
-    document.addEventListener("click", (e) => {
-  if (e.target && e.target.tagName === "LI") {
-    const clickedDate = e.target.getAttribute("data-date");
-    const clickedDay = e.target.classList.contains("green");  // Check if clicked day is green (available)
-
-    if (clickedDay) {
-      // Handle available date selection (green days)
-      selectedDate = clickedDate;
-      const formattedDate = formatDate(selectedDate); // Format date before displaying
-      messageContainer.innerHTML = `Selected Date: <strong>${formattedDate}</strong><br> Please select a time:`;
-      timeInputContainer.style.display = "block";
-      processBtn.style.display = "none"; // Hide proceed button until time is selected
-      renderCalendar();  // Re-render the calendar to update the selected date color
-    } else {
-      // Handle special cases (closed, no chairs, not available)
-      const closedDay = availableDays.closedDays.find(item => item.date === clickedDate);
-      if (closedDay) {
-        messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> is closed.<br>${closedDay.message || "No special message available"}`;
-      } else if (availableDays.noChairs.includes(clickedDate)) {
-        messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> has no available space.`;
-      } else if (availableDays.remainingChairs.find(item => item.date === clickedDate && item.remainingChairs <= 0)) {
-        messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> is not available for ${selectedPeople} people.`;
-      }
-      timeInputContainer.style.display = "none"; // Hide time selection
-    }
-  }
-});
+   
 
 
 // When the time is selected, show the process button
@@ -462,10 +481,11 @@ processBtn.addEventListener("click", () => {
     });
 
   // Include selectedTime in the summary, and format selectedDate
-  summary.innerHTML = `You have selected <strong>${selectedPeople}</strong> people for the date <strong>${formatDate(selectedDate)}</strong> at <strong>${selectedTime}</strong>.`;
+  summary.innerHTML = `You have selected <strong>${selectedGuest}</strong> guest(s) for the date <strong>${formatDate(selectedDate)}</strong> at <strong>${selectedTime}</strong>.`;
   formSection.style.display = "block";
   calendarSection.style.display = "none";
 });
+
 
 // Handle form submission
 reservationForm.addEventListener("submit", async (e) => {
@@ -481,7 +501,7 @@ reservationForm.addEventListener("submit", async (e) => {
     name: document.getElementById("name").value,
     phone: document.getElementById("phone").value,
     email: document.getElementById("email").value,
-    peopleCount: selectedPeople,
+    guestCount: selectedGuest,
     date: selectedDate, // Ensure selectedDate is in correct format
     time: selectedTime,
     notes: document.getElementById("notes").value,

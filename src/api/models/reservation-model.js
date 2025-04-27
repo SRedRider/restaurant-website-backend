@@ -1,11 +1,17 @@
 const db = require('../../utils/database');
 
-
-
-const MAX_CHAIRS = 20;
+const getMaxChairs = async () => {
+  try {
+    const [rows] = await db.query('SELECT SUM(chairs) as totalChairs FROM tables');
+    return rows[0].totalChairs || 0;
+  } catch (err) {
+    console.error(err);
+    throw new Error('Error fetching total chairs from the database');
+  }
+};
 
 // Check availability and book reservation with transaction safety
-const checkAndBookReservation = async (date, time, peopleCount, details) => {
+const checkAndBookReservation = async (date, time, guestCount, details) => {
   const connection = await db.getConnection(); // Get a connection for transaction
 
   try {
@@ -13,53 +19,85 @@ const checkAndBookReservation = async (date, time, peopleCount, details) => {
     await connection.beginTransaction();
 
     // Validate input
-    if (!date || !time || !details.name || !details.phone || peopleCount <= 0) {
+    if (!date || !time || !details.name || !details.phone || guestCount <= 0) {
       throw new Error('Invalid input');
     }
 
-    // Check if there's already a reservation for the date
-    const [rows] = await connection.query(
-      'SELECT * FROM reservations WHERE date = ? FOR UPDATE', // Lock the row!
+    // Fetch existing reservations for the date
+    const [existingReservations] = await connection.query(
+      'SELECT allocated_tables, remaining_chairs FROM reservations WHERE date = ? FOR UPDATE',
       [date]
     );
 
-    const reservationId = Math.floor(10000 + Math.random() * 90000); // 5-digit random number
+    const allocatedTables = existingReservations.length > 0
+      ? existingReservations[0].allocated_tables.split(',').map(Number)
+      : [];
 
-    if (rows.length === 0) {
-      // No reservation exists for that day, create a new one
-      if (peopleCount > MAX_CHAIRS) {
-        throw new Error('Not enough chairs available for a new reservation');
-      }
+    // Fetch all tables with their chair counts
+    const [allTables] = await connection.query('SELECT id, chairs FROM tables');
 
-      const [result] = await connection.query(
-        'INSERT INTO reservations (date, remaining_chairs) VALUES (?, ?)',
-        [date, MAX_CHAIRS - peopleCount]
+    // Filter available tables
+    const availableTables = allTables.filter(table => !allocatedTables.includes(table.id));
+
+    // Sort available tables by chair count (ascending) for optimal allocation
+    availableTables.sort((a, b) => a.chairs - b.chairs);
+
+    // Allocate tables based on required chairs
+    let requiredChairs = guestCount;
+    const tablesToAllocate = [];
+
+    for (const table of availableTables) {
+      if (requiredChairs <= 0) break;
+      tablesToAllocate.push(table.id);
+      requiredChairs -= table.chairs;
+    }
+
+    if (requiredChairs > 0) {
+      throw new Error('Not enough chairs available for the selected day');
+    }
+
+    // Update the remaining chairs after allocating tables
+    const updatedRemainingChairs = existingReservations.length > 0
+      ? existingReservations[0].remaining_chairs - guestCount
+      : allTables.reduce((sum, table) => sum + table.chairs, 0) - guestCount;
+
+    if (existingReservations.length === 0) {
+      await connection.query(
+        'INSERT INTO reservations (date, remaining_chairs, allocated_tables) VALUES (?, ?, ?)',
+        [date, updatedRemainingChairs, tablesToAllocate.join(',')]
       );
     } else {
-      // Reservation exists, check remaining chairs
-      const remainingChairs = rows[0].remaining_chairs;
-      if (remainingChairs < peopleCount) {
-        throw new Error('Not enough chairs available for the selected day');
-      }
-
-      // Update remaining chairs
       await connection.query(
-        'UPDATE reservations SET remaining_chairs = ? WHERE id = ?',
-        [remainingChairs - peopleCount, rows[0].id]
+        'UPDATE reservations SET remaining_chairs = ?, allocated_tables = ? WHERE date = ?',
+        [
+          updatedRemainingChairs,
+          [...allocatedTables, ...tablesToAllocate].join(','),
+          date
+        ]
       );
     }
 
     // Insert into reservation_details
+    const reservationId = Math.floor(10000 + Math.random() * 90000); // 5-digit random number
     await connection.query(
-      'INSERT INTO reservation_details (reservation_id, name, phone, email, people_count, date, time, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [reservationId, details.name, details.phone, details.email, peopleCount, date, time, details.notes || '']
+      'INSERT INTO reservation_details (reservation_id, name, phone, email, guest_count, date, time, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [
+        reservationId,
+        details.name,
+        details.phone,
+        details.email,
+        guestCount,
+        date,
+        time,
+        details.notes || ''
+      ]
     );
 
     // Commit the transaction
     await connection.commit();
     connection.release();
 
-    return { success: true, reservationId };
+    return { success: true, reservationId};
   } catch (err) {
     console.error(err);
     if (connection) {
@@ -83,12 +121,11 @@ const getAllReservations = async () => {
 }
 
 // Fetch days with no chairs and days with remaining chairs
-const getDaysWithChairs = async () => {
+const getReservationDays = async () => {
   try {
     const [rows] = await db.query(`
-      SELECT DATE(date) as date, remaining_chairs 
+      SELECT DATE(date) as date, remaining_chairs, allocated_tables, status 
       FROM reservations 
-      WHERE remaining_chairs <= 20
       ORDER BY date
     `);
     return rows;
@@ -98,4 +135,7 @@ const getDaysWithChairs = async () => {
   }
 }
 
-module.exports = { checkAndBookReservation, getAllReservations, getDaysWithChairs };
+
+
+
+module.exports = { getMaxChairs, checkAndBookReservation, getAllReservations, getReservationDays };

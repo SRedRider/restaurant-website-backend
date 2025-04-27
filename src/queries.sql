@@ -39,6 +39,12 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+-- Dumping data for table restaurant.users: ~2 rows (approximately)
+DELETE FROM `users`;
+INSERT INTO `users` (`id`, `email`, `name`, `password`, `role`, `status`, `verified`, `verification_token`, `reset_token`, `reset_token_expiry`, `created_at`, `updated_at`) VALUES
+	(6, 'johndoe@example.com', 'John Doe', '$2b$10$sYqRREGoU7DtlTxzAyhq8O3f2aHKeYKTuU/mFb0JgTqM2RbmJMQm6', 'customer', 'enabled', 1, '054e62b48bc79605d8297ae8dd3c0991af07a1bdfec871f006ec14658d23b9bb', NULL, NULL, '2025-04-23 10:06:08', '2025-04-23 10:09:02'),
+	(7, 'johnadmin@example.com', 'John Admin', '$2b$10$rQkRqZsT3HP.4/Q1S0O2D.3m2OUmDveEdlmUzpfhCtLk3Ebwutm2y', 'admin', 'enabled', 1, 'a559ef68db2f7087981860d45833105d69c80dd1e13743eb62db456785913e58', NULL, NULL, '2025-04-23 10:56:38', '2025-04-23 10:57:01');
+
 -- Dumping structure for table restaurant.items
 DROP TABLE IF EXISTS `items`;
 CREATE TABLE IF NOT EXISTS `items` (
@@ -153,20 +159,13 @@ CREATE TABLE IF NOT EXISTS `reservations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `date` date NOT NULL,
   `remaining_chairs` int(11) DEFAULT 20,
+  `allocated_tables` varchar(255) DEFAULT NULL,
+  `status` enum('full','available') DEFAULT 'available',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table restaurant.reservations: ~8 rows (approximately)
+-- Dumping data for table restaurant.reservations: ~0 rows (approximately)
 DELETE FROM `reservations`;
-INSERT INTO `reservations` (`id`, `date`, `remaining_chairs`) VALUES
-	(16, '2025-04-19', 15),
-	(17, '2025-04-26', 0),
-	(18, '2025-04-24', 2),
-	(19, '2025-04-23', 3),
-	(21, '2025-04-28', 0),
-	(22, '2025-04-21', 0),
-	(23, '2025-04-27', 0),
-	(24, '2025-04-22', 0);
 
 -- Dumping structure for table restaurant.reservation_details
 DROP TABLE IF EXISTS `reservation_details`;
@@ -176,31 +175,15 @@ CREATE TABLE IF NOT EXISTS `reservation_details` (
   `name` varchar(255) NOT NULL,
   `phone` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `people_count` int(11) NOT NULL,
+  `guest_count` int(11) NOT NULL,
   `date` date NOT NULL,
   `time` time NOT NULL,
   `notes` text DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table restaurant.reservation_details: ~15 rows (approximately)
+-- Dumping data for table restaurant.reservation_details: ~0 rows (approximately)
 DELETE FROM `reservation_details`;
-INSERT INTO `reservation_details` (`id`, `reservation_id`, `name`, `phone`, `email`, `people_count`, `date`, `time`, `notes`) VALUES
-	(27, 16, 'John Doe', '+1234567890', 'johndoe@example.com', 5, '0000-00-00', '00:00:00', 'Celebrating anniversary'),
-	(28, 17, 'asd', '123', 'asd@asd.com', 15, '0000-00-00', '00:00:00', 'asdasdasd'),
-	(29, 17, 'asd', 'asdasd', 'asd@asd.com', 4, '0000-00-00', '00:00:00', 'asd'),
-	(30, 17, 'asd', '123', 'asd@asd.com', 1, '0000-00-00', '00:00:00', 'asdad'),
-	(31, 18, 'asd', '123', 'asd@asd.com', 18, '0000-00-00', '00:00:00', 'asdasdsad'),
-	(32, 19, 'asd', '123as', 'asd@asd.com', 17, '0000-00-00', '00:00:00', 'asdasd'),
-	(33, 21, 'asd', '123', 'asd@asd.com', 16, '2025-04-28', '23:05:00', 'asdasdasd'),
-	(34, 22, 'asd', '123', 'asd@asd.com', 19, '2025-04-21', '23:01:00', 'asdasd'),
-	(35, 88122, 'asd', '123', 'asd@asd.com', 1, '2025-04-21', '03:05:00', 'asdada'),
-	(36, 71760, 'asd', '123', 'asd@asd.com', 20, '2025-04-27', '00:07:00', 'adadasd'),
-	(37, 58350, 'asd', 'asdasd', 'asd@asd.com', 19, '2025-04-22', '00:14:00', 'asdasd'),
-	(38, 57526, 'asd', '123', 'asd@asd.com', 1, '2025-04-22', '00:14:00', 'asdasd'),
-	(39, 73939, 'asd', '123', 'hotah24133@naobk.com', 4, '2025-04-28', '00:46:00', 'asdasd'),
-	(40, 27555, 'asd', '123', 'asd@asd.com', 15, '2025-04-27', '00:52:00', 'asdasd'),
-	(41, 88943, 'asd', '123', 'asd@asd.com', 5, '2025-04-27', '04:47:00', 'asdasd');
 
 -- Dumping structure for table restaurant.restaurant_schedule
 DROP TABLE IF EXISTS `restaurant_schedule`;
@@ -218,17 +201,33 @@ CREATE TABLE IF NOT EXISTS `restaurant_schedule` (
 -- Dumping data for table restaurant.restaurant_schedule: ~4 rows (approximately)
 DELETE FROM `restaurant_schedule`;
 INSERT INTO `restaurant_schedule` (`id`, `date`, `open_time`, `close_time`, `status`, `message`) VALUES
-	(1, '2025-04-30', '08:00:00', '22:00:00', 'open', NULL),
+	(1, '2025-04-30', '08:00:00', '22:00:00', 'close', NULL),
 	(5, '2025-04-20', '08:00:00', '22:00:00', 'close', 'Holiday Special from 12 PM - 3 PM'),
 	(7, '2025-04-19', '08:00:00', '22:00:00', 'open', 'Holiday Special from 12 PM - 3 PM'),
 	(9, '2025-04-18', '08:00:00', '22:00:00', 'open', 'Holiday Special from 12 PM - 3 PM');
 
+-- Dumping structure for table restaurant.tables
+DROP TABLE IF EXISTS `tables`;
+CREATE TABLE IF NOT EXISTS `tables` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `table_number` int(11) NOT NULL,
+  `chairs` int(11) DEFAULT 5,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table restaurant.users: ~2 rows (approximately)
-DELETE FROM `users`;
-INSERT INTO `users` (`id`, `email`, `name`, `password`, `role`, `status`, `verified`, `verification_token`, `reset_token`, `reset_token_expiry`, `created_at`, `updated_at`) VALUES
-	(6, 'johndoe@example.com', 'John Doe', '$2b$10$sYqRREGoU7DtlTxzAyhq8O3f2aHKeYKTuU/mFb0JgTqM2RbmJMQm6', 'customer', 'enabled', 1, '054e62b48bc79605d8297ae8dd3c0991af07a1bdfec871f006ec14658d23b9bb', NULL, NULL, '2025-04-23 10:06:08', '2025-04-23 10:09:02'),
-	(7, 'johnadmin@example.com', 'John Admin', '$2b$10$rQkRqZsT3HP.4/Q1S0O2D.3m2OUmDveEdlmUzpfhCtLk3Ebwutm2y', 'admin', 'enabled', 1, 'a559ef68db2f7087981860d45833105d69c80dd1e13743eb62db456785913e58', NULL, NULL, '2025-04-23 10:56:38', '2025-04-23 10:57:01');
+-- Dumping data for table restaurant.tables: ~10 rows (approximately)
+DELETE FROM `tables`;
+INSERT INTO `tables` (`id`, `table_number`, `chairs`) VALUES
+	(1, 1, 5),
+	(2, 2, 5),
+	(3, 3, 5),
+	(4, 4, 5),
+	(5, 5, 5),
+	(6, 6, 5),
+	(7, 7, 5),
+	(8, 8, 5),
+	(9, 9, 5),
+	(10, 10, 10);
 
 -- Dumping structure for trigger restaurant.restore_meal_stock
 DROP TRIGGER IF EXISTS `restore_meal_stock`;
@@ -312,6 +311,65 @@ BEGIN
       SET NEW.stock = 'no';
     END IF;
   END IF;
+END//
+DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
+
+-- Dumping structure for trigger restaurant.update_reservation_status
+DROP TRIGGER IF EXISTS `update_reservation_status`;
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+CREATE TRIGGER update_reservation_status
+BEFORE INSERT ON reservations
+FOR EACH ROW
+BEGIN
+    DECLARE total_tables INT;
+    DECLARE allocated_count INT;
+    
+    -- Count the total number of tables
+    SELECT COUNT(*) INTO total_tables FROM tables;
+    
+    -- Count how many tables are allocated (by counting commas + 1)
+    IF NEW.allocated_tables IS NULL OR NEW.allocated_tables = '' THEN
+        SET allocated_count = 0;
+    ELSE
+        SET allocated_count = LENGTH(NEW.allocated_tables) - LENGTH(REPLACE(NEW.allocated_tables, ',', '')) + 1;
+    END IF;
+    
+    -- Compare and set the status
+    IF allocated_count >= total_tables THEN
+        SET NEW.status = 'full';
+    ELSE
+        SET NEW.status = 'available';
+    END IF;
+END//
+DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
+
+-- Dumping structure for trigger restaurant.update_reservation_status_on_update
+DROP TRIGGER IF EXISTS `update_reservation_status_on_update`;
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+CREATE TRIGGER update_reservation_status_on_update
+BEFORE UPDATE ON reservations
+FOR EACH ROW
+BEGIN
+    DECLARE total_tables INT;
+    DECLARE allocated_count INT;
+    
+    SELECT COUNT(*) INTO total_tables FROM tables;
+    
+    IF NEW.allocated_tables IS NULL OR NEW.allocated_tables = '' THEN
+        SET allocated_count = 0;
+    ELSE
+        SET allocated_count = LENGTH(NEW.allocated_tables) - LENGTH(REPLACE(NEW.allocated_tables, ',', '')) + 1;
+    END IF;
+    
+    IF allocated_count >= total_tables THEN
+        SET NEW.status = 'full';
+    ELSE
+        SET NEW.status = 'available';
+    END IF;
 END//
 DELIMITER ;
 SET SQL_MODE=@OLDTMP_SQL_MODE;
