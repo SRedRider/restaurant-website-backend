@@ -40,6 +40,8 @@
                         <th data-field="notes" data-sortable="false" data-filter-control="input">Notes</th>
                         <th data-field="total_price" data-sortable="true" data-filter-control="input">Total Price</th>
                         <th data-field="status" data-sortable="true" data-filter-control="select">Status</th>
+                        <th data-field="created_at" data-sortable="true" data-filter-control="input">Created At</th>
+                        <th data-field="updated_at" data-sortable="true" data-filter-control="input">Updated At</th>
                         <th data-field="action" data-sortable="false">Action</th>
                     </tr>
                 </thead>
@@ -52,7 +54,7 @@
 
     <!-- Modal for viewing order details -->
     <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="orderModalLabel">Order Details</h5>
@@ -70,7 +72,7 @@
 
     <!-- Add Edit Order Modal -->
 <div class="modal fade" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editOrderModalLabel">Edit Order</h5>
@@ -90,6 +92,14 @@
                         <label for="editCustomerEmail" class="form-label">Email</label>
                         <input type="email" class="form-control" id="editCustomerEmail" name="customer_email" required>
                     </div>
+                        <!-- Add Items Section to Edit Order Modal -->
+                        <div class="mb-3">
+                        <label for="editItems" class="form-label">Items</label>
+                        <div id="editItems">
+                            <!-- Items will be dynamically added here -->
+                        </div>
+                        <button type="button" class="btn btn-secondary" id="addItemButton">Add Item</button>
+                    </div>
                     <div class="mb-3">
                         <label for="editMethod" class="form-label">Method</label>
                         <select class="form-select" id="editMethod" name="method" required>
@@ -97,13 +107,31 @@
                             <option value="delivery">Delivery</option>
                         </select>
                     </div>
-                    <div class="mb-3" id="editAddressSection">
-                        <label for="editAddress" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="editAddress" name="address">
+                    <div id="editAddressSection" style="display: none;">
+                        <div class="mb-3">
+                            <label for="editStreet" class="form-label">Street</label>
+                            <input type="text" class="form-control" id="editStreet" name="street">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPostalCode" class="form-label">Postal Code</label>
+                            <input type="text" class="form-control" id="editPostalCode" name="postalCode">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCity" class="form-label">City</label>
+                            <input type="text" class="form-control" id="editCity" name="city">
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="editScheduledTime" class="form-label">Scheduled Time</label>
-                        <input type="datetime-local" class="form-control" id="editScheduledTime" name="scheduled_time" required>
+                        <div>
+                            <input type="radio" id="scheduledNow" name="scheduledTimeOption" value="now" checked>
+                            <label for="scheduledNow">Now</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="scheduledSpecific" name="scheduledTimeOption" value="specific">
+                            <label for="scheduledSpecific">Specific Date & Time</label>
+                        </div>
+                        <input type="datetime-local" class="form-control mt-2" id="editScheduledTime" name="scheduled_time" disabled>
                     </div>
                     <div class="mb-3">
                         <label for="editNotes" class="form-label">Notes</label>
@@ -119,14 +147,6 @@
                         </select>
                     </div>
 
-                    <!-- Add Items Section to Edit Order Modal -->
-                    <div class="mb-3">
-                        <label for="editItems" class="form-label">Items</label>
-                        <div id="editItems">
-                            <!-- Items will be dynamically added here -->
-                        </div>
-                        <button type="button" class="btn btn-secondary" id="addItemButton">Add Item</button>
-                    </div>
 
                     <div class="mb-3">
                         <label for="editTotalPrice" class="form-label">Total Price</label>
@@ -134,11 +154,39 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <!-- Add an error text container below the Save Changes button -->
+                    <div id="formErrorContainer" class="text-danger mt-2 d-none">
+                        <ul id="formErrorList"></ul>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+
+<script>
+// Function to show form errors below the Save Changes button
+function showFormErrors(errors) {
+    const errorContainer = document.getElementById('formErrorContainer');
+    const errorList = document.getElementById('formErrorList');
+    errorList.innerHTML = '';
+
+    errors.forEach(error => {
+        const listItem = document.createElement('li');
+        listItem.textContent = error;
+        errorList.appendChild(listItem);
+    });
+
+    errorContainer.classList.remove('d-none');
+}
+
+// Function to hide form errors
+function hideFormErrors() {
+    const errorContainer = document.getElementById('formErrorContainer');
+    errorContainer.classList.add('d-none');
+}
+</script>
 
 <script>
     // Show or hide address field based on method selection

@@ -335,6 +335,194 @@ const editOrder = async (req, res) => {
       return res.status(500).json({ message: 'Failed to update the order' });
     }
 
+    // If the status is "ready", send an email to the customer
+    if (status === 'ready') {
+      const emailContent = method === 'pickup'
+        ? `<p>Your food is ready to be picked up. Please visit our restaurant to collect your order.</p>`
+        : `<p>Your food is ready to be delivered. It will be on its way shortly to the address provided.</p>`;
+
+      const emailSubject = `Your Order #${orderId} is Ready`;
+
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0D0D0D; /* Dark background */
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        /* Container */
+        .container {
+            background-color: #1C1C1C;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        /* Header (Logo Section) */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header img {
+            max-width: 150px; /* Adjust size of your logo */
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #F7B41A;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: #F7B41A;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .highlight {
+            color: #F7B41A;
+            font-weight: bold;
+        }
+
+        .total-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #F7B41A;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #F7B41A;
+            margin-top: 30px;
+        }
+
+        a {
+            color: #F7B41A;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #FFB84D;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #F7B41A;
+        }
+
+        th {
+            background-color: #333;
+        }
+
+        /* Responsive Design for Small Screens */
+        @media screen and (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+
+            .total-price {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo Section -->
+        <div class="header">
+            <img src="https://users.metropolia.fi/~quangth/restaurant/images/logo_trimmed.png" alt="Company Logo"> <!-- Replace with your logo path -->
+        </div>
+        
+        <h1>Your Order is Ready</h1>
+        <p>Dear <span class="highlight">${customer_name}</span>,</p>
+
+        ${emailContent}
+
+        <p>Payment will be made at the time of receiving your order. Thank you</p>
+        <p style="margin-top: 50px;">If you have any questions, feel free to <a href="mailto:burgersinhelsinki@gmail.com">contact us via email</p></a>
+
+        <div class="footer">
+            <p>Best regards,</p>
+            <p>&copy; 2025 <a href="https://users.metropolia.fi/~quangth/restaurant/">Burger Company</a>. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: customer_email,
+        subject: emailSubject,
+        html: htmlContent,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Failed to send email:', error);
+        } else {
+          console.log('Email sent:', info.response);
+        }
+      });
+    }
+
     res.status(200).json({ message: 'Order updated successfully', order: updatedOrder });
   } catch (error) {
     console.error(error);
@@ -530,9 +718,8 @@ const sendOrderConfirmationEmail = async (email, order) => {
         ${order.method === 'delivery' ? `
           <div class="address">
             <h3>Delivery Address</h3>
-            <p><strong>Street:</strong> ${order.address.street}</p>
-            <p><strong>City:</strong> ${order.address.city}</p>
-            <p><strong>Postal Code:</strong> ${order.address.postalCode}</p>
+            <p><strong>${order.address.street}</p>
+            <p><strong>${order.address.postalCode} ${order.address.city}</p>
           </div>
         ` : ''}
 
@@ -559,8 +746,9 @@ const sendOrderConfirmationEmail = async (email, order) => {
 
         <h3 style="margin-top:50px">Total Price</h3>
         <p class="total-price">${totalPrice.toFixed(2)}€</p>
+        <p>Payment will be made at the time of receiving your order. Thank you</p>
 
-        <p style="margin-top: 50px;">If you have any questions, feel free to <a href="mailto:burgersinhelsinki@gmail.com">contact us via email</p></a>
+        <p style="margin-top: 50px; text-align: center;">If you have any questions, feel free to <a href="mailto:burgersinhelsinki@gmail.com">contact us via email</p></a>
 
         <div class="footer">
             <p>Best regards,</p>

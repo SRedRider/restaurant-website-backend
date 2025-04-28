@@ -56,6 +56,7 @@ async function viewOrderDetails(orderId) {
         }[order.status] || `<span class="badge bg-secondary">${order.status}</span>`;
 
         modalBody.innerHTML = `
+            <p><strong>Status:</strong> ${statusBadge}</p>
             <p><strong>Order ID:</strong> ${order.order_id}</p>
             <p><strong>Customer Name:</strong> ${order.customer_name}</p>
             <p><strong>Phone:</strong> ${order.customer_phone}</p>
@@ -65,8 +66,13 @@ async function viewOrderDetails(orderId) {
             ${addressSection}
             <p><strong>Scheduled Time:</strong> ${order.scheduled_time}</p>
             <p><strong>Notes:</strong> ${order.notes}</p>
-            <p><strong>Total Price:</strong> €${totalPrice.toFixed(2)}</p>
-            <p><strong>Status:</strong> ${statusBadge}</p>
+            <p><strong>Total Order Price:</strong> €${totalPrice.toFixed(2)}</p>
+            <div class="row mt-4">
+            <div class="col-md-12 text-end mt-5">
+                <p><strong>Created At:</strong> ${new Date(order.created_at).toLocaleString('fi-FI')}</p>
+                <p><strong>Updated At:</strong> ${new Date(order.updated_at).toLocaleString('fi-FI')}</p>
+            </div>
+            </div>
         `;
     } catch (error) {
         console.error('Error fetching order details:', error);
@@ -208,18 +214,45 @@ async function populateEditOrderModal(orderId) {
         document.getElementById('editCustomerPhone').value = order.customer_phone;
         document.getElementById('editCustomerEmail').value = order.customer_email;
         document.getElementById('editMethod').value = order.method;
-        document.getElementById('editAddress').value = order.address ? `${order.address.street}, ${order.address.postalCode}, ${order.address.city}` : '';
-        document.getElementById('editScheduledTime').value = order.scheduled_time;
         document.getElementById('editNotes').value = order.notes;
         document.getElementById('editStatus').value = order.status;
         document.getElementById('editTotalPrice').value = parseFloat(order.total_price).toFixed(2); // Ensure total price is a number
 
+        // Populate scheduled time field and radio buttons
+        if (order.scheduled_time === 'Now') {
+            document.getElementById('scheduledNow').checked = true;
+            document.getElementById('editScheduledTime').disabled = true;
+        } else {
+            document.getElementById('scheduledSpecific').checked = true;
+            document.getElementById('editScheduledTime').disabled = false;
+            document.getElementById('editScheduledTime').value = order.scheduled_time;
+        }
+
         // Populate items
         populateEditItems(order.items);
 
-        // Show or hide address field based on method
-        const addressSection = document.getElementById('editAddressSection');
-        addressSection.style.display = order.method === 'delivery' ? 'block' : 'none';
+        // Show or hide address fields based on method selection
+        document.getElementById('editMethod').addEventListener('change', function() {
+            const addressSection = document.getElementById('editAddressSection');
+            if (this.value === 'delivery') {
+                addressSection.style.display = 'block';
+            } else {
+                addressSection.style.display = 'none';
+                document.getElementById('editStreet').value = '';
+                document.getElementById('editPostalCode').value = '';
+                document.getElementById('editCity').value = '';
+            }
+        });
+
+        // Populate address fields if method is delivery
+        if (order.method === 'delivery' && order.address) {
+            document.getElementById('editStreet').value = order.address.street || '';
+            document.getElementById('editPostalCode').value = order.address.postalCode || '';
+            document.getElementById('editCity').value = order.address.city || '';
+            document.getElementById('editAddressSection').style.display = 'block';
+        } else {
+            document.getElementById('editAddressSection').style.display = 'none';
+        }
 
         // Store order ID for submission
         document.getElementById('editOrderForm').dataset.orderId = orderId;
@@ -232,23 +265,30 @@ document.getElementById('editOrderForm').addEventListener('submit', async functi
     event.preventDefault();
 
     const orderId = this.dataset.orderId;
+    const scheduledTimeOption = document.querySelector('input[name="scheduledTimeOption"]:checked').value;
+    const scheduledTime = scheduledTimeOption === 'now' ? 'Now' : document.getElementById('editScheduledTime').value;
+
     const updatedOrder = {
-        order_id: orderId,  // Add orderId to the updated order
+        order_id: orderId,
         customer_name: document.getElementById('editCustomerName').value,
         customer_phone: document.getElementById('editCustomerPhone').value,
         customer_email: document.getElementById('editCustomerEmail').value,
-        method: document.getElementById('editMethod').value,
-        address: document.getElementById('editMethod').value === 'delivery' ? document.getElementById('editAddress').value : null,
-        scheduled_time: document.getElementById('editScheduledTime').value,
-        notes: document.getElementById('editNotes').value,
-        status: document.getElementById('editStatus').value,
-        total_price: parseFloat(document.getElementById('editTotalPrice').value).toFixed(2), // Round to 2 decimal places
         items: Array.from(document.querySelectorAll('#editItems .item-row')).map(row => ({
             id: parseInt(row.querySelector('.item-id').value, 10),
             quantity: parseInt(row.querySelector('.item-quantity').value, 10),
             price: parseFloat(row.querySelector('.item-price').value),
             type: row.querySelector('.item-type').value
-        }))
+        })),
+        method: document.getElementById('editMethod').value,
+        address: document.getElementById('editMethod').value === 'delivery' ? {
+            street: document.getElementById('editStreet').value,
+            postalCode: document.getElementById('editPostalCode').value,
+            city: document.getElementById('editCity').value
+        } : null,
+        scheduled_time: scheduledTime,
+        notes: document.getElementById('editNotes').value,
+        total_price: parseFloat(document.getElementById('editTotalPrice').value).toFixed(2),
+        status: document.getElementById('editStatus').value
     };
 
     // Log the entire updated order including order_id in a pretty-printed JSON format
@@ -271,6 +311,7 @@ document.getElementById('editOrderForm').addEventListener('submit', async functi
 
         // Log the updated order in the console for debugging
         console.log('Order successfully updated!');
+        window.location.reload();  // Reload the page to reflect changes
 
         // Close modal
         const editOrderModal = bootstrap.Modal.getInstance(document.getElementById('editOrderModal'));
@@ -278,9 +319,7 @@ document.getElementById('editOrderForm').addEventListener('submit', async functi
     } catch (error) {
         // Log the error message from the API or the generic error message
         console.error('Error updating order:', error.message);
-        
-        // Optionally, you can display the error message to the user
-        alert(`Error: ${error.message}`);
+        showFormErrors([`Error: ${error.message}`]);
     }
 });
 
@@ -332,6 +371,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <td>${order.notes}</td>
                     <td>${order.total_price}€</td>
                     <td>${statusBadge}</td>
+                    <td>${new Date(order.created_at).toLocaleString('fi-FI')}</td>
+                    <td>${new Date(order.updated_at).toLocaleString('fi-FI')}</td>
                     <td>
                         <button class="btn btn-primary view-order" onclick="viewOrderDetails(${order.order_id})" data-bs-toggle="modal" data-bs-target="#orderModal">View</button>
                         <button class="btn btn-secondary edit-order" onclick="populateEditOrderModal(${order.order_id})" data-bs-toggle="modal" data-bs-target="#editOrderModal">Edit</button>
@@ -347,4 +388,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     fetchOrders();
+});
+
+
+// Handle enabling/disabling the scheduled time input based on the selected option
+document.querySelectorAll('input[name="scheduledTimeOption"]').forEach(option => {
+    option.addEventListener('change', function () {
+        const scheduledTimeInput = document.getElementById('editScheduledTime');
+        if (this.value === 'specific') {
+            scheduledTimeInput.disabled = false; // Enable the input when 'Specific Date & Time' is selected
+        } else {
+            scheduledTimeInput.disabled = true; // Disable the input when 'Now' is selected
+        }
+    });
 });
