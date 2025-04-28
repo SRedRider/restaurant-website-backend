@@ -1,6 +1,6 @@
 const express = require('express');
 const authController = require('../controllers/auth-controller');
-const { isAdmin } = require('../../middleware/auth-middleware');
+const { isAdmin, isAdminOrUser } = require('../../middleware/auth-middleware');
 const router = express.Router();
 
 router.post('/register', authController.registerUser);
@@ -12,5 +12,8 @@ router.post('/forgot-password', authController.forgotPassword);
 
 // Reset password route
 router.post('/reset-password', authController.resetPassword);
+
+// Get current user by token
+router.get('/current-user', isAdminOrUser, authController.getCurrentUser);
 
 module.exports = router;

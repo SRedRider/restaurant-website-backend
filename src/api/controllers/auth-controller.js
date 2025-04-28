@@ -107,7 +107,7 @@ const loginUser = async (req, res) => {
     // Generate JWT token
     const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    res.status(200).json({ message: 'Login successful', token });
+    res.status(200).json({ message: 'Login successful', token, data: { id: user.id, name: user.name, email: user.email, role: user.role } });
 };
 
 // Verify user email
@@ -228,11 +228,36 @@ const getAllUsers = async (req, res) => {
     }
 };
 
+// Get current user by token
+const getCurrentUser = async (req, res) => {
+    try {
+        const userId = req.user.userId; // Extracted from the token by middleware
+        const user = await userModel.getUserById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        res.status(200).json({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            status: user.status,
+            verified: user.verified
+        });
+    } catch (error) {
+        console.error('Error fetching current user:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
     verifyEmail,
     forgotPassword,
     resetPassword,
-    getAllUsers
+    getAllUsers,
+    getCurrentUser
 };

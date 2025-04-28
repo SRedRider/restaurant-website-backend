@@ -106,6 +106,36 @@
             window.location.href = 'login.html';
         }
 
+        // Fetch and display user information
+        const fetchUserInfo = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/v1/current-user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user information');
+                }
+
+                const user = await response.json();
+                const userInfoContainer = document.getElementById('userInfo');
+
+                userInfoContainer.innerHTML = `
+                    <h2>Welcome, ${user.name}</h2>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>Role:</strong> ${user.role}</p>
+                    
+                `;
+            } catch (error) {
+                console.error(error);
+                document.getElementById('userInfo').innerText = 'Error fetching user information';
+            }
+        };
+
+        fetchUserInfo();
+
         // Logout functionality
         const logoutButton = document.getElementById('logoutButton');
         logoutButton.addEventListener('click', () => {
@@ -115,5 +145,7 @@
             window.location.href = 'login.html';
         });
     </script>
+
+<div id="userInfo"></div>
 </body>
 </html>

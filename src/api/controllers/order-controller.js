@@ -262,95 +262,159 @@ const sendOrderConfirmationEmail = async (email, order) => {
       <tr>
         <td>${item.details ? item.details.name : 'N/A'}</td>
         <td>${item.quantity}</td>
-        <td>${item.price.toFixed(2)}</td>
-        <td>${(item.quantity * item.price).toFixed(2)}</td>
+        <td>${item.price.toFixed(2)}€</td>
+        <td>${(item.quantity * item.price).toFixed(2)}€</td>
       </tr>
     `;
   });
 
   const htmlContent = `
-    <html>
-    <head>
-      <style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body Styling */
         body {
-          font-family: Arial, sans-serif;
-          background-color: #f4f4f4;
-          color: #333;
-          margin: 0;
-          padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0D0D0D; /* Dark background */
+            line-height: 1.6;
+            padding: 20px;
         }
+
+        /* Container */
         .container {
-          max-width: 600px;
-          margin: 40px auto;
-          background-color: #fff;
-          padding: 30px;
-          border-radius: 8px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #1C1C1C;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            color: white;
         }
+
+        /* Header (Logo Section) */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header img {
+            max-width: 150px; /* Adjust size of your logo */
+            margin-bottom: 20px;
+        }
+
         h1 {
-          color: #4CAF50;
-          text-align: center;
-          margin-bottom: 20px;
+            font-size: 2.5rem;
+            color: #F7B41A;
+            text-align: center;
+            margin-bottom: 20px;
         }
+
         h3 {
-          color: #333;
-          margin-top: 20px;
-          margin-bottom: 10px;
+            font-size: 1.5rem;
+            color: #F7B41A;
+            margin-top: 20px;
+            margin-bottom: 10px;
         }
+
         p {
-          line-height: 1.6;
-          margin-bottom: 15px;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: white;
         }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 20px;
+
+        .highlight {
+            color: #F7B41A;
+            font-weight: bold;
         }
-        th, td {
-          padding: 12px 15px;
-          text-align: left;
-          border: 1px solid #ddd;
-        }
-        th {
-          background-color: #f2f2f2;
-        }
+
         .total-price {
-          font-size: 20px;
-          font-weight: bold;
-          color: #4CAF50;
-          margin-top: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #F7B41A;
         }
-        .address, .info {
-          background-color: #f9f9f9;
-          padding: 15px;
-          border-radius: 4px;
-          margin-top: 20px;
-        }
+
         .footer {
-          text-align: center;
-          margin-top: 40px;
-          color: #777;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #F7B41A;
+            margin-top: 30px;
         }
-        .footer p {
-          margin: 5px 0;
+
+        a {
+            color: #F7B41A;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
         }
-        .header, .footer p {
-          margin-bottom: 10px;
+
+        a:hover {
+            color: #FFB84D;
         }
-      </style>
-    </head>
-    <body>
-      <div class="container">
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #F7B41A;
+        }
+
+        th {
+            background-color: #333;
+        }
+
+        /* Responsive Design for Small Screens */
+        @media screen and (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+
+            .total-price {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo Section -->
+        <div class="header">
+            <img src="https://users.metropolia.fi/~quangth/restaurant/images/logo_trimmed.png" alt="Company Logo"> <!-- Replace with your logo path -->
+        </div>
+        
         <h1>Order Confirmation</h1>
-        <p>Dear ${order.customer_name},</p>
+        <p>Dear <span class="highlight">${order.customer_name}</span>,</p>
         <p>Thank you for your order! Your order has been successfully received. Here are the details:</p>
 
         <h3>Order Information</h3>
         <p><strong>Order ID:</strong> ${order.order_id}</p>
         <p><strong>Order Created At:</strong> ${createdAt}</p>
-        <p><strong>Name:</strong> ${order.customer_name}</p>
-        <p><strong>Phone:</strong> ${order.customer_phone}</p>
-        <p><strong>Email:</strong> ${order.customer_email}</p>
         <p><strong>Method:</strong> ${order.method}</p>
 
         ${order.method === 'delivery' ? `
@@ -364,37 +428,37 @@ const sendOrderConfirmationEmail = async (email, order) => {
 
         <h3>Items</h3>
         <table>
-          <thead>
-            <tr>
-              <th>Item Name</th>
-              <th>Quantity</th>
-              <th>Price</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsTable}
-          </tbody>
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${itemsTable}
+            </tbody>
         </table>
 
         <div class="info">
-          <h3>Additional Information</h3>
-          <p><strong>Notes:</strong> ${order.notes || 'None'}</p>
-          <p><strong>Scheduled Food Ready:</strong> ${scheduledTime}</p>
+            <h3>Additional Information</h3>
+            <p><strong>Notes:</strong> ${order.notes || 'None'}</p>
+            <p><strong>Scheduled Food Ready:</strong> ${scheduledTime}</p>
         </div>
 
-        <h3>Total Price</h3>
+        <h3 style="margin-top:50px">Total Price</h3>
         <p class="total-price">${totalPrice.toFixed(2)}€</p>
 
-        <p>If you have any questions, feel free to contact us.</p>
+        <p style="margin-top: 50px;">If you have any questions, feel free to <a href="mailto:burgersinhelsinki@gmail.com">contact us via email</p></a>
 
         <div class="footer">
-          <p>Best regards,</p>
-          <p>Your Company Name</p>
+            <p>Best regards,</p>
+            <p>&copy; 2025 <a href="https://users.metropolia.fi/~quangth/restaurant/">Burger Company</a>. All rights reserved.</p>
         </div>
-      </div>
-    </body>
-    </html>
+    </div>
+</body>
+</html>
   `;
 
   // Set up the nodemailer transporter

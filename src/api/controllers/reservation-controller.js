@@ -10,6 +10,15 @@ const bookReservation = async (req, res) => {
     return res.status(400).json({ success: false, message: 'All fields are required' });
   }
 
+  const phoneRegex = /^(?:\+358|0)\d{8,9}$/;
+  if (!phone || !phoneRegex.test(phone)) {
+    return res.status(400).json({success: false, message: 'Invalid phone number format. Expected Finnish format: +358XXXXXXXXX or 0XXXXXXXXX' });
+  }
+
+  if (email && !/\S+@\S+\.\S+/.test(email)) {
+    return res.status(400).json({ success: false, message: 'Invalid email format' });
+  }
+
   if (guestCount <= 0 || guestCount > 10) { 
     return res.status(400).json({ success: false, message: 'Invalid number of guests' });
   }
@@ -105,83 +114,122 @@ const sendConfirmationEmail = async (email, name, reservationDate, reservationTi
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservation Confirmation</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
+        /* General Reset */
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            font-size: 28px;
-            margin-bottom: 20px;
-        }
-        p {
-            font-size: 16px;
+
+        /* Body Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
             line-height: 1.6;
-            margin: 10px 0;
+            padding: 20px;
         }
-        .highlight {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-        .button {
-            display: inline-block;
-            padding: 12px 20px;
-            margin-top: 20px;
-            background-color: #3498db;
+
+        /* Container for the reservation confirmation */
+        .container {
+            background-color: #0D0D0D;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             color: white;
-            text-decoration: none;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header img {
+            max-width: 200px; /* Adjust size as needed */
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #F7B41A;
+            text-align: center;
+        }
+
+        /* Highlight Class for Important Information */
+        .highlight {
             font-weight: bold;
-            border-radius: 5px;
-            text-align: center;
+            color: #F7B41A;
         }
-        .button:hover {
-            background-color: #2980b9;
+
+        /* Main Paragraph Styling */
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: white;
         }
+
+        /* Styling for Footer */
         .footer {
-            margin-top: 30px;
-            font-size: 14px;
             text-align: center;
-            color: #7f8c8d;
+            font-size: 0.9rem;
+            color: #c9c7c7;
+            margin-top: 50px;
         }
-        .footer a {
-            color: #3498db;
+
+        /* Links */
+        a {
             text-decoration: none;
+            color: #F7B41A;
+            font-weight: bold;
+            transition: color 0.3s ease;
         }
-        .footer a:hover {
-            text-decoration: underline;
+
+        a:hover {
+            color: #F7B41A;
+        }
+
+        /* Responsive Design for Small Screens */
+        @media screen and (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Logo Section -->
+        <div class="header">
+            <img src="https://users.metropolia.fi/~quangth/restaurant/images/logo_trimmed.png" alt="Restaurant Logo"> <!-- Replace with your logo path -->
+        </div>
+        
         <h1>Reservation Confirmation</h1>
-        <p>Dear <span class="highlight">${name}</span>,</p>
-        <p>Thank you for choosing our restaurant! We are delighted to confirm your reservation for <span class="highlight">${guestCount}</span> guest(s) on <span class="highlight">${formattedDate}</span> at <span class="highlight">${reservationTime}</span>. ${notes ? `Additional notes: <span class="highlight">${notes}</span>.` : ''}</p>
+        <p style="margin-top: 30px;">Dear <span class="highlight">${name}</span>,</p>
+        <p>Thank you for choosing our restaurant! We are pleased to confirm your reservation for <span class="highlight">${guestCount}</span> guest(s) on <span class="highlight">${formattedDate}</span> at <span class="highlight">${reservationTime}</span>.</p>
+        <p>${notes ? `Additional notes: <span class="highlight">${notes}</span>.` : ''}</p>
 
-        <p>Please arrive a few minutes early to ensure a smooth seating process. If you need to modify or cancel your reservation, contact us at least 24 hours in advance.</p>
+        <p>We kindly ask that you arrive a few minutes early to ensure a smooth seating process. </p>
+            
+        <p>Should you need to make any changes or cancel your reservation, please <a href="mailto:burgersinhelsinki@gmail.com" class="highlight">contact us via email</a> at least 24 hours in advance.</p>
 
-        <a href="mailto:burgersinhelsinki@gmail.com" class="button">Contact Us</a>
 
         <div class="footer">
             <p>We look forward to welcoming you!</p>
-            <p>&copy; 2025 Your Restaurant. All rights reserved.</p>
+            <p>&copy; 2025 <a href="https://users.metropolia.fi/~quangth/restaurant/">Burger Company</a>. All rights reserved.</p>
         </div>
     </div>
 </body>
 </html>
-
     `,
   };
 

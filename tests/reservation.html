@@ -84,6 +84,10 @@
       background: #888;
       color: #fff;
     }
+    .days li.open-with-time {
+      background: #17a2b8;
+      color: #fff;
+    }
     .days li.green {
       background: #28a745;
       color: #fff;
@@ -94,10 +98,10 @@
         font-weight: bold;
     }
     .days li.disabled {
-  background: #ccc;
-  color: #777;
-  pointer-events: none; /* Disable clicking */
-}
+      background: #ccc;
+      color: #777;
+      pointer-events: none; /* Disable clicking */
+    }
 
     .input-container, .message-container {
       margin-top: 20px;
@@ -169,7 +173,9 @@
 
 <body>
 
+  
 <div class="wrapper" id="calendar-section">
+  <h2>Reservation Calendar</h2>
     <div class="input-container" id="date-input">
         <label for="guest">Guests:</label>
         <select id="guest">
@@ -196,6 +202,7 @@
     <div id="time-input" style="display: none;">
       <label for="time">Select Time:</label>
       <input type="time" id="time" />
+      <p id="time-error"></p>
       <button id="process-btn" style="display: none;">Proceed to Form</button>
     </div>    
   </div>
@@ -246,7 +253,8 @@
       noChairs: [],
       remainingChairs: [],
       closedDays: [],  // Track closed days
-      notAvailable: []  // Track not available days
+      notAvailable: [],  // Track not available days
+      openDaysWithTime: [] // Track open days with specific open and close times
     };
 
     let selectedDate = "";
@@ -276,8 +284,16 @@
       try {
         const scheduleResponse = await fetch('http://localhost:3000/api/v1/schedule');
         const scheduleData = await scheduleResponse.json();
+
         availableDays.closedDays = scheduleData.filter(item => item.status === 'close').map(item => ({
           date: item.date,
+          message: item.message || "No special message available"
+        }));
+
+        availableDays.openDaysWithTime = scheduleData.filter(item => item.status === 'open' && item.open_time && item.close_time).map(item => ({
+          date: item.date,
+          openTime: item.open_time,
+          closeTime: item.close_time,
           message: item.message || "No special message available"
         }));
       } catch (error) {
@@ -347,9 +363,11 @@
         status = "no-chairs";
     } else if (availableDays.notAvailable.some(item => item.date === currentDateString)) {
         status = "not-available";
+    } else if (availableDays.openDaysWithTime.some(item => item.date === currentDateString)) {
+        status = "open-with-time";
     }
 
-    let isAvailable = status === "green";
+    let isAvailable = status === "green" || status === "open-with-time";
     let selectedClass = (currentDateString === selectedDate && isAvailable) ? "selected" : "";
 
     liTag += `<li class="${isToday} ${status} ${selectedClass}" data-date="${currentDateString}">${i}</li>`;
@@ -369,34 +387,54 @@
 
 
 
+// Check if the currently selected time is within the new limits
+
 // Event listener for day click
 document.addEventListener("click", (e) => {
   if (e.target && e.target.tagName === "LI") {
     const clickedDate = e.target.getAttribute("data-date");
-    const clickedDay = e.target.classList.contains("green");  // Check if clicked day is green (available)
+    const clickedDay = e.target.classList.contains("green") || e.target.classList.contains("open-with-time");
 
+    
     if (clickedDay) {
-  // Available day (green)
-  selectedDate = clickedDate;
-  const formattedDate = formatDate(selectedDate);
-  messageContainer.innerHTML = `Selected Date: <strong>${formattedDate}</strong><br> Please select a time:`;
-  timeInputContainer.style.display = "block";
-  processBtn.style.display = "none";
-  renderCalendar();
-} else {
-  // Special cases
-  const closedDay = availableDays.closedDays.find(item => item.date === clickedDate);
-  if (closedDay) {
-    messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> is closed.<br>${closedDay.message || "No special message available"}`;
-  } else if (availableDays.noChairs.includes(clickedDate)) {
-    messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> has no available space.`;
-  } else if (availableDays.remainingChairs.find(item => item.date === clickedDate && item.remainingChairs <= 0)) {
-    messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> is not available for ${selectedGuest} guest(s).`;
-  } else if (availableDays.notAvailable.find(item => item.date === clickedDate)) {
-    messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> is not available for ${selectedGuest} guest(s).`;
-  }
-  timeInputContainer.style.display = "none"; 
-}
+      const currentSelectedTime = timeInput.value;
+    selectedDate = clickedDate;
+    const formattedDate = formatDate(selectedDate);
+    const openDay = availableDays.openDaysWithTime.find(item => item.date === selectedDate);
+
+    if (openDay) {
+      messageContainer.innerHTML = `Selected Date: <strong>${formattedDate}</strong><br><p style="margin-top:10px; margin-bottom:10px; color:red">Restaurant Open Time: <strong>${openDay.openTime}</strong> - Close Time: <strong>${openDay.closeTime}</strong><br>${openDay.message}</p>`;
+      updateTimeInputLimits(openDay.openTime, openDay.closeTime); // Update time input limits
+      timeInputContainer.style.display = "block";
+    } else {
+      // Default time for green days
+      messageContainer.innerHTML = `Selected Date: <strong>${formattedDate}</strong><br> <p style="margin-top:10px; margin-bottom:10px;">Please select a time between 9:00 - 20:00</p>`;
+      updateTimeInputLimits("09:00", "21:00"); // Default time for green days
+      timeInputContainer.style.display = "block";
+    }
+
+    if (currentSelectedTime && currentSelectedTime >= timeInput.min && currentSelectedTime <= timeInput.max) {
+      processBtn.style.display = "block";
+      selectedTime = currentSelectedTime;  // Retain selection
+    } else {
+      processBtn.style.display = "none";
+      selectedTime = ""; // Reset if no longer valid
+    }
+    renderCalendar();
+  } else {
+      // Special cases
+      const closedDay = availableDays.closedDays.find(item => item.date === clickedDate);
+      if (closedDay) {
+        messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> is closed.<br>${closedDay.message || "No special message available"}`;
+      } else if (availableDays.noChairs.includes(clickedDate)) {
+        messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> has no available space.`;
+      } else if (availableDays.remainingChairs.find(item => item.date === clickedDate && item.remainingChairs <= 0)) {
+        messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> is not available for ${selectedGuest} guest(s).`;
+      } else if (availableDays.notAvailable.find(item => item.date === clickedDate)) {
+        messageContainer.innerHTML = `Sorry, the date <strong>${formatDate(clickedDate)}</strong> is not available for ${selectedGuest} guest(s).`;
+      }
+      timeInputContainer.style.display = "none"; 
+    }
 
   }
 });
@@ -455,22 +493,47 @@ for (let i = 1; i <= 10; i++) {
    
 
 
-// When the time is selected, show the process button
-timeInput.addEventListener("input", () => {
-  selectedTime = timeInput.value; // Update selectedTime whenever a time is selected
-  const minTime = "09:00";
-  const maxTime = "22:00";
+// Update the time input's min and max attributes dynamically based on the selected date
+const updateTimeInputLimits = (minTime, maxTime) => {
+  // Convert maxTime (HH:MM) to Date object
+  const [maxHour, maxMinute] = maxTime.split(":").map(Number);
+  const maxDate = new Date();
+  maxDate.setHours(maxHour);
+  maxDate.setMinutes(maxMinute);
 
-  if (selectedTime >= minTime && selectedTime <= maxTime) {
-    processBtn.style.display = "block"; // Show the button if valid time
+  // Subtract 1 hour
+  maxDate.setHours(maxDate.getHours() - 1);
+
+  // Format adjusted max time as H:MM (remove leading zero from hour)
+  const adjustedMaxTime = `${maxDate.getHours()}:${String(maxDate.getMinutes()).padStart(2, "0")}`;
+
+  // Format minTime (remove leading zero if present)
+  const [minHour, minMinute] = minTime.split(":").map(Number);
+  const adjustedMinTime = `${minHour}:${String(minMinute).padStart(2, "0")}`;
+
+  timeInput.min = minTime;
+  timeInput.max = adjustedMaxTime;
+};
+
+
+// When the time is selected, show the process button if the selected time is valid
+timeInput.addEventListener("input", () => {
+  const selectedTimeValue = timeInput.value;
+  selectedTime = selectedTimeValue;
+
+  if (selectedTimeValue >= timeInput.min && selectedTimeValue <= timeInput.max) {
+    processBtn.style.display = "block";
+    document.getElementById("time-error").innerText = "";
   } else {
-    processBtn.style.display = "none"; // Hide the button if invalid time
+    processBtn.style.display = "none";
+    document.getElementById("time-error").innerText = `Please select a valid time within the limits. ${timeInput.min} - ${timeInput.max}`;
   }
 });
 
+
+
 // When the user clicks on the "Proceed to Form" button
 processBtn.addEventListener("click", () => {
-  // Make sure selectedTime is updated when the button is clicked
   if (!selectedTime) {
     messageContainer.innerHTML = "Please select a time before proceeding.";
     return;
@@ -524,6 +587,9 @@ reservationForm.addEventListener("submit", async (e) => {
       const errorData = await response.json();
       document.getElementById("form-message").classList.remove('hidden');
       document.getElementById("form-message").innerHTML = `Error: ${errorData.message || 'Something went wrong. Please try again.'}`;
+      spinner.style.display = 'none'; // Hide spinner
+      submitBtn.disabled = false;
+      submitBtn.style.background = '#007bf';
     }
   } catch (error) {
     // Handle network error
@@ -531,6 +597,8 @@ reservationForm.addEventListener("submit", async (e) => {
     document.getElementById("form-message").innerHTML = 'Server error. Please try again later.';
   } finally {
     spinner.style.display = 'none'; // Hide spinner
+    submitBtn.disabled = false;
+    submitBtn.style.background = '#007bf';
   }
 });
 

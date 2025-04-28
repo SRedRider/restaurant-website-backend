@@ -59,6 +59,12 @@ const getAllUsers = async () => {
     return rows;  // Return the list of users
 };
 
+// Get user by ID
+const getUserById = async (userId) => {
+    const [rows] = await promisePool.query('SELECT * FROM users WHERE id = ?', [userId]);
+    return rows[0];
+};
+
 module.exports = {
     getUserByEmail,
     createUser,
@@ -67,5 +73,6 @@ module.exports = {
     getUserByResetToken,
     updatePassword,
     clearResetToken,
-    getAllUsers
+    getAllUsers,
+    getUserById
 };
