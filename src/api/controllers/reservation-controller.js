@@ -1,12 +1,12 @@
 const reservationModel = require('../models/reservation-model');
 const nodemailer = require('nodemailer');
-const moment = require('moment-timezone');
+const moment = require('moment-timezone'); // Ensure moment is imported
 
 // Book reservation
 const bookReservation = async (req, res) => {
-  const { date, time, guestCount, name, phone, email, notes } = req.body;
+  const { date, time, guest_count, name, phone, email, notes } = req.body;
 
-  if (!date || !time || !guestCount || !name || !phone || !email) {
+  if (!date || !time || !guest_count || !name || !phone || !email) {
     return res.status(400).json({ success: false, message: 'All fields are required' });
   }
 
@@ -19,15 +19,15 @@ const bookReservation = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Invalid email format' });
   }
 
-  if (guestCount <= 0 || guestCount > 10) { 
+  if (guest_count <= 0 || guest_count > 10) { 
     return res.status(400).json({ success: false, message: 'Invalid number of guests' });
   }
 
 
-  const details = { name, phone, email, guestCount, notes };
+  const details = { name, phone, email, guest_count, notes };
 
   try {
-    const result = await reservationModel.checkAndBookReservation(date, time, guestCount, details);
+    const result = await reservationModel.checkAndBookReservation(date, time, guest_count, details);
 
     if (result.success) {
       res.status(200).json({
@@ -35,7 +35,7 @@ const bookReservation = async (req, res) => {
         reservationId: result.reservationId,
         allocatedTables: result.allocatedTables
       });
-      await sendConfirmationEmail(email, name, date, time, guestCount, notes);
+      await sendConfirmationEmail(email, name, date, time, guest_count, notes);
     } else {
       res.status(400).json({ success: false, message: result.message });
     }
@@ -49,7 +49,7 @@ const bookReservation = async (req, res) => {
 const getReservations = async (req, res) => {
   try {
     const reservations = await reservationModel.getAllReservations();
-    res.status(200).json({ success: true, reservations });
+    res.status(200).json(reservations);
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Error fetching reservations' });
@@ -99,7 +99,7 @@ const getAvailableDays = async (req, res) => {
   });
 
 // Updated the email content to present reservation details as a single paragraph instead of separate sections
-const sendConfirmationEmail = async (email, name, reservationDate, reservationTime, guestCount, notes) => {
+const sendConfirmationEmail = async (email, name, reservationDate, reservationTime, guest_count, notes) => {
   const formattedDate = moment(reservationDate, 'YYYY-MM-DD').format('DD.MM.YYYY');
 
   const mailOptions = {
@@ -215,7 +215,7 @@ const sendConfirmationEmail = async (email, name, reservationDate, reservationTi
         
         <h1>Reservation Confirmation</h1>
         <p style="margin-top: 30px;">Dear <span class="highlight">${name}</span>,</p>
-        <p>Thank you for choosing our restaurant! We are pleased to confirm your reservation for <span class="highlight">${guestCount}</span> guest(s) on <span class="highlight">${formattedDate}</span> at <span class="highlight">${reservationTime}</span>.</p>
+        <p>Thank you for choosing our restaurant! We are pleased to confirm your reservation for <span class="highlight">${guest_count}</span> guest(s) on <span class="highlight">${formattedDate}</span> at <span class="highlight">${reservationTime}</span>.</p>
         <p>${notes ? `Additional notes: <span class="highlight">${notes}</span>.` : ''}</p>
 
         <p>We kindly ask that you arrive a few minutes early to ensure a smooth seating process. </p>
@@ -243,16 +243,16 @@ const sendConfirmationEmail = async (email, name, reservationDate, reservationTi
 
 // Test reservation feasibility without booking
 const testReservationAvailability = async (req, res) => {
-  const { guestCount } = req.body;
+  const { guest_count } = req.body;
 
-  if (!guestCount || guestCount <= 0) {
+  if (!guest_count || guest_count <= 0) {
     return res.status(400).json({ success: false, message: 'Invalid number of guests' });
   }
 
   try {
     const rows = await reservationModel.getReservationDays();
     const maxChairs = await reservationModel.getMaxChairs();
-    const requiredTables = Math.ceil(guestCount / 5); // Assuming 5 chairs per table
+    const requiredTables = Math.ceil(guest_count / 5); // Assuming 5 chairs per table
 
     let unavailableDates = [];
 
@@ -262,7 +262,7 @@ const testReservationAvailability = async (req, res) => {
       const totalTables = Math.ceil(maxChairs / 5); // Total tables available in restaurant
       const freeTables = totalTables - allocatedTables;
 
-      if (remainingChairs < guestCount || freeTables < requiredTables) {
+      if (remainingChairs < guest_count || freeTables < requiredTables) {
         unavailableDates.push({
           date: moment.utc(row.date).tz('Europe/Helsinki').format('DD.MM.YYYY'),
           remainingChairs,
@@ -278,4 +278,129 @@ const testReservationAvailability = async (req, res) => {
   }
 };
 
-module.exports = { bookReservation, getReservations, getAvailableDays, testReservationAvailability };
+// Get reservation by ID
+const getReservationById = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ success: false, message: 'Reservation ID is required' });
+  }
+
+  try {
+    const reservation = await reservationModel.getReservationById(id);
+
+    if (!reservation) {
+      return res.status(404).json({ success: false, message: 'Reservation not found' });
+    }
+
+    // Convert date to ISO 8601 format
+    reservation.date = moment(reservation.date, 'DD.MM.YYYY').format('YYYY-MM-DD');
+
+    res.status(200).json(reservation);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Error fetching reservation' });
+  }
+};
+
+// Update reservation
+const updateReservation = async (req, res) => {
+  const { id } = req.params;
+  const { date, time, guest_count, name, phone, email, notes } = req.body;
+
+  if (!id || !date || !time || !guest_count || !name || !phone || !email) {
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
+
+
+  try {
+    const result = await reservationModel.updateReservation(id, { date, time, guest_count, name, phone, email, notes });
+
+    if (result.success) {
+      res.status(200).json({ success: true, message: 'Reservation updated successfully' });
+    } else {
+      res.status(400).json({ success: false, message: result.message });
+      console.log(result.message);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Error updating reservation' });
+  }
+};
+
+// Delete reservation
+const deleteReservation = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ success: false, message: 'Reservation ID is required' });
+  }
+
+  try {
+    const result = await reservationModel.deleteReservation(id);
+
+    if (result.success) {
+      res.status(200).json({ success: true, message: 'Reservation deleted successfully' });
+    } else {
+      res.status(404).json({ success: false, message: 'Reservation not found' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Error deleting reservation' });
+  }
+};
+
+const getReservationTables = async (req, res) => {
+  try {
+    const tables = await reservationModel.getReservationTables();
+    res.status(200).json(tables);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Error fetching reservation tables' });
+  }
+};
+
+const getReservationTableById = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ success: false, message: 'Table ID is required' });
+  }
+
+  try {
+    const table = await reservationModel.getReservationTableById(id);
+
+    if (!table) {
+      return res.status(404).json({ success: false, message: 'Table not found' });
+    }
+
+    res.status(200).json(table);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Error fetching table by ID' });
+  }
+};
+
+const updateReservationTable = async (req, res) => {
+  const { id } = req.params;
+  const { table_number, chairs } = req.body;
+
+  if (!table_number || !chairs) {
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
+
+  try {
+    const result = await reservationModel.updateReservationTable(id, { table_number, chairs });
+
+    if (result.success) {
+      res.status(200).json({ success: true, message: 'Table updated successfully' });
+    } else {
+      res.status(400).json({ success: false, message: 'Failed to update table' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Error updating table' });
+  }
+};
+
+module.exports = { bookReservation, getReservations, getAvailableDays, testReservationAvailability, getReservationById, updateReservation, deleteReservation, getReservationTables, getReservationTableById, updateReservationTable };

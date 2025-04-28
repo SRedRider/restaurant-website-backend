@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservations Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <!-- Bootstrap Table CSS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Reservations Management</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h3>Reservations</h3>
+        <div class="table-container table-responsive">
+            <table class="table table-striped table-bordered" id="ReservationsTable">
+                <thead>
+                    <tr>
+                        <th data-field="reservation_id" data-sortable="true" data-filter-control="input">Reservation ID</th>
+                        <th data-field="name" data-sortable="true" data-filter-control="input">Name</th>
+                        <th data-field="phone" data-sortable="true" data-filter-control="input">Phone</th>
+                        <th data-field="email" data-sortable="true" data-filter-control="input">Email</th>
+                        <th data-field="guest_count" data-sortable="true" data-filter-control="input">Guest Count</th>
+                        <th data-field="date" data-sortable="true" data-filter-control="input">Date</th>
+                        <th data-field="time" data-sortable="true" data-filter-control="input">Time</th>
+                        <th data-field="notes" data-sortable="false" data-filter-control="input">Notes</th>
+                        <th data-field="allocated_tables" data-sortable="true" data-filter-control="input">Allocated Tables</th>
+                        <th data-field="action" data-sortable="false">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="ReservationsBody">
+                    <!-- Dynamic rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <h3>Tables</h3>
+        <div class="table-container table-responsive">
+            <table class="table table-striped table-bordered" id="TablesTable">
+                <thead>
+                    <tr>
+                        <th data-field="id" data-sortable="true">Table ID</th>
+                        <th data-field="name" data-sortable="true">Table Name</th>
+                        <th data-field="chairs" data-sortable="true">Chairs</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="TablesBody">
+                    <!-- Dynamic rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal for viewing reservation details -->
+    <div class="modal fade" id="reservationModal" tabindex="-1" aria-labelledby="reservationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reservationModalLabel">Reservation Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="reservationDetails">
+                    <!-- Reservation details will be dynamically inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for editing reservation details -->
+    <div class="modal fade" id="editReservationModal" tabindex="-1" aria-labelledby="editReservationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editReservationModalLabel">Edit Reservation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editReservationForm">
+                        <div class="mb-3">
+                            <label for="editName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="editName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPhone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="editPhone" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editEmail" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editGuestCount" class="form-label">Guest Count</label>
+                            <input type="number" class="form-control" id="editGuestCount" name="guest_count" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDate" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="editDate" name="date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editTime" class="form-label">Time</label>
+                            <input type="time" class="form-control" id="editTime" name="time" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editNotes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="editNotes" name="notes"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for editing reservation table details -->
+    <div class="modal fade" id="editTableModal" tabindex="-1" aria-labelledby="editTableModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTableModalLabel">Edit Table</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editTableForm">
+                        <div class="mb-3">
+                            <label for="editTableName" class="form-label">Table Name</label>
+                            <input type="text" class="form-control" id="editTableName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editTableChairs" class="form-label">Number of Chairs</label>
+                            <input type="number" class="form-control" id="editTableChairs" name="chairs" min="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+async function deleteReservation(reservationId) {
+    if (!confirm('Are you sure you want to delete this reservation?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/v1/reservations/${reservationId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete reservation');
+        }
+
+        alert('Reservation deleted successfully');
+        location.reload(); // Refresh the page to update the table
+    } catch (error) {
+        console.error('Error deleting reservation:', error);
+        alert('An error occurred while deleting the reservation');
+    }
+}
+</script>
+</body>
+</html>
