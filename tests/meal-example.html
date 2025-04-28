@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meal Details - Happy Meal™ Chicken Burger</title>
+  <style>
+    /* Global styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .meal-container {
+      max-width: 1000px;
+      margin: 50px auto;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-wrap: wrap;
+      padding: 20px;
+    }
+
+    .meal-image {
+      flex: 1 1 400px;
+      padding: 20px;
+    }
+
+    .meal-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    .meal-details {
+      flex: 2 1 500px;
+      padding: 20px;
+    }
+
+    .meal-details h1 {
+      font-size: 2rem;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .meal-details p {
+      font-size: 1rem;
+      color: #666;
+      margin: 10px 0;
+    }
+
+    .meal-details .price {
+      font-size: 1.5rem;
+      color: #27ae60;
+      font-weight: bold;
+    }
+
+    .meal-details .stock {
+      font-size: 1rem;
+      color: #e74c3c;
+      margin-top: 20px;
+    }
+
+    .items-list {
+      margin-top: 20px;
+    }
+
+    .item {
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    .item h3 {
+      font-size: 1.25rem;
+      color: #333;
+    }
+
+    .item p {
+      font-size: 1rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="meal-container" id="meal-container">
+    <!-- The content will be injected here by JavaScript -->
+  </div>
+
+  <script>
+    // Fetch the meal details by ID (assuming the ID is 1)
+    fetch('http://localhost:3000/api/v1/meals/1')  // Replace with the actual endpoint
+      .then(response => response.json())  // Parse the JSON response
+      .then(meal => {
+        const mealContainer = document.getElementById('meal-container');
+        
+        // Create the meal image
+        const mealImageDiv = document.createElement('div');
+        mealImageDiv.classList.add('meal-image');
+        const mealImage = document.createElement('img');
+        mealImage.src = meal.image_url;
+        mealImage.alt = meal.name;
+        mealImageDiv.appendChild(mealImage);
+
+        // Create the meal details section
+        const mealDetailsDiv = document.createElement('div');
+        mealDetailsDiv.classList.add('meal-details');
+        
+        const mealName = document.createElement('h1');
+        mealName.textContent = meal.name;
+        
+        const mealDescription = document.createElement('p');
+        mealDescription.textContent = meal.description;
+
+        const mealPrice = document.createElement('p');
+        mealPrice.classList.add('price');
+        mealPrice.textContent = `$${meal.price}`;
+
+        const mealStock = document.createElement('p');
+        mealStock.classList.add('stock');
+        mealStock.textContent = `Stock: ${meal.stock === 'yes' ? 'In Stock' : 'Out of Stock'}`;
+        
+        // Append elements to the meal details section
+        mealDetailsDiv.appendChild(mealName);
+        mealDetailsDiv.appendChild(mealDescription);
+        mealDetailsDiv.appendChild(mealPrice);
+        mealDetailsDiv.appendChild(mealStock);
+
+        // Now, fetch the items inside the meal (using the IDs like hamburger_id, drink_id, etc.)
+        const itemIds = [
+          meal.hamburger_id,
+          meal.wrap_id,
+          meal.chicken_burger_id,
+          meal.vegan_id,
+          meal.side_id,
+          meal.breakfast_id,
+          meal.dessert_id,
+          meal.drink_id
+        ];
+
+        // Filter out null or undefined IDs (in case some items are missing)
+        const validItemIds = itemIds.filter(id => id !== null && id !== undefined);
+
+        const itemPromises = validItemIds.map(id => 
+          fetch(`http://localhost:3000/api/v1/items/${id}`).then(response => response.json())
+        );
+
+        // Fetch all items concurrently
+        Promise.all(itemPromises)
+          .then(items => {
+            const itemsListDiv = document.createElement('div');
+            itemsListDiv.classList.add('items-list');
+            items.forEach(item => {
+              const itemDiv = document.createElement('div');
+              itemDiv.classList.add('item');
+              
+              const itemName = document.createElement('h3');
+              itemName.textContent = item.name;
+              
+              const itemDescription = document.createElement('p');
+              itemDescription.textContent = item.description;
+              
+              itemDiv.appendChild(itemName);
+              itemDiv.appendChild(itemDescription);
+              itemsListDiv.appendChild(itemDiv);
+            });
+
+            // Append the items list to the meal details section
+            mealDetailsDiv.appendChild(itemsListDiv);
+          })
+          .catch(error => {
+            console.error('Error fetching items:', error);
+          });
+
+        // Append the image and details to the container
+        mealContainer.appendChild(mealImageDiv);
+        mealContainer.appendChild(mealDetailsDiv);
+      })
+      .catch(error => {
+        console.error('Error fetching meal details:', error);
+      });
+  </script>
+
+</body>
+</html>

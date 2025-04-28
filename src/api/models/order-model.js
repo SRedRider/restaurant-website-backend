@@ -116,8 +116,49 @@ const getOrderById = async (orderId) => {
 
 
 
+const updateOrder = async (orderId, updateData) => {
+  const { customer_name, customer_phone, customer_email, items, method, address, scheduled_time, notes, total_price, status } = updateData;
+
+  const query = `
+    UPDATE orders
+    SET customer_name = ?, customer_phone = ?, customer_email = ?, items = ?, method = ?, address = ?, scheduled_time = ?, notes = ?, total_price = ?, status = ?
+    WHERE order_id = ?
+  `;
+
+  const [result] = await promisePool.query(query, [
+    customer_name,
+    customer_phone,
+    customer_email,
+    JSON.stringify(items),  // Ensure items are stored as JSON
+    method,
+    address ? JSON.stringify(address) : null,  // Only store address if it's provided
+    scheduled_time,
+    notes,
+    total_price,
+    status,
+    orderId
+  ]);
+
+  if (result.affectedRows === 0) {
+    return null; // No rows updated, meaning order wasn't found
+  }
+
+  // Return the updated order data
+  return {
+    order_id: orderId,
+    customer_name,
+    customer_phone,
+    customer_email,
+    items,
+    method,
+    address,
+    scheduled_time,
+    notes,
+    total_price,
+    status
+  };
+};
 
 
 
-
-module.exports = { createOrder, getAllOrders, getOrderById };
+module.exports = { createOrder, getAllOrders, getOrderById, updateOrder };

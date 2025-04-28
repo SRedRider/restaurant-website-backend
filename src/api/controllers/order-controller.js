@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const { createOrder, getAllOrders, getOrderById} = require('../models/order-model');
+const { createOrder, getAllOrders, getOrderById, updateOrder} = require('../models/order-model');
 const { getItemById } = require('../models/item-model');
 const { getMealById } = require('../models/meal-model');
 
@@ -105,8 +105,11 @@ const createNewOrder = async (req, res) => {
     }
   }
 
-  if (total_price != calculatedTotalPrice) {
-    return res.status(400).json({ message: `Total price mismatch: The calculated total is ${calculatedTotalPrice}, but received ${total_price}` });
+  // Round the calculated total price to two decimal places
+  const roundedTotalPrice = Math.round(calculatedTotalPrice * 100) / 100;
+
+  if (total_price != roundedTotalPrice) {
+    return res.status(400).json({ message: `Total price mismatch: The calculated total is ${roundedTotalPrice}, but received ${total_price}` });
   }
 
   if (!total_price || isNaN(total_price) || total_price <= 0) {
@@ -211,7 +214,7 @@ const getOrders = async (req, res) => {
 const getOrder = async (req, res) => {
   const { orderId } = req.params;
   const requested = req.user;
-  console.log("Requested user:", requested);  // Log the requested user
+  console.log("Requested user:", requested); // Log the requested user
 
   try {
     const order = await getOrderById(orderId);
@@ -226,12 +229,119 @@ const getOrder = async (req, res) => {
       return res.status(403).json({ message: 'You do not have permission to access this order' });
     }
 
-    res.status(200).json(order);
+    // Enrich the order with item details
+    const enrichedOrder = await enrichOrderItems(order.order_id, req.isAdmin);
+
+    res.status(200).json(enrichedOrder);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Failed to retrieve order' });
   }
 };
+
+
+
+const editOrder = async (req, res) => {
+  const { orderId } = req.params;
+  const { customer_name, customer_phone, customer_email, items, method, address, scheduled_time, notes, total_price, status } = req.body;
+
+  try {
+    // Fetch the existing order
+    const existingOrder = await getOrderById(orderId);
+    if (!existingOrder) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Check if user is allowed to edit the order
+    const requestedUser = req.user; // Assuming the user making the request is in req.user
+    if (requestedUser.role !== 'admin' && requestedUser.userId !== existingOrder.user_id) {
+      return res.status(403).json({ message: 'You do not have permission to edit this order' });
+    }
+
+    // Validate fields (the same validation as in createNewOrder)
+    if (!customer_name || typeof customer_name !== 'string' || customer_name.trim() === '') {
+      return res.status(400).json({ message: 'Customer name is required and must be a non-empty string' });
+    }
+
+    const phoneRegex = /^(?:\+358|0)\d{8,9}$/;
+    if (!customer_phone || !phoneRegex.test(customer_phone)) {
+      return res.status(400).json({ message: 'Invalid phone number format. Expected Finnish format: +358XXXXXXXXX or 0XXXXXXXXX' });
+    }
+
+    if (!customer_email || typeof customer_email !== 'string' || customer_email.trim() === '') {
+      return res.status(400).json({ message: 'Customer email is required and must be a non-empty string' });
+    }
+
+    if (customer_email && !/\S+@\S+\.\S+/.test(customer_email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: 'Items must be an array and cannot be empty' });
+    }
+
+    let calculatedTotalPrice = 0;
+    const seenItems = new Set(); // Track items to prevent duplicates
+
+    for (const item of items) {
+      if (!item.id || isNaN(item.id) || item.id <= 0) {
+        return res.status(400).json({ message: 'Each item must have a valid id' });
+      }
+      if (!item.quantity || isNaN(item.quantity) || item.quantity <= 0) {
+        return res.status(400).json({ message: 'Each item must have a valid quantity greater than zero' });
+      }
+      if (!item.price || isNaN(item.price) || item.price <= 0) {
+        return res.status(400).json({ message: 'Each item must have a valid price greater than zero' });
+      }
+
+      // Check for duplicates by item id and type
+      const itemKey = `${item.id}-${item.type}`;
+      if (seenItems.has(itemKey)) {
+        return res.status(400).json({ message: `Duplicate item found. Each item can only appear once.` });
+      }
+
+      // Mark this item as seen
+      seenItems.add(itemKey);
+
+      calculatedTotalPrice += item.quantity * item.price;
+    }
+
+    // Round the calculated total price to two decimal places
+    const roundedTotalPrice = Math.round(calculatedTotalPrice * 100) / 100;
+
+    if (total_price != roundedTotalPrice) {
+      return res.status(400).json({ message: `Total price mismatch: The calculated total is ${roundedTotalPrice}, but received ${total_price}` });
+    }
+
+    if (!total_price || isNaN(total_price) || total_price <= 0) {
+      return res.status(400).json({ message: 'Invalid total_price. It must be a valid number greater than zero' });
+    }
+
+    // Update the order in the database
+    const updatedOrder = await updateOrder(orderId, {
+      customer_name,
+      customer_phone,
+      customer_email,
+      items,
+      method,
+      address,
+      scheduled_time,
+      notes,
+      total_price,
+      status
+    });
+
+    if (!updatedOrder) {
+      return res.status(500).json({ message: 'Failed to update the order' });
+    }
+
+    res.status(200).json({ message: 'Order updated successfully', order: updatedOrder });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to update order' });
+  }
+};
+
 
 
 const sendOrderConfirmationEmail = async (email, order) => {
@@ -492,4 +602,4 @@ const sendOrderConfirmationEmail = async (email, order) => {
 
 
 
-module.exports = { createNewOrder, getOrders, getOrder };
+module.exports = { createNewOrder, getOrders, getOrder, editOrder };

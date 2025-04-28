@@ -48,10 +48,11 @@
         <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createMealModal">Create Meal</button>
     </div>
 
-     <!-- Tables to display Items and Meals -->
-     <div class="container mt-4">
-        <h3>Items</h3>
-        <div class="table-container table-responsive">
+<!-- Tables to display Items and Meals -->
+<div class="container mt-4">
+    <h3>Items</h3>
+    <div class="table-container">
+        <div class="table-responsive">
             <table class="table table-striped table-bordered" id="ItemsTable">
                 <thead>
                     <tr>
@@ -76,10 +77,12 @@
             </table>
         </div>
     </div>
-    
-    <div class="container mt-4">
-        <h3>Meals</h3>
-        <div class="table-container table-responsive">
+</div>
+
+<div class="container mt-4">
+    <h3>Meals</h3>
+    <div class="table-container">
+        <div class="table-responsive">
             <table class="table table-striped table-bordered" id="MealsTable">
                 <thead>
                     <tr>
@@ -108,19 +111,20 @@
             </table>
         </div>
     </div>
+</div>
+
     
     
     <script>
-        function initializeTable(tableId, pageSize) {
-    $(tableId).bootstrapTable({
-        search: true,       // Enable search
-        pagination: true,   // Enable pagination
-        pageSize: pageSize, // Set number of items per page
-        sortable: true,     // Enable sorting
-        filterControl: true, // Enable filter control
-    });
-}
-
+        async function initializeTable(tableId, pageSize) {
+            $(tableId).bootstrapTable({
+                search: true,       // Enable search
+                pagination: true,   // Enable pagination
+                pageSize: pageSize, // Set number of items per page
+                sortable: true,     // Enable sorting
+                filterControl: true // Enable filter control
+            });
+        }
     </script>
 
 
@@ -137,14 +141,14 @@
                         <div class="mb-3">
                             <label for="category" class="form-label">Category:</label>
                             <select id="category" name="category" class="form-select" required>
-                                <option value="hamburgers">Hamburgers</option>
-                                <option value="wraps">Wraps</option>
-                                <option value="chicken_burgers">Chicken Burgers</option>
+                                <option value="hamburger">Hamburger</option>
+                                <option value="wrap">Wrap</option>
+                                <option value="chicken_burger">Chicken Burger</option>
                                 <option value="vegan">Vegan</option>
-                                <option value="sides">Sides</option>
+                                <option value="side">Side</option>
                                 <option value="breakfast">Breakfast</option>
                                 <option value="dessert">Dessert</option>
-                                <option value="drinks">Drinks</option>
+                                <option value="drinks">Drink</option>
                             </select>
                         </div>
 
@@ -273,12 +277,12 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="wrapSelect" class="form-label">Wraps:</label>
+                            <label for="wrapSelect" class="form-label">Wrap:</label>
                             <select id="wrapSelect" class="form-select"></select>
                         </div>
 
                         <div class="mb-3">
-                            <label for="chicken_burgerSelect" class="form-label">Chicken Burgers:</label>
+                            <label for="chicken_burgerSelect" class="form-label">Chicken Burger:</label>
                             <select id="chicken_burgerSelect" class="form-select"></select>
                         </div>
 
@@ -389,11 +393,11 @@
                     <div class="mb-3">
                         <label for="editCategory" class="form-label">Category:</label>
                         <select id="editCategory" name="category" class="form-select" required>
-                            <option value="hamburgers">Hamburgers</option>
-                            <option value="wraps">Wraps</option>
-                            <option value="chicken_burgers">Chicken Burgers</option>
+                            <option value="hamburger">Hamburger</option>
+                            <option value="wrap">Wrap</option>
+                            <option value="chicken_burger">Chicken Burger</option>
                             <option value="vegan">Vegan</option>
-                            <option value="sides">Sides</option>
+                            <option value="side">Side</option>
                             <option value="breakfast">Breakfast</option>
                             <option value="dessert">Dessert</option>
                             <option value="drinks">Drinks</option>
@@ -534,12 +538,12 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="editWrapSelect" class="form-label">Wraps:</label>
+                        <label for="editWrapSelect" class="form-label">Wrap:</label>
                         <select id="editWrapSelect" class="form-select"></select>
                     </div>
 
                     <div class="mb-3">
-                        <label for="editChicken_burgerSelect" class="form-label">Chicken Burgers:</label>
+                        <label for="editChicken_burgerSelect" class="form-label">Chicken Burger:</label>
                         <select id="editChicken_burgerSelect" class="form-select"></select>
                     </div>
 
@@ -704,7 +708,7 @@
 
 
     <!-- Bootstrap JS & Popper.js -->
-       <script src="menu.js"></script>
+       <script src="script.js"></script>
 
 
     
