@@ -1,6 +1,6 @@
 // api/routes/order-route.js
 const express = require('express');
-const { createNewOrder, getOrders, getOrder, editOrder } = require('../controllers/order-controller');
+const { createNewOrder, getOrders, getOrder, editOrder, getOrdersByUser } = require('../controllers/order-controller');
 const { isAdmin, isAdminOrUser, checkVisibleAccess } = require('../../middleware/auth-middleware');
 
 const router = express.Router();
@@ -14,5 +14,8 @@ router.get('/', isAdmin, getOrders);
 router.get('/:orderId', isAdminOrUser, checkVisibleAccess, getOrder);
 
 router.put('/:orderId', isAdminOrUser, editOrder);
+
+// Add a new route to get orders for a specific user
+router.get('/user/:userId', isAdminOrUser, checkVisibleAccess, getOrdersByUser);
 
 module.exports = router;

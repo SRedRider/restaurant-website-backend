@@ -62,7 +62,14 @@ const getAllItems = async (req, res) => {
     try {
         // Use the isAdmin flag from the middleware
         const items = await Item.getAllItems(req.isAdmin); // Pass isAdmin flag to model
-        res.json(items);
+
+        // Add type: "item" to each item in the response
+        const itemsWithType = items.map(item => ({
+            ...item,
+            type: "item"
+        }));
+
+        res.json(itemsWithType);
     } catch (error) {
         res.status(500).json({ error: 'Database error' });
     }
@@ -73,7 +80,14 @@ const getItemById = async (req, res) => {
     try {
         const item = await Item.getItemById(req.params.id, req.isAdmin); // Assuming `req.user.isAdmin` is available
         if (!item) return res.status(404).json({ error: 'Item not found' });
-        res.json(item);
+
+        // Add type: "item" to the response
+        const itemWithType = {
+            ...item,
+            type: "item"
+        };
+
+        res.json(itemWithType);
     } catch (error) {
         res.status(500).json({ error: 'Database error' });
     }

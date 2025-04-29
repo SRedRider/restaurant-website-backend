@@ -27,6 +27,14 @@ const getAllMeals = async (req, res) => {
     try {
         // Use the isAdmin flag from the middleware
         const meals = await Meal.getAllMeals(req.isAdmin); // Pass isAdmin flag to model
+
+        // Add type: "meal" to each meal in the response
+        const mealsWithType = meals.map(meal => ({
+            ...meal,
+            type: "meal"
+        }));
+
+        res.json(mealsWithType);
         res.json(meals);
     } catch (error) {
         res.status(500).json({ error: 'Database error' });
@@ -42,8 +50,13 @@ const getMealById = async (req, res) => {
             return res.status(404).json({ error: 'Meal not found' });
         }
 
-        // If everything is good, return the meal data
-        res.json(meal);
+        // Add type: "meal" to the response
+        const mealWithType = {
+            ...meal,
+            type: "meal"
+        };
+
+        res.json(mealWithType);
     } catch (error) {
         // If there's a database error or other issues, return 500
         console.error("Error occurred while fetching meal:", error);

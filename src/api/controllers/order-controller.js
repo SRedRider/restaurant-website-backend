@@ -788,6 +788,43 @@ const sendOrderConfirmationEmail = async (email, order) => {
 
 
 
+// Add a new endpoint to get orders for a specific user
+const getOrdersByUser = async (req, res) => {
+  const { userId } = req.params;
+  const requestedUser = req.user; // Assuming the user making the request is in req.user
+
+  try {
+    // Check if the requested user is the same as the logged-in user or an admin
+    if (requestedUser.role !== 'admin' && requestedUser.userId !== parseInt(userId, 10)) {
+      return res.status(403).json({ message: 'You do not have permission to access these orders' });
+    }
+
+    // Fetch all orders for the specific user
+    const orders = await getAllOrders(req.isAdmin);
+
+    // Filter orders by userId
+    const userOrders = orders.filter(order => order.user_id === parseInt(userId, 10));
+
+    // If no orders are found, return an empty array
+    if (userOrders.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    // Enrich each order with item details
+    const enrichedOrders = await Promise.all(
+      userOrders.map(async (order) => {
+        const enrichedOrder = await enrichOrderItems(order.order_id, req.isAdmin);
+        return enrichedOrder;
+      })
+    );
+
+    // Return the enriched orders
+    res.status(200).json(enrichedOrders);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to retrieve user orders' });
+  }
+};
 
 
-module.exports = { createNewOrder, getOrders, getOrder, editOrder };
+module.exports = { createNewOrder, getOrders, getOrder, editOrder, getOrdersByUser };
