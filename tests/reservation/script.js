@@ -261,7 +261,42 @@ async function initializeTable(tableId, pageSize) {
     });
 }
 
+async function fetchAvailableDays() {
+    try {
+        const response = await fetch('http://localhost:3000/api/v1/reservations/available-days', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch available days');
+        }
+
+        const { data } = await response.json();
+        const tbody = document.getElementById('AvailableDaysBody');
+        tbody.innerHTML = '';
+
+        data.forEach(day => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${day.date}</td>
+                <td>${day.remainingChairs}</td>
+                <td>${day.allocatedTables}</td>
+                <td>${day.status}</td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        initializeTable('#AvailableDaysTable', 5);
+    } catch (error) {
+        console.error('Error fetching available days:', error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     fetchReservations();
     fetchTables();
+    fetchAvailableDays();
 });

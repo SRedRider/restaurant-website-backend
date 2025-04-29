@@ -13,7 +13,7 @@ router.get('/', isAdmin, reservationController.getReservations);
 router.get('/available-days', reservationController.getAvailableDays);
 
 // Fetch reservation tables
-router.get('/tables', reservationController.getReservationTables);
+router.get('/tables', isAdmin, reservationController.getReservationTables);
 
 // Fetch a reservation table by ID
 router.get('/tables/:id', reservationController.getReservationTableById);

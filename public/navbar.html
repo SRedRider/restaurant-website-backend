@@ -1,0 +1,38 @@
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem('authToken');
+        const navbar = document.querySelector('.navbar-nav');
+
+        if (token) {
+            // Decode the token to get user information (if needed)
+            const decodedToken = JSON.parse(atob(token.split('.')[1]));
+            const username = decodedToken.username || 'User';
+
+            // Add user-specific options
+            navbar.innerHTML += `
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Welcome, ${username}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="logoutButton" href="#">Logout</a>
+                </li>
+            `;
+
+            // Add logout functionality
+            document.getElementById('logoutButton').addEventListener('click', () => {
+                localStorage.removeItem('authToken');
+                window.location.href = '/login.html';
+            });
+        } else {
+            // Add login/register options
+            navbar.innerHTML += `
+                <li class="nav-item">
+                    <a class="nav-link" href="/login.html">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/register.html">Register</a>
+                </li>
+            `;
+        }
+    });
+</script>

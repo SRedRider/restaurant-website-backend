@@ -15,12 +15,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Reservations Management</a>
-        </div>
-    </nav>
-
     <div class="container mt-4">
         <h3>Reservations</h3>
         <div class="table-container table-responsive">
@@ -59,6 +53,25 @@
                     </tr>
                 </thead>
                 <tbody id="TablesBody">
+                    <!-- Dynamic rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <h3>Available Days</h3>
+        <div class="table-container table-responsive">
+            <table class="table table-striped table-bordered" id="AvailableDaysTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Remaining Chairs</th>
+                        <th>Allocated Tables</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="AvailableDaysBody">
                     <!-- Dynamic rows will be inserted here -->
                 </tbody>
             </table>
@@ -181,5 +194,6 @@ async function deleteReservation(reservationId) {
     }
 }
 </script>
+
 </body>
 </html>
