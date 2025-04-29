@@ -17,6 +17,7 @@ app.use('/api/v1',  require('./api/routes/auth-route')); // Handle user-related 
 app.use('/api/v1/orders', require('./api/routes/order-route')); // Handle order-related routes
 app.use('/api/v1/reservations', require('./api/routes/reservation-route'));
 app.use('/api/v1/schedule', require('./api/routes/restaurant-route')); // Handle restaurant-related routes
+app.use('/api/v1/announcements', require('./api/routes/annoucement-route')); // Handle announcement-related routes
 
 // Handle 404 - Not Found
 app.use((req, res) => {
