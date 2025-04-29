@@ -94,7 +94,7 @@ async function populateEditAnnouncementModal(announcementId) {
         const announcement = await response.json();
 
         document.getElementById('editAnnouncementTitle').value = announcement.title;
-        tinymce.get('editAnnouncementContent').setContent(announcement.content); // Populate TinyMCE editor
+        document.getElementById('editAnnouncementContent').value = announcement.content;
         document.getElementById('editAnnouncementForm').dataset.announcementId = announcementId;
     } catch (error) {
         console.error('Error populating edit announcement modal:', error);

@@ -1,6 +1,3 @@
-document.addEventListener('DOMContentLoaded', () => {
-    fetchItemsForMeals();  // Populate meal dropdowns
-
 // Add Item Form Submit
 document.getElementById('itemForm').addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -51,6 +48,7 @@ document.getElementById('itemForm').addEventListener('submit', async function (e
 
         // Reset the form
         this.reset();
+        showToast('Item added successfully!'); // Show success toast
 
         // Reset the image preview
         imagePreviewContainer.style.display = 'none'; // Hide the preview container
@@ -125,6 +123,7 @@ document.getElementById('itemForm').addEventListener('submit', async function (e
     
             // Reset the form
             mealForm.reset();
+            showToast('Meal created successfully!'); // Show success toast
     
             imagePreviewContainerMeal.style.display = 'none'; // Hide the preview container
             imagePreviewMeal.src = ''; // Clear the image preview
@@ -139,7 +138,6 @@ document.getElementById('itemForm').addEventListener('submit', async function (e
         loadingSpinner.style.display = 'none';
     });
     
-});
 
 
 
@@ -182,8 +180,7 @@ async function fetchItemsForMeals() {
 }
 
     // Fetch and populate table data
-    window.onload = async function() {
-
+async function fetchItems() {
         try {
             const response = await fetch('http://localhost:3000/api/v1/items', {
                 method: 'GET',
@@ -193,6 +190,7 @@ async function fetchItemsForMeals() {
             });
             const data = await response.json();
             let tableBody = document.getElementById('ItemsBody');
+            tableBody.innerHTML = ''; // Clear existing rows
             data.forEach(item => {
                 let row = document.createElement('tr');
                 row.innerHTML = `
@@ -220,7 +218,9 @@ async function fetchItemsForMeals() {
         } catch (error) {
             console.error('Error fetching data:', error);
         }
-        
+    
+    };
+    async function fetchMeals() {
         try {
             const response = await fetch('http://localhost:3000/api/v1/meals', {
                 method: 'GET',
@@ -230,6 +230,7 @@ async function fetchItemsForMeals() {
             });
             const data = await response.json();
             let tableBody = document.getElementById('MealsBody');
+            tableBody.innerHTML = ''; // Clear existing rows
             data.forEach(meal => {
                 let row = document.createElement('tr');
                 row.innerHTML = `
@@ -598,7 +599,10 @@ async function fetchItemsForMeals() {
                             editItemAlert.textContent = 'Item updated successfully';
                             editItemAlert.style.display = 'block';
                             editForm.reset();  // Reset the form after successful update
-                            window.location.reload(); // Reload the page to see updated data
+                            fetchItems();  // Refresh the items table
+                            showToast('Item updated successfully!'); // Show success toast
+                            const editItemModal = bootstrap.Modal.getInstance(document.getElementById('editItemModal'));
+                            editItemModal.hide();
                         } else {
                             editItemAlert.className = "alert alert-danger mt-3";
                             editItemAlert.textContent = 'Error updating item.';
@@ -727,8 +731,11 @@ async function fetchItemsForMeals() {
                             editMealAlert.className = "alert alert-success mt-3";
                             editMealAlert.textContent = 'Meal updated successfully';
                             editMealAlert.style.display = 'block';
-                            window.location.reload(); // Reload the page to see updated data
+                            fetchMeals();  // Refresh the meals table
                             editForm.reset();
+                            showToast('Meal updated successfully!'); // Show success toast
+                            const editMealModal = bootstrap.Modal.getInstance(document.getElementById('editMealModal'));
+                            editMealModal.hide();
                         } else {
                             editMealAlert.className = "alert alert-danger mt-3";
                             editMealAlert.textContent = 'Error updating meal.';
@@ -854,7 +861,9 @@ async function fetchItemsForMeals() {
                     actionButton.textContent = "OK";
         
                     actionButton.onclick = function() {
-                        document.location.reload(); // Reload the page to see updated data
+                        fetchItems();  // Refresh the items table
+                        fetchMeals();  // Refresh the meals table
+                        $('#genericModal').modal('hide');
                     };
                 } else if (actionType === "error") {
                     // Show both Cancel and Retry buttons
@@ -900,3 +909,18 @@ async function fetchItemsForMeals() {
         function showErrorModal(message) {
             showModal(message, "Error", "error");
         }
+
+
+        function showToast(message) {
+            const toastElement = document.getElementById('successToast');
+            const toastBody = toastElement.querySelector('.toast-body');
+            toastBody.textContent = message;
+
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        }
+
+document.addEventListener('DOMContentLoaded', function() {
+    fetchItems();
+    fetchMeals();
+});

@@ -1,5 +1,4 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    const fetchReservations = async () => {
+async function fetchReservations() {
         try {
             const response = await fetch('http://localhost:3000/api/v1/reservations/', {
                 method: 'GET',
@@ -44,11 +43,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (error) {
             console.error('Error fetching reservations:', error);
         }
-    };
+};
 
-    await fetchReservations();
-    await fetchTables();
-});
+
 
 async function fetchTables() {
     try {
@@ -184,6 +181,8 @@ document.getElementById('editReservationForm').addEventListener('submit', async 
 
 
         console.log('Reservation successfully updated!');
+
+        fetchReservations(); // Refresh the reservations list
         
 
         const editReservationModal = bootstrap.Modal.getInstance(document.getElementById('editReservationModal'));
@@ -242,8 +241,10 @@ document.getElementById('editTableForm').addEventListener('submit', async functi
             throw new Error('Failed to update table');
         }
 
-        alert('Table updated successfully');
-        location.reload(); // Refresh the page to update the table list
+        const editTableModal = bootstrap.Modal.getInstance(document.getElementById('editTableModal'));
+        editTableModal.hide();
+
+        fetchTables(); // Refresh the tables list
     } catch (error) {
         console.error('Error updating table:', error);
         alert('An error occurred while updating the table');
@@ -259,3 +260,8 @@ async function initializeTable(tableId, pageSize) {
         filterControl: true
     });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    fetchReservations();
+    fetchTables();
+});
