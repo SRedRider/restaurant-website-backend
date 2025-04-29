@@ -42,8 +42,29 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Dumping data for table restaurant.users: ~2 rows (approximately)
 DELETE FROM `users`;
 INSERT INTO `users` (`id`, `email`, `name`, `password`, `role`, `status`, `verified`, `verification_token`, `reset_token`, `reset_token_expiry`, `created_at`, `updated_at`) VALUES
-	(6, 'johndoe@example.com', 'John Doe', '$2b$10$sYqRREGoU7DtlTxzAyhq8O3f2aHKeYKTuU/mFb0JgTqM2RbmJMQm6', 'customer', 'enabled', 1, '054e62b48bc79605d8297ae8dd3c0991af07a1bdfec871f006ec14658d23b9bb', NULL, NULL, '2025-04-23 10:06:08', '2025-04-23 10:09:02'),
+	(6, 'johndoe@example.com', 'John Doe', '$2b$10$jNmqSnVBfV1JqJnQPkZSCuMbaLRbG.IfoLnMg72KoFTOD/Q.iBsUe', 'customer', 'enabled', 1, '054e62b48bc79605d8297ae8dd3c0991af07a1bdfec871f006ec14658d23b9bb', NULL, NULL, '2025-04-23 10:06:08', '2025-04-28 11:02:13'),
 	(7, 'johnadmin@example.com', 'John Admin', '$2b$10$rQkRqZsT3HP.4/Q1S0O2D.3m2OUmDveEdlmUzpfhCtLk3Ebwutm2y', 'admin', 'enabled', 1, 'a559ef68db2f7087981860d45833105d69c80dd1e13743eb62db456785913e58', NULL, NULL, '2025-04-23 10:56:38', '2025-04-23 10:57:01');
+
+
+-- Dumping structure for table restaurant.announcements
+DROP TABLE IF EXISTS `announcements`;
+CREATE TABLE IF NOT EXISTS `announcements` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Dumping data for table restaurant.announcements: ~5 rows (approximately)
+DELETE FROM `announcements`;
+INSERT INTO `announcements` (`id`, `title`, `content`, `created_at`, `updated_at`) VALUES
+	(2, 'asd', 'asdasdsa', '2025-04-29 11:29:06', '2025-04-29 11:29:06'),
+	(3, 'asd', '', '2025-04-29 12:15:32', '2025-04-29 12:15:32'),
+	(4, 'asdasd', '', '2025-04-29 12:15:59', '2025-04-29 12:15:59'),
+	(5, 'asd', '', '2025-04-29 12:16:45', '2025-04-29 12:16:45'),
+	(7, 'asda', '', '2025-04-29 12:19:40', '2025-04-29 12:19:40');
 
 -- Dumping structure for table restaurant.items
 DROP TABLE IF EXISTS `items`;
@@ -67,11 +88,11 @@ CREATE TABLE IF NOT EXISTS `items` (
 -- Dumping data for table restaurant.items: ~14 rows (approximately)
 DELETE FROM `items`;
 INSERT INTO `items` (`id`, `category`, `name`, `description`, `ingredients`, `allergens`, `size`, `price`, `image_url`, `stock`, `visible`, `created_at`, `updated_at`) VALUES
-	(28, 'hamburger', 'Double Cheeseburger', 'Two juicy beef patties, cheddar cheese, and our signature sauce.', 'Beef, Cheddar, Bun, Sauce', 'Gluten,Dairy', 'large', 7.99, '/public/uploads/1745534772728-315853478.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-24 22:47:41'),
+	(28, 'hamburger', 'Double Cheeseburger', 'Two juicy beef patties, cheddar cheese, and our signature sauce.', 'Beef, Cheddar, Bun, Sauce', 'Gluten,Dairy', 'large', 7.99, '/public/uploads/1745825165183-963770985.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-29 16:51:35'),
 	(29, 'hamburger', 'BBQ Bacon Burger', 'Grilled beef patty, crispy bacon, BBQ sauce, and onion rings.', 'Beef, Bacon, BBQ Sauce, Onion Rings, Bun', 'Gluten', 'large', 8.49, 'images/bbq_bacon_burger.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
-	(30, 'wrap', 'Falafel Wrap', 'Homemade falafel with hummus, lettuce, and tahini dressing.', 'Falafel, Hummus, Lettuce, Tortilla, Tahini', 'Sesame,Gluten', 'medium', 5.99, 'images/falafel_wrap.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(30, 'wrap', 'Falafel Wrap', 'Homemade falafel with hummus, lettuce, and tahini dressing.', 'Falafel, Hummus, Lettuce, Tortilla, Tahini', 'Gluten,Sesame', 'medium', 5.99, 'images/falafel_wrap.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-29 16:48:06'),
 	(31, 'wrap', 'Grilled Veggie Wrap', 'Seasonal grilled veggies with pesto in a soft tortilla.', 'Zucchini, Peppers, Onions, Pesto, Tortilla', 'Nuts,Gluten', 'medium', 5.49, 'images/veggie_wrap.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
-	(32, 'chicken_burger', 'Grilled Chicken Club', 'Grilled chicken breast with bacon, lettuce, tomato, and mayo.', 'Chicken, Bacon, Lettuce, Tomato, Mayo, Bun', 'Gluten,Egg', 'medium', 6.79, 'images/grilled_chicken_club.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
+	(32, 'chicken_burger', 'Grilled Chicken Club', 'Grilled chicken breast with bacon, lettuce, tomato, and mayo.', 'Chicken, Bacon, Lettuce, Tomato, Mayo, Bun', 'Gluten,Egg', 'medium', 6.79, 'images/grilled_chicken_club.jpg', 'no', 'yes', '2025-04-23 11:25:56', '2025-04-29 16:38:32'),
 	(33, 'vegan', 'Tofu Banh Mi', 'Marinated tofu, pickled veggies, and vegan sriracha mayo in a baguette.', 'Tofu, Carrots, Radish, Cucumber, Sriracha Mayo, Baguette', 'Gluten,Soy', 'medium', 6.49, 'images/tofu_banhmi.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
 	(34, 'side', 'Onion Rings', 'Crispy battered onion rings.', 'Onions, Batter, Oil', 'Gluten', 'medium', 3.29, 'images/onion_rings.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
 	(35, 'side', 'Side Salad', 'Fresh garden salad with your choice of dressing.', 'Lettuce, Tomato, Cucumber, Carrot', 'None', 'small', 2.99, 'images/side_salad.jpg', 'yes', 'yes', '2025-04-23 11:25:56', '2025-04-23 11:25:56'),
@@ -124,8 +145,8 @@ CREATE TABLE IF NOT EXISTS `meals` (
 -- Dumping data for table restaurant.meals: ~2 rows (approximately)
 DELETE FROM `meals`;
 INSERT INTO `meals` (`id`, `name`, `description`, `price`, `hamburger_id`, `wrap_id`, `chicken_burger_id`, `vegan_id`, `side_id`, `breakfast_id`, `dessert_id`, `drink_id`, `image_url`, `stock`, `visible`, `created_at`, `updated_at`) VALUES
-	(1, 'Happy Meal™ Chicken Burger', 'Savor the deliciousness of our signature Chicken Burger, a tender, juicy grilled chicken fillet served in a soft, toasted bun. This Happy Meal™ includes a side of crispy, golden fries, and a refreshing soft drink to quench your thirst. Whether you\'re craving a quick snack or a satisfying meal, this delightful combination will hit the spot!', 20.00, 28, 30, 32, 33, 34, 36, 38, NULL, '/public/uploads/1745527267932-12650273.jpg', 'yes', 'yes', '2025-04-24 20:41:07', '2025-04-24 23:03:36'),
-	(2, 'Sunshine Veggie Wrap', 'Wrap yourself in freshness with the Sunshine Veggie Wrap, a vibrant mix of crunchy vegetables, creamy hummus, and a tangy lemon dressing, all wrapped in a soft whole-wheat tortilla. This delightful wrap is not only packed with nutrients but also bursting with flavors that will energize your day!', 12.00, 29, NULL, 32, NULL, NULL, NULL, 38, 40, '/public/uploads/1745530580120-650648379.jpg', 'yes', 'yes', '2025-04-24 21:28:40', '2025-04-24 23:04:09');
+	(1, 'Happy Meal™ Chicken Burger', 'Savor the deliciousness of our signature Chicken Burger, a tender, juicy grilled chicken fillet served in a soft, toasted bun. This Happy Meal™ includes a side of crispy, golden fries, and a refreshing soft drink to quench your thirst. Whether you\'re craving a quick snack or a satisfying meal, this delightful combination will hit the spot!', 20.00, 28, 30, 32, 33, 34, 36, 38, NULL, '/public/uploads/1745527267932-12650273.jpg', 'no', 'yes', '2025-04-24 20:41:07', '2025-04-29 16:38:32'),
+	(2, 'Sunshine Veggie Wrap', 'Wrap yourself in freshness with the Sunshine Veggie Wrap, a vibrant mix of crunchy vegetables, creamy hummus, and a tangy lemon dressing, all wrapped in a soft whole-wheat tortilla. This delightful wrap is not only packed with nutrients but also bursting with flavors that will energize your day!', 12.00, 29, NULL, 32, NULL, NULL, NULL, 38, 40, '/public/uploads/1745530580120-650648379.jpg', 'no', 'yes', '2025-04-24 21:28:40', '2025-04-29 16:38:32');
 
 -- Dumping structure for table restaurant.orders
 DROP TABLE IF EXISTS `orders`;
@@ -150,8 +171,16 @@ CREATE TABLE IF NOT EXISTS `orders` (
   CONSTRAINT `fk_user_order` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table restaurant.orders: ~0 rows (approximately)
+-- Dumping data for table restaurant.orders: ~7 rows (approximately)
 DELETE FROM `orders`;
+INSERT INTO `orders` (`id`, `user_id`, `order_id`, `customer_name`, `customer_phone`, `customer_email`, `items`, `method`, `address`, `scheduled_time`, `notes`, `total_price`, `status`, `created_at`, `updated_at`) VALUES
+	(3, 6, '93917', 'Marko Lehtonen', '+358449876543', 'fecirad539@cyluna.com', '[{"id":2,"quantity":1,"price":12,"type":"meal"},{"id":1,"quantity":2,"price":20,"type":"meal"}]', 'delivery', '{"street":"Katu","postalCode":"0347","city":"Helsinki"}', '2025-04-30T20:32', 'Call upon arrival.1', 52.00, 'preparing', '2025-04-28 12:25:56', '2025-04-29 15:40:48'),
+	(4, 6, '44351', 'Marko Lehtonen', '+358449876543', 'fecirad539@cyluna.com', '[{"id":2,"quantity":2,"price":10,"type":"meal"}]', 'pickup', NULL, 'Now', 'Call upon arrival.', 20.00, 'processing', '2025-04-28 12:28:25', '2025-04-28 12:28:25'),
+	(5, NULL, '89777', 'Marko Lehtonen', '+358449876543', 'fecirad539@cyluna.com', '[{"id":38,"quantity":1,"price":3.49,"type":"item"},{"id":1,"quantity":2,"price":20,"type":"meal"},{"id":40,"quantity":1,"price":1.99,"type":"item"}]', 'delivery', '{"street":"Katu","postalCode":"0347","city":"Helsinki"}', 'Now', 'Call upon arrival.1', 45.48, 'processing', '2025-04-28 17:28:16', '2025-04-28 17:28:16'),
+	(6, 6, '34073', 'Marko Lehtonen', '+358449876543', 'fecirad539@cyluna.com', '[{"id":38,"quantity":1,"price":3.49,"type":"item"},{"id":1,"quantity":2,"price":20,"type":"meal"},{"id":40,"quantity":1,"price":1.99,"type":"item"}]', 'delivery', '{"street":"Katu","postalCode":"0347","city":"Helsinki"}', 'Now', 'Call upon arrival', 45.48, 'processing', '2025-04-28 17:33:43', '2025-04-28 17:33:43'),
+	(7, 6, '13703', 'Marko Lehtonen', '+358449876543', 'fecirad539@cyluna.com', '[{"id":38,"quantity":1,"price":3.49,"type":"item"},{"id":1,"quantity":2,"price":20,"type":"meal"},{"id":40,"quantity":1,"price":1.99,"type":"item"}]', 'pickup', NULL, 'Now', 'Call upon arrival', 45.48, 'preparing', '2025-04-28 17:33:59', '2025-04-28 17:37:35'),
+	(8, 6, '11347', 'Marko Lehtonen', '+358449876543', 'pokotos579@mongrec.com', '[{"id":38,"quantity":1,"price":3.49,"type":"item"},{"id":1,"quantity":2,"price":20,"type":"meal"},{"id":40,"quantity":1,"price":1.99,"type":"item"}]', 'delivery', '{"street":"Katu","postalCode":"0347","city":"Helsinki"}', 'Now', 'Call upon arrival', 45.48, 'processing', '2025-04-28 18:20:46', '2025-04-28 18:20:46'),
+	(9, 6, '52951', 'Marko Lehtonen', '+358449876543', 'pokotos579@mongrec.com', '[{"id":38,"quantity":1,"price":3.49,"type":"item"},{"id":1,"quantity":2,"price":20,"type":"meal"},{"id":40,"quantity":1,"price":1.99,"type":"item"}]', 'pickup', NULL, 'Now', 'Call upon arrival', 45.48, 'ready', '2025-04-28 18:36:50', '2025-04-28 18:43:32');
 
 -- Dumping structure for table restaurant.reservations
 DROP TABLE IF EXISTS `reservations`;
@@ -164,8 +193,12 @@ CREATE TABLE IF NOT EXISTS `reservations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table restaurant.reservations: ~0 rows (approximately)
+-- Dumping data for table restaurant.reservations: ~3 rows (approximately)
 DELETE FROM `reservations`;
+INSERT INTO `reservations` (`id`, `date`, `remaining_chairs`, `allocated_tables`, `status`) VALUES
+	(49, '2025-04-29', 27, '1,2,3,4,5,6,7,8,9,10', 'full'),
+	(50, '2025-05-01', 11, '10,7,1,2,3,4,5,6,8', 'available'),
+	(51, '2025-05-04', 45, '10', 'available');
 
 -- Dumping structure for table restaurant.reservation_details
 DROP TABLE IF EXISTS `reservation_details`;
@@ -179,11 +212,29 @@ CREATE TABLE IF NOT EXISTS `reservation_details` (
   `date` date NOT NULL,
   `time` time NOT NULL,
   `notes` text DEFAULT NULL,
+  `allocated_tables` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dumping data for table restaurant.reservation_details: ~0 rows (approximately)
+-- Dumping data for table restaurant.reservation_details: ~16 rows (approximately)
 DELETE FROM `reservation_details`;
+INSERT INTO `reservation_details` (`id`, `reservation_id`, `name`, `phone`, `email`, `guest_count`, `date`, `time`, `notes`, `allocated_tables`) VALUES
+	(172, 36517, 'asd', '041234567', 'asd@asd.com', 1, '2025-04-29', '10:25:00', 'asdasdassad', '3'),
+	(173, 91583, 'asd', '041234567', 'asd@asd.com', 6, '2025-04-29', '10:25:00', 'asdasdassad', '1,2'),
+	(175, 11585, 'asd', '041234567', 'asd@asd.com', 10, '2025-05-01', '10:46:00', 'asdad', '10'),
+	(176, 36117, 'asd', '041234567', 'asd@asd.com', 1, '2025-05-01', '14:54:00', 'asdasd', '7'),
+	(177, 24492, 'asd', '041234567', 'asd@asd.com', 10, '2025-05-04', '13:37:00', 'asdasdsadsd', '10'),
+	(178, 93860, 'asd', '041234567', 'asd@asd.com', 10, '2025-05-01', '16:56:00', 'asdasdasd', '1,2'),
+	(179, 97187, 'asd', '041234567', 'asd@asd.com', 1, '2025-05-01', '19:50:00', 'wdasdasd', '3'),
+	(180, 88020, 'asd', '041234567', 'asd@asd.com', 3, '2025-04-29', '10:25:00', 'asdasdassad', '4'),
+	(181, 81275, 'asd', '041234567', 'asd@asd.com', 3, '2025-04-29', '10:25:00', 'asdasdassad', '5'),
+	(182, 35948, 'asd', '041234567', 'asd@asd.com', 3, '2025-04-29', '10:25:00', 'asdasdassad', '6'),
+	(183, 84877, 'asd', '041234567', 'asd@asd.com', 3, '2025-04-29', '10:25:00', 'asdasdassad', '7'),
+	(184, 40681, 'asd', '041234567', 'asd@asd.com', 3, '2025-04-29', '10:25:00', 'asdasdassad', '8'),
+	(185, 47277, 'asd', '041234567', 'asd@asd.com', 3, '2025-04-29', '10:25:00', 'asdasdassad', '9'),
+	(186, 93957, 'asd', '041234567', 'asd@asd.com', 3, '2025-04-29', '10:25:00', 'asdasdassad', '10'),
+	(187, 30905, 'asd', '041234567', 'asd@asd.com', 10, '2025-05-01', '10:25:00', 'asdasdassad', '4,5'),
+	(188, 88413, 'asd', '041234567', 'asd@asd.com', 10, '2025-05-01', '10:25:00', 'asdasdassad', '6,8');
 
 -- Dumping structure for table restaurant.restaurant_schedule
 DROP TABLE IF EXISTS `restaurant_schedule`;
@@ -203,7 +254,7 @@ DELETE FROM `restaurant_schedule`;
 INSERT INTO `restaurant_schedule` (`id`, `date`, `open_time`, `close_time`, `status`, `message`) VALUES
 	(1, '2025-04-30', '08:00:00', '22:00:00', 'close', NULL),
 	(5, '2025-04-20', '08:00:00', '22:00:00', 'close', 'Holiday Special from 12 PM - 3 PM'),
-	(7, '2025-04-19', '08:00:00', '22:00:00', 'open', 'Holiday Special from 12 PM - 3 PM'),
+	(7, '2025-04-29', '08:00:00', '22:00:00', 'open', 'Holiday Special from 12 PM - 3 PM'),
 	(9, '2025-04-18', '08:00:00', '22:00:00', 'open', 'Holiday Special from 12 PM - 3 PM');
 
 -- Dumping structure for table restaurant.tables
@@ -227,18 +278,7 @@ INSERT INTO `tables` (`id`, `table_number`, `chairs`) VALUES
 	(7, 7, 5),
 	(8, 8, 5),
 	(9, 9, 5),
-	(10, 10, 10);
-
--- Dumping structure for table restaurant.announcements
-DROP TABLE IF EXISTS `announcements`;
-CREATE TABLE IF NOT EXISTS `announcements` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) NOT NULL,
-  `content` text NOT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+	(10, 10, 5);
 
 -- Dumping structure for trigger restaurant.restore_meal_stock
 DROP TRIGGER IF EXISTS `restore_meal_stock`;
