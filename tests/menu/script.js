@@ -49,6 +49,7 @@ document.getElementById('itemForm').addEventListener('submit', async function (e
         // Reset the form
         this.reset();
         showToast('Item added successfully!'); // Show success toast
+        fetchItems(); // Refresh the items table
 
         // Reset the image preview
         imagePreviewContainer.style.display = 'none'; // Hide the preview container
@@ -124,6 +125,7 @@ document.getElementById('itemForm').addEventListener('submit', async function (e
             // Reset the form
             mealForm.reset();
             showToast('Meal created successfully!'); // Show success toast
+            fetchMeals(); // Refresh the meals table
     
             imagePreviewContainerMeal.style.display = 'none'; // Hide the preview container
             imagePreviewMeal.src = ''; // Clear the image preview
