@@ -94,7 +94,7 @@ async function populateEditAnnouncementModal(announcementId) {
         const announcement = await response.json();
 
         document.getElementById('editAnnouncementTitle').value = announcement.title;
-        document.getElementById('editAnnouncementContent').value = announcement.content;
+        tinymce.get('editAnnouncementContent').setContent(announcement.content); // Populate TinyMCE editor
         document.getElementById('editAnnouncementForm').dataset.announcementId = announcementId;
     } catch (error) {
         console.error('Error populating edit announcement modal:', error);
@@ -108,7 +108,7 @@ document.getElementById('editAnnouncementForm').addEventListener('submit', async
     const announcementId = this.dataset.announcementId;
     const updatedAnnouncement = {
         title: document.getElementById('editAnnouncementTitle').value,
-        content: document.getElementById('editAnnouncementContent').value,
+        content: tinymce.get('editAnnouncementContent').getContent(), // Fetch content from TinyMCE
     };
 
     try {
@@ -120,6 +120,8 @@ document.getElementById('editAnnouncementForm').addEventListener('submit', async
             body: JSON.stringify(updatedAnnouncement),
         });
 
+        console.log('Response:', response); // Log the response for debugging
+        console.log('Updated Announcement:', updatedAnnouncement); // Log the updated announcement for debugging
         if (!response.ok) {
             throw new Error('Failed to update announcement');
         }
@@ -140,7 +142,7 @@ document.getElementById('addAnnouncementForm').addEventListener('submit', async 
 
     const newAnnouncement = {
         title: document.getElementById('addAnnouncementTitle').value,
-        content: document.getElementById('addAnnouncementContent').value,
+        content: tinymce.get('addAnnouncementContent').getContent(), // Fetch content from TinyMCE
     };
 
     try {
