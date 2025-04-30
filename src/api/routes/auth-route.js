@@ -14,6 +14,6 @@ router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password', authController.resetPassword);
 
 // Get current user by token
-router.get('/current-user', isAdminOrUser, authController.getCurrentUser);
+router.get('/users/token', isAdminOrUser, authController.getCurrentUser);
 
 module.exports = router;
