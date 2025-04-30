@@ -560,8 +560,8 @@ const sendOrderConfirmationEmail = async (email, order) => {
       <tr>
         <td>${item.details ? item.details.name : 'N/A'}</td>
         <td>${item.quantity}</td>
-        <td>${item.price.toFixed(2)}€</td>
-        <td>${(item.quantity * item.price).toFixed(2)}€</td>
+        <td>${parseFloat(item.price).toFixed(2)}€</td>
+        <td>${(item.quantity * parseFloat(item.price)).toFixed(2)}€</td>
       </tr>
     `;
   });
