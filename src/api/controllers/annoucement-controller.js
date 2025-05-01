@@ -26,16 +26,21 @@ const getAnnouncementById = async (req, res) => {
   }
 };
 
+// Add detailed error logging to the addAnnouncement controller
 const addAnnouncement = async (req, res) => {
   const { title, content } = req.body;
   const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
 
   try {
+    if (!title || !content) {
+      return res.status(400).json({ error: 'Title and content are required.' });
+    }
+
     await Announcement.addAnnouncement(title, content, image_url);
     res.status(201).json({ message: 'Announcement added successfully', image_url });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to add announcement' });
-    console.error('Error adding announcement:', error); // Log the error for debugging
+    console.error('Error adding announcement:', error);
+    res.status(500).json({ error: 'Failed to add announcement', details: error.message });
   }
 };
 

@@ -16,7 +16,32 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage });
+// Add error handling to multer configuration
+const upload = multer({ 
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(file.mimetype)) {
+            const error = new Error('Invalid file type. Only JPEG, PNG, and GIF are allowed.');
+            error.status = 400;
+            return cb(error);
+        }
+        cb(null, true);
+    }
+});
+
+// Middleware to handle multer errors
+router.use((err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        console.error('Multer error:', err);
+        return res.status(400).json({ error: err.message });
+    } else if (err) {
+        console.error('File upload error:', err);
+        return res.status(err.status || 500).json({ error: err.message });
+    }
+    next();
+});
 
 // Add a new announcement
 router.post('/', upload.single('image'), announcementController.addAnnouncement);

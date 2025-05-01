@@ -220,6 +220,7 @@ addAnnouncementForm.addEventListener('submit', async function (event) {
         addAnnouncementModal.hide();
     } catch (error) {
         console.error('Error adding announcement:', error);
+        alert(`Error adding announcement: ${error.message}`);
     }
 });
 
