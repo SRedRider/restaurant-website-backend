@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors'); // Import CORS middleware
 require('dotenv').config(); // Load environment variables from .env
+const path = require('path'); // Required for resolving paths
 
 // Initialize Express app
 const app = express();
