@@ -18,7 +18,7 @@ const editAnnouncement = async (id, title, content, image_url) => {
 };
 
 const getAllAnnouncements = async () => {
-  const query = 'SELECT * FROM announcements';
+  const query = 'SELECT * FROM announcements ORDER BY created_at DESC';
   const [rows] = await db.query(query);
 
   return rows.map((announcement) => {
