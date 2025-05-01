@@ -8,7 +8,8 @@ const app = express();
 // Middleware setup
 app.use(cors()); // Enable CORS for cross-origin requests
 app.use(express.json()); // Parse incoming JSON data
-app.use('/public/uploads', express.static('public/uploads'));
+app.use('/public/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+
 
 // Routes
 app.use('/api/v1/items', require('./api/routes/item-route')); // Handle item-related routes
