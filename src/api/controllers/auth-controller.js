@@ -252,6 +252,82 @@ const getCurrentUser = async (req, res) => {
     }
 };
 
+// Update current user
+const updateCurrentUser = async (req, res) => {
+    try {
+        const userId = req.user.userId; // Extracted from the token by middleware
+        const { email, name, password, retypePassword } = req.body;
+
+        // Validate input
+        if (!email || !name || !password) {
+            return res.status(400).json({ message: 'Email, name, and password are required.' });
+        }
+
+        if (password !== retypePassword) {
+            return res.status(400).json({ message: 'Passwords do not match.' });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters long.' });
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return res.status(400).json({ message: 'Invalid email format.' });
+        }
+
+        // Check if the new email already exists
+        const existingUser = await userModel.getUserByEmail(email);
+        if (existingUser && existingUser.id !== userId) {
+            return res.status(400).json({ message: 'Email already in use.' });
+        }
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Generate a new verification token
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+
+        // Update user in the database
+        await userModel.updateUser(userId, {
+            email,
+            name,
+            password: hashedPassword,
+            verification_token: verificationToken,
+            verified: false // Reset verification status
+        });
+
+        // Send email with new verification link
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
+        const verificationLink = `https://users.metropolia.fi/~quangth/restaurant/verify.html?token=${verificationToken}`;
+
+        const emailHtml = readTemplate('update-verification.html', { verification_link: verificationLink });
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Email Update Verification',
+            html: emailHtml,
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return res.status(500).json({ message: 'Failed to send verification email.' });
+            }
+            res.status(200).json({ message: 'User updated successfully! Please verify your new email address.' });
+        });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -259,5 +335,6 @@ module.exports = {
     forgotPassword,
     resetPassword,
     getAllUsers,
-    getCurrentUser
+    getCurrentUser,
+    updateCurrentUser
 };

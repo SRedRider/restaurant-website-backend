@@ -16,4 +16,7 @@ router.post('/reset-password', authController.resetPassword);
 // Get current user by token
 router.get('/users/token', isAdminOrUser, authController.getCurrentUser);
 
+// Add route to update current user
+router.put('/users/update', isAdminOrUser, authController.updateCurrentUser);
+
 module.exports = router;

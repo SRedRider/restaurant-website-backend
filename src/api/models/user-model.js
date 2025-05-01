@@ -26,7 +26,6 @@ const verifyUser = async (token) => {
     return result.affectedRows > 0; // Returns true if the update was successful
 };
 
-
 // Update user reset token and expiry
 const updateResetToken = async (userId, resetToken, resetTokenExpiry) => {
     const [result] = await promisePool.query(
@@ -65,6 +64,18 @@ const getUserById = async (userId) => {
     return rows[0];
 };
 
+// Update user details
+const updateUser = async (userId, updatedFields) => {
+    const fields = Object.keys(updatedFields);
+    const values = Object.values(updatedFields);
+
+    const setClause = fields.map(field => `${field} = ?`).join(', ');
+    const query = `UPDATE users SET ${setClause} WHERE id = ?`;
+
+    const [result] = await promisePool.query(query, [...values, userId]);
+    return result.affectedRows > 0;
+};
+
 module.exports = {
     getUserByEmail,
     createUser,
@@ -74,5 +85,6 @@ module.exports = {
     updatePassword,
     clearResetToken,
     getAllUsers,
-    getUserById
+    getUserById,
+    updateUser
 };
