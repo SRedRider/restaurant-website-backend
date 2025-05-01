@@ -259,16 +259,18 @@ const updateCurrentUser = async (req, res) => {
         const { email, name, password, retypePassword } = req.body;
 
         // Validate input
-        if (!email || !name || !password) {
-            return res.status(400).json({ message: 'Email, name, and password are required.' });
+        if (!email || !name) {
+            return res.status(400).json({ message: 'Email and name are required.' });
         }
 
-        if (password !== retypePassword) {
-            return res.status(400).json({ message: 'Passwords do not match.' });
-        }
+        if (password) {
+            if (password !== retypePassword) {
+                return res.status(400).json({ message: 'Passwords do not match.' });
+            }
 
-        if (password.length < 6) {
-            return res.status(400).json({ message: 'Password must be at least 6 characters long.' });
+            if (password.length < 6) {
+                return res.status(400).json({ message: 'Password must be at least 6 characters long.' });
+            }
         }
 
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -281,8 +283,11 @@ const updateCurrentUser = async (req, res) => {
             return res.status(400).json({ message: 'Email already in use.' });
         }
 
-        // Hash the new password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Hash the new password if provided
+        let hashedPassword;
+        if (password) {
+            hashedPassword = await bcrypt.hash(password, 10);
+        }
 
         // Generate a new verification token
         const verificationToken = crypto.randomBytes(32).toString('hex');

@@ -19,13 +19,13 @@ async function fetchAnnouncements() {
                 <td>${announcement.id}</td>
                 <td>${announcement.title}</td>
                 <td>${announcement.content}</td>
-                <td>${announcement.image_url ? `<img src="https://10.120.32.59/app${announcement.image_url}" alt="Image" style="width: 50px; height: 50px;">` : 'No Image'}</td>
+                <a href="https://10.120.32.59/app${announcement.image_url}"><td>${announcement.image_url ? `<img src="https://10.120.32.59/app${announcement.image_url}" alt="Image" style="width: 50px; height: 50px;">` : 'No Image'}</td></a>
                 <td>${new Date(announcement.created_at).toLocaleString('fi-FI')}</td>
                 <td>${new Date(announcement.updated_at).toLocaleString('fi-FI')}</td>
                 <td>
                     <button class="btn btn-primary view-announcement" onclick="viewAnnouncementDetails(${announcement.id})" data-bs-toggle="modal" data-bs-target="#announcementModal">View</button>
                     <button class="btn btn-secondary edit-announcement" onclick="populateEditAnnouncementModal(${announcement.id})" data-bs-toggle="modal" data-bs-target="#editAnnouncementModal">Edit</button>
-                    <button class="btn btn-danger delete-announcement" onclick="deleteAnnouncement(${announcement.id})">Delete</button>
+                    <button class="btn btn-danger delete-announcement" onclick="showDeleteConfirmationModal(${announcement.id})">Delete</button>
                 </td>
             `;
             tbody.appendChild(row);
@@ -56,7 +56,7 @@ async function viewAnnouncementDetails(announcementId) {
             <div class="row mb-4">
                 <!-- Image in the center -->
                 <div class="col-md-12 text-center mb-3">
-                    <img src="https://10.120.32.59/app${announcement.image_url}" alt="${announcement.name}" class="img-fluid rounded" style="max-height: 300px;">
+                    <a href="https://10.120.32.59/app${announcement.image_url}"><img src="https://10.120.32.59/app${announcement.image_url}" alt="${announcement.name}" class="img-fluid rounded" style="max-height: 300px;"></a>
                 </div>
             </div>
             <p><strong>Title:</strong> ${announcement.title}</p>
@@ -69,22 +69,31 @@ async function viewAnnouncementDetails(announcementId) {
     }
 }
 
-// Function to delete an announcement
-async function deleteAnnouncement(announcementId) {
-    try {
-        const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
-            method: 'DELETE',
-        });
+// Show the delete confirmation modal and handle the delete action
+function showDeleteConfirmationModal(announcementId) {
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+    const confirmDeleteButton = document.getElementById('confirmDeleteButton');
 
-        if (!response.ok) {
-            throw new Error('Failed to delete announcement');
+    confirmDeleteButton.onclick = async function () {
+        try {
+            const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete announcement');
+            }
+
+            showToast('Announcement deleted successfully!');
+            fetchAnnouncements();
+        } catch (error) {
+            console.error('Error deleting announcement:', error);
+        } finally {
+            deleteModal.hide();
         }
+    };
 
-        alert('Announcement deleted successfully');
-        fetchAnnouncements();
-    } catch (error) {
-        console.error('Error deleting announcement:', error);
-    }
+    deleteModal.show();
 }
 
 // Function to populate the edit announcement modal
@@ -180,7 +189,7 @@ editAnnouncementForm.addEventListener('submit', async function (event) {
             throw new Error('Failed to update announcement');
         }
 
-        alert('Announcement updated successfully');
+        showToast('Announcement updated successfully!');
         fetchAnnouncements();
 
         const editAnnouncementModal = bootstrap.Modal.getInstance(document.getElementById('editAnnouncementModal'));
@@ -213,8 +222,21 @@ addAnnouncementForm.addEventListener('submit', async function (event) {
             throw new Error('Failed to add announcement');
         }
 
-        alert('Announcement added successfully');
+        showToast('Announcement added successfully!');
         fetchAnnouncements();
+
+        // Reset the add announcement form after successful submission
+        document.getElementById('addAnnouncementForm').reset();
+        tinymce.get('addAnnouncementContent').setContent('');
+
+        // Clear the image input and preview after successful submission
+        const imageInput = document.getElementById('imageAnnouncement');
+        const imagePreview = document.getElementById('imagePreviewContainerAnnouncement');
+        imageInput.value = '';
+        if (imagePreview) {
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+        }
 
         const addAnnouncementModal = bootstrap.Modal.getInstance(document.getElementById('addAnnouncementModal'));
         addAnnouncementModal.hide();
@@ -223,6 +245,16 @@ addAnnouncementForm.addEventListener('submit', async function (event) {
         alert(`Error adding announcement: ${error.message}`);
     }
 });
+
+
+function showToast(message) {
+    const toastElement = document.getElementById('successToast');
+    const toastBody = toastElement.querySelector('.toast-body');
+    toastBody.textContent = message;
+
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+}
 
 // Initialize the announcements table on page load
 document.addEventListener('DOMContentLoaded', fetchAnnouncements);
