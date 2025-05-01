@@ -19,4 +19,10 @@ router.get('/users/token', isAdminOrUser, authController.getCurrentUser);
 // Add route to update current user
 router.put('/users/update', isAdminOrUser, authController.updateCurrentUser);
 
+// Add routes for managing favourites
+router.post('/favourites', isAdminOrUser, authController.addFavouriteItem);
+router.delete('/favourites', isAdminOrUser, authController.removeFavouriteItem);
+// Add route to get user's favourites
+router.get('/favourites', isAdminOrUser, authController.getFavouriteItems);
+
 module.exports = router;

@@ -328,6 +328,72 @@ const updateCurrentUser = async (req, res) => {
     }
 };
 
+// Add favourite item for a user
+const addFavouriteItem = async (req, res) => {
+    try {
+        const userId = req.user.userId; // Extracted from the token by middleware
+        const { itemId, type } = req.body;
+
+        if (!itemId || !type || !['item', 'meal'].includes(type)) {
+            return res.status(400).json({ message: 'Invalid item ID or type.' });
+        }
+
+        // Check if the item exists
+        const itemExists = await userModel.checkItemExists(itemId, type);
+        if (!itemExists) {
+            return res.status(404).json({ message: 'Item does not exist.' });
+        }
+
+        // Check if the favourite already exists
+        const existingFavourite = await userModel.getFavourites(userId);
+        const isDuplicate = existingFavourite.some(fav => fav.item_id === itemId && fav.type === type);
+
+        if (isDuplicate) {
+            return res.status(400).json({ message: 'This item is already in your favourites.' });
+        }
+
+        const favouriteId = await userModel.addFavourite(userId, itemId, type);
+        res.status(201).json({ message: 'Favourite added successfully.', favouriteId });
+    } catch (error) {
+        console.error('Error adding favourite:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+// Remove favourite item for a user
+const removeFavouriteItem = async (req, res) => {
+    try {
+        const userId = req.user.userId; // Extracted from the token by middleware
+        const { itemId, type } = req.body;
+
+        if (!itemId || !type || !['item', 'meal'].includes(type)) {
+            return res.status(400).json({ message: 'Invalid item ID or type.' });
+        }
+
+        const isRemoved = await userModel.removeFavourite(userId, itemId, type);
+        if (isRemoved) {
+            res.status(200).json({ message: 'Favourite removed successfully.' });
+        } else {
+            res.status(404).json({ message: 'Favourite not found.' });
+        }
+    } catch (error) {
+        console.error('Error removing favourite:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+// Get all favourite items for a user
+const getFavouriteItems = async (req, res) => {
+    try {
+        const userId = req.user.userId; // Extracted from the token by middleware
+        const favourites = await userModel.getFavourites(userId);
+        res.status(200).json({ favourites });
+    } catch (error) {
+        console.error('Error fetching favourites:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -336,5 +402,8 @@ module.exports = {
     resetPassword,
     getAllUsers,
     getCurrentUser,
-    updateCurrentUser
+    updateCurrentUser,
+    addFavouriteItem,
+    removeFavouriteItem,
+    getFavouriteItems
 };

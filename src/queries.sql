@@ -280,6 +280,17 @@ INSERT INTO `tables` (`id`, `table_number`, `chairs`) VALUES
 	(9, 9, 5),
 	(10, 10, 5);
 
+-- Dumping structure for table restaurant.favourites
+CREATE TABLE IF NOT EXISTS `favourites` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `type` enum('item','meal') NOT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  UNIQUE KEY `unique_user_item` (`user_id`, `item_id`, `type`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
 -- Dumping structure for trigger restaurant.restore_meal_stock
 DROP TRIGGER IF EXISTS `restore_meal_stock`;
 SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';

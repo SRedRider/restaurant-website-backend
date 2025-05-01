@@ -76,6 +76,43 @@ const updateUser = async (userId, updatedFields) => {
     return result.affectedRows > 0;
 };
 
+// Add favourite item for a user
+const addFavourite = async (userId, itemId, type) => {
+    const [result] = await promisePool.query(
+        'INSERT INTO favourites (user_id, item_id, type) VALUES (?, ?, ?)',
+        [userId, itemId, type]
+    );
+    return result.insertId;
+};
+
+// Remove favourite item for a user
+const removeFavourite = async (userId, itemId, type) => {
+    const [result] = await promisePool.query(
+        'DELETE FROM favourites WHERE user_id = ? AND item_id = ? AND type = ?',
+        [userId, itemId, type]
+    );
+    return result.affectedRows > 0;
+};
+
+// Get all favourite items for a user
+const getFavourites = async (userId) => {
+    const [rows] = await promisePool.query(
+        'SELECT item_id, type FROM favourites WHERE user_id = ?',
+        [userId]
+    );
+    return rows;
+};
+
+// Check if an item exists by ID and type
+const checkItemExists = async (itemId, type) => {
+    const table = type === 'item' ? 'items' : 'meals';
+    const [rows] = await promisePool.query(
+        `SELECT COUNT(*) as count FROM ${table} WHERE id = ?`,
+        [itemId]
+    );
+    return rows[0].count > 0;
+};
+
 module.exports = {
     getUserByEmail,
     createUser,
@@ -86,5 +123,9 @@ module.exports = {
     clearResetToken,
     getAllUsers,
     getUserById,
-    updateUser
+    updateUser,
+    addFavourite,
+    removeFavourite,
+    getFavourites,
+    checkItemExists
 };
