@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors'); // Import CORS middleware
 require('dotenv').config(); // Load environment variables from .env
-const path = require('path'); // Required for resolving paths
 
 // Initialize Express app
 const app = express();
@@ -9,8 +8,7 @@ const app = express();
 // Middleware setup
 app.use(cors()); // Enable CORS for cross-origin requests
 app.use(express.json()); // Parse incoming JSON data
-app.use('/public/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
-
+app.use('/public/uploads', express.static('public/uploads'));
 
 // Routes
 app.use('/api/v1/items', require('./api/routes/item-route')); // Handle item-related routes

@@ -7,9 +7,7 @@ const path = require('path');
 // Multer Storage Configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadPath = path.resolve(__dirname, '../public/uploads');
-        cb(null, uploadPath); // Set upload folder to an absolute path
-
+        cb(null, 'public/uploads/'); // Set upload folder
     },
     filename: (req, file, cb) => {
         const ext = path.extname(file.originalname); // Get the file extension
