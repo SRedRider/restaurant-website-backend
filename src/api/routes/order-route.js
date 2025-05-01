@@ -13,7 +13,7 @@ router.get('/', isAdmin, getOrders);
 
 router.get('/:orderId', isAdminOrUser, checkVisibleAccess, getOrder);
 
-router.put('/:orderId', isAdminOrUser, editOrder);
+router.put('/:orderId', isAdmin, editOrder);
 
 // Add a new route to get orders for a specific user
 router.get('/user/:userId', isAdminOrUser, checkVisibleAccess, getOrdersByUser);
