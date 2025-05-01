@@ -33,7 +33,7 @@ document.getElementById('itemForm').addEventListener('submit', async function (e
     loadingSpinner.style.display = 'inline-block';
 
     // Send the request to the server
-    const response = await fetch('http://localhost:3000/api/v1/items', {
+    const response = await fetch('https://10.120.32.59/app/api/v1/items', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Include token for authorization
@@ -109,7 +109,7 @@ document.getElementById('itemForm').addEventListener('submit', async function (e
         loadingSpinner.style.display = 'inline-block';
     
 
-        const response = await fetch('http://localhost:3000/api/v1/meals', {
+        const response = await fetch('https://10.120.32.59/app/api/v1/meals', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Include token for authorization
@@ -146,7 +146,7 @@ document.getElementById('itemForm').addEventListener('submit', async function (e
 
 async function fetchItemsForMeals() {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/items', {
+        const response = await fetch('https://10.120.32.59/app/api/v1/items', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -184,7 +184,7 @@ async function fetchItemsForMeals() {
     // Fetch and populate table data
 async function fetchItems() {
         try {
-            const response = await fetch('http://localhost:3000/api/v1/items', {
+            const response = await fetch('https://10.120.32.59/app/api/v1/items', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Replace with real JWT
@@ -203,7 +203,7 @@ async function fetchItems() {
                     <td>${item.ingredients}</td>
                     <td>${item.allergens}</td>
                     <td>${item.size}</td>
-                    <td><img src="http://localhost:3000${item.image_url}" alt="${item.name}" style="width: 50px; height: 50px;"></td>
+                    <td><img src="https://10.120.32.59/app${item.image_url}" alt="${item.name}" style="width: 50px; height: 50px;"></td>
                     <td>${item.price}€</td>
                     <td><span class="badge ${item.stock.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${item.stock.toLowerCase() === 'yes' ? 'In Stock' : 'Out of Stock'}</span></td>
                     <td><span class="badge ${item.visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${item.visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span></td>
@@ -224,7 +224,7 @@ async function fetchItems() {
     };
     async function fetchMeals() {
         try {
-            const response = await fetch('http://localhost:3000/api/v1/meals', {
+            const response = await fetch('https://10.120.32.59/app/api/v1/meals', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Replace with real JWT
@@ -248,7 +248,7 @@ async function fetchItems() {
                     <td>${meal.dessert_id}</td>
                     <td>${meal.drink_id}</td>
                     
-                    <td><img src="http://localhost:3000${meal.image_url}" alt="${meal.name}" style="width: 50px; height: 50px;"></td>
+                    <td><img src="https://10.120.32.59/app${meal.image_url}" alt="${meal.name}" style="width: 50px; height: 50px;"></td>
                     <td>${meal.price}€</td>
                     <td><span class="badge ${meal.stock.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${meal.stock.toLowerCase() === 'yes' ? 'In Stock' : 'Out of Stock'}</span></td>
                     <td><span class="badge ${meal.visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${meal.visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span></td>
@@ -271,7 +271,7 @@ async function fetchItems() {
             // Function to show item details in a modal
             async function viewItemDetails(id) {
                 try {
-                    const response = await fetch(`http://localhost:3000/api/v1/items/${id}`, {
+                    const response = await fetch(`https://10.120.32.59/app/api/v1/items/${id}`, {
                         method: 'GET',
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Replace with real JWT
@@ -310,7 +310,7 @@ async function fetchItems() {
                             <div class="row mb-4">
                                 <!-- Image in the center -->
                                 <div class="col-md-12 text-center mb-3">
-                                    <img src="http://localhost:3000${item.image_url}" alt="${item.name}" class="img-fluid rounded" style="max-height: 300px;">
+                                    <img src="https://10.120.32.59/app${item.image_url}" alt="${item.name}" class="img-fluid rounded" style="max-height: 300px;">
                                     <p class="mt-5"><strong>Description:</strong> ${item.description}</p>
                                 </div>
                             </div>
@@ -343,7 +343,7 @@ async function fetchItems() {
         
         async function fetchItemName(itemId) {
             try {
-                const response = await fetch(`http://localhost:3000/api/v1/items/${itemId}`, {
+                const response = await fetch(`https://10.120.32.59/app/api/v1/items/${itemId}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Replace with real JWT
@@ -362,7 +362,7 @@ async function fetchItems() {
         
         async function viewMealDetails(id) {
             try {
-                const response = await fetch(`http://localhost:3000/api/v1/meals/${id}`, {
+                const response = await fetch(`https://10.120.32.59/app/api/v1/meals/${id}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Replace with real JWT
@@ -412,7 +412,7 @@ async function fetchItems() {
                         <div class="row mb-4">
                             <!-- Image in the center -->
                             <div class="col-md-12 text-center mb-3">
-                                <img src="http://localhost:3000${meal.image_url}" alt="${meal.name}" class="img-fluid rounded" style="max-height: 300px;">
+                                <img src="https://10.120.32.59/app${meal.image_url}" alt="${meal.name}" class="img-fluid rounded" style="max-height: 300px;">
                                 <p class="mb-5"><strong>Description:</strong> ${meal.description}</p>
                             </div>
                         </div>
@@ -463,7 +463,7 @@ async function fetchItems() {
             const editForm = document.getElementById('editItemForm');
             editForm.reset();
             try {
-                const response = await fetch(`http://localhost:3000/api/v1/items/${id}`, {
+                const response = await fetch(`https://10.120.32.59/app/api/v1/items/${id}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Replace with real JWT
@@ -500,7 +500,7 @@ async function fetchItems() {
                 const removeImageButton = document.getElementById('removeImageButton');
                 
                 if (item.image_url) {
-                    imagePreviewEdit.src = `http://localhost:3000${item.image_url}`;
+                    imagePreviewEdit.src = `https://10.120.32.59/app${item.image_url}`;
                     imagePreviewContainerEdit.style.display = 'block';
                     imageHeadingEdit.innerText = 'Original Image'; 
                     removeImageButton.style.display = 'none';  // Do not show remove button initially
@@ -524,7 +524,7 @@ async function fetchItems() {
                         reader.readAsDataURL(file);
                     } else {
                         // If no image is selected, show the original image
-                        imagePreviewEdit.src = `http://localhost:3000${item.image_url}`;
+                        imagePreviewEdit.src = `https://10.120.32.59/app${item.image_url}`;
                         imagePreviewContainerEdit.style.display = 'block';
                         imageHeadingEdit.innerText = 'Original Image';
                         removeImageButton.style.display = 'none';  // Hide remove button
@@ -534,7 +534,7 @@ async function fetchItems() {
                 // Remove Image Button Logic
                 removeImageButton.addEventListener('click', function() {
                     // When the user clicks "Remove Image", reset to the original image
-                    imagePreviewEdit.src = `http://localhost:3000${item.image_url}`;
+                    imagePreviewEdit.src = `https://10.120.32.59/app${item.image_url}`;
                     imagePreviewContainerEdit.style.display = 'block';
                     imageHeadingEdit.innerText = 'Original Image';
                     removeImageButton.style.display = 'none';  // Hide the remove button
@@ -588,7 +588,7 @@ async function fetchItems() {
                     }
         
                     try {
-                        const response = await fetch(`http://localhost:3000/api/v1/items/${id}`, {
+                        const response = await fetch(`https://10.120.32.59/app/api/v1/items/${id}`, {
                             method: 'PUT',
                             headers: {
                                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Include token for authorization
@@ -624,7 +624,7 @@ async function fetchItems() {
             const editForm = document.getElementById('editMealForm');
             editForm.reset();
             try {
-                const response = await fetch(`http://localhost:3000/api/v1/meals/${id}`, {
+                const response = await fetch(`https://10.120.32.59/app/api/v1/meals/${id}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Replace with real JWT
@@ -650,7 +650,7 @@ async function fetchItems() {
                 const removeImageButton = document.getElementById('removeMealImageButton');
         
                 if (meal.image_url) {
-                    imagePreview.src = `http://localhost:3000${meal.image_url}`;
+                    imagePreview.src = `https://10.120.32.59/app${meal.image_url}`;
                     imagePreviewContainer.style.display = 'block';
                     imageHeading.innerText = 'Original Image';
                     removeImageButton.style.display = 'none';
@@ -672,7 +672,7 @@ async function fetchItems() {
                         };
                         reader.readAsDataURL(file);
                     } else {
-                        imagePreview.src = `http://localhost:3000${meal.image_url}`;
+                        imagePreview.src = `https://10.120.32.59/app${meal.image_url}`;
                         imagePreviewContainer.style.display = 'block';
                         imageHeading.innerText = 'Original Image';
                         removeImageButton.style.display = 'none';
@@ -680,7 +680,7 @@ async function fetchItems() {
                 });
         
                 removeImageButton.addEventListener('click', function () {
-                    imagePreview.src = `http://localhost:3000${meal.image_url}`;
+                    imagePreview.src = `https://10.120.32.59/app${meal.image_url}`;
                     imagePreviewContainer.style.display = 'block';
                     imageHeading.innerText = 'Original Image';
                     removeImageButton.style.display = 'none';
@@ -718,7 +718,7 @@ async function fetchItems() {
                     }
         
                     try {
-                        const response = await fetch(`http://localhost:3000/api/v1/meals/${id}`, {
+                        const response = await fetch(`https://10.120.32.59/app/api/v1/meals/${id}`, {
                             method: 'PUT',
                             headers: {
                                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Include token for authorization
@@ -756,7 +756,7 @@ async function fetchItems() {
         
         async function fetchItemsForEditMeal(meal) {
             try {
-                const response = await fetch('http://localhost:3000/api/v1/items', {
+                const response = await fetch('https://10.120.32.59/app/api/v1/items', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -800,7 +800,7 @@ async function fetchItems() {
         // Function to handle delete button click
         async function deleteItem(id) {
             try {
-                const response = await fetch(`http://localhost:3000/api/v1/items/${id}/checkMeal`, {
+                const response = await fetch(`https://10.120.32.59/app/api/v1/items/${id}/checkMeal`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Replace with real JWT
@@ -889,7 +889,7 @@ async function fetchItems() {
         // Function to perform deletion
         async function confirmDelete(id, deleteMeal = false) {
             try {
-                const response = await fetch(`http://localhost:3000/api/v1/items/${id}`, {
+                const response = await fetch(`https://10.120.32.59/app/api/v1/items/${id}`, {
                     method: 'DELETE',  // Specify the HTTP method as DELETE
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Include token for authorization

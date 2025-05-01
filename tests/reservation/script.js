@@ -1,6 +1,6 @@
 async function fetchReservations() {
         try {
-            const response = await fetch('http://localhost:3000/api/v1/reservations/', {
+            const response = await fetch('https://10.120.32.59/app/api/v1/reservations/', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -49,7 +49,7 @@ async function fetchReservations() {
 
 async function fetchTables() {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/reservations/tables', {
+        const response = await fetch('https://10.120.32.59/app/api/v1/reservations/tables', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -85,7 +85,7 @@ async function fetchTables() {
 
 async function viewReservationDetails(reservationId) {
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/reservations/${reservationId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/reservations/${reservationId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -119,7 +119,7 @@ async function viewReservationDetails(reservationId) {
 
 async function populateEditReservationModal(reservationId) {
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/reservations/${reservationId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/reservations/${reservationId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -165,7 +165,7 @@ document.getElementById('editReservationForm').addEventListener('submit', async 
     };
 
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/reservations/${reservationId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/reservations/${reservationId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -194,7 +194,7 @@ document.getElementById('editReservationForm').addEventListener('submit', async 
 
 async function populateEditTableModal(tableId) {
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/reservations/tables/${tableId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/reservations/tables/${tableId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -226,7 +226,7 @@ document.getElementById('editTableForm').addEventListener('submit', async functi
     };
 
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/reservations/tables/${tableId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/reservations/tables/${tableId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -263,7 +263,7 @@ async function initializeTable(tableId, pageSize) {
 
 async function fetchAvailableDays() {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/reservations/available-days', {
+        const response = await fetch('https://10.120.32.59/app/api/v1/reservations/available-days', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`

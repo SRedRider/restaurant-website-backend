@@ -1,7 +1,7 @@
 // Function to fetch and display all announcements
 async function fetchAnnouncements() {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/announcements', {
+        const response = await fetch('https://10.120.32.59/app/api/v1/announcements', {
             method: 'GET',
         });
 
@@ -39,7 +39,7 @@ async function fetchAnnouncements() {
 // Function to view announcement details
 async function viewAnnouncementDetails(announcementId) {
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/announcements/${announcementId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
             method: 'GET',
         });
 
@@ -65,7 +65,7 @@ async function viewAnnouncementDetails(announcementId) {
 // Function to delete an announcement
 async function deleteAnnouncement(announcementId) {
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/announcements/${announcementId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
             method: 'DELETE',
         });
 
@@ -83,7 +83,7 @@ async function deleteAnnouncement(announcementId) {
 // Function to populate the edit announcement modal
 async function populateEditAnnouncementModal(announcementId) {
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/announcements/${announcementId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
             method: 'GET',
         });
 
@@ -94,7 +94,7 @@ async function populateEditAnnouncementModal(announcementId) {
         const announcement = await response.json();
 
         document.getElementById('editAnnouncementTitle').value = announcement.title;
-        document.getElementById('editAnnouncementContent').value = announcement.content;
+        tinymce.get('editAnnouncementContent').setContent(announcement.content); // Use TinyMCE API to set content
         document.getElementById('editAnnouncementForm').dataset.announcementId = announcementId;
     } catch (error) {
         console.error('Error populating edit announcement modal:', error);
@@ -112,7 +112,7 @@ document.getElementById('editAnnouncementForm').addEventListener('submit', async
     };
 
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/announcements/${announcementId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ document.getElementById('addAnnouncementForm').addEventListener('submit', async 
     };
 
     try {
-        const response = await fetch('http://localhost:3000/api/v1/announcements', {
+        const response = await fetch('https://10.120.32.59/app/api/v1/announcements', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

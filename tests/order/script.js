@@ -1,7 +1,7 @@
 // Make viewOrderDetails globally accessible
 async function viewOrderDetails(orderId) {
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/orders/${orderId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/orders/${orderId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -105,7 +105,7 @@ document.getElementById('editItems').addEventListener('input', calculateAndPopul
 
 // Function to fetch items or meals based on the type and populate the select dropdown
 async function fetchOptions(type) {
-    const url = type === 'item' ? 'http://localhost:3000/api/v1/items/' : 'http://localhost:3000/api/v1/meals/';
+    const url = type === 'item' ? 'https://10.120.32.59/app/api/v1/items/' : 'https://10.120.32.59/app/api/v1/meals/';
     try {
         const response = await fetch(url, {
             method: 'GET',
@@ -197,7 +197,7 @@ async function addItemRow(item = { id: '', quantity: 1, price: 0.00, type: 'item
 
 async function populateEditOrderModal(orderId) {
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/orders/${orderId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/orders/${orderId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -295,7 +295,7 @@ document.getElementById('editOrderForm').addEventListener('submit', async functi
     console.log('Updated Order:', JSON.stringify(updatedOrder, null, 2));
 
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/orders/${orderId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/orders/${orderId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -327,7 +327,7 @@ document.getElementById('editOrderForm').addEventListener('submit', async functi
 
 async function fetchOrders() {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/orders/', {
+        const response = await fetch('https://10.120.32.59/app/api/v1/orders/', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`

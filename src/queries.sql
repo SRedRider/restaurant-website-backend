@@ -57,6 +57,9 @@ CREATE TABLE IF NOT EXISTS `announcements` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+-- Update the character set and collation for the `announcements` table to support emojis
+ALTER TABLE `announcements` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- Dumping data for table restaurant.announcements: ~5 rows (approximately)
 DELETE FROM `announcements`;
 INSERT INTO `announcements` (`id`, `title`, `content`, `created_at`, `updated_at`) VALUES
