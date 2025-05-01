@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS `announcements` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
   `content` text NOT NULL,
+  `image_url` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
@@ -62,12 +63,12 @@ ALTER TABLE `announcements` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_uni
 
 -- Dumping data for table restaurant.announcements: ~5 rows (approximately)
 DELETE FROM `announcements`;
-INSERT INTO `announcements` (`id`, `title`, `content`, `created_at`, `updated_at`) VALUES
-	(2, 'asd', 'asdasdsa', '2025-04-29 11:29:06', '2025-04-29 11:29:06'),
-	(3, 'asd', '', '2025-04-29 12:15:32', '2025-04-29 12:15:32'),
-	(4, 'asdasd', '', '2025-04-29 12:15:59', '2025-04-29 12:15:59'),
-	(5, 'asd', '', '2025-04-29 12:16:45', '2025-04-29 12:16:45'),
-	(7, 'asda', '', '2025-04-29 12:19:40', '2025-04-29 12:19:40');
+INSERT INTO `announcements` (`id`, `title`, `content`, `image_url`, `created_at`, `updated_at`) VALUES
+	(2, 'asd', 'asdasdsa', NULL, '2025-04-29 11:29:06', '2025-04-29 11:29:06'),
+	(3, 'asd', '', NULL, '2025-04-29 12:15:32', '2025-04-29 12:15:32'),
+	(4, 'asdasd', '', NULL, '2025-04-29 12:15:59', '2025-04-29 12:15:59'),
+	(5, 'asd', '', NULL, '2025-04-29 12:16:45', '2025-04-29 12:16:45'),
+	(7, 'asda', '', NULL, '2025-04-29 12:19:40', '2025-04-29 12:19:40');
 
 -- Dumping structure for table restaurant.items
 DROP TABLE IF EXISTS `items`;

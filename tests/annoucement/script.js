@@ -19,6 +19,7 @@ async function fetchAnnouncements() {
                 <td>${announcement.id}</td>
                 <td>${announcement.title}</td>
                 <td>${announcement.content}</td>
+                <td>${announcement.image_url ? `<img src="https://10.120.32.59/app${announcement.image_url}" alt="Image" style="width: 50px; height: 50px;">` : 'No Image'}</td>
                 <td>${new Date(announcement.created_at).toLocaleString('fi-FI')}</td>
                 <td>${new Date(announcement.updated_at).toLocaleString('fi-FI')}</td>
                 <td>
@@ -52,6 +53,12 @@ async function viewAnnouncementDetails(announcementId) {
 
         modalBody.innerHTML = `
             <p><strong>ID:</strong> ${announcement.id}</p>
+            <div class="row mb-4">
+                <!-- Image in the center -->
+                <div class="col-md-12 text-center mb-3">
+                    <img src="https://10.120.32.59/app${announcement.image_url}" alt="${announcement.name}" class="img-fluid rounded" style="max-height: 300px;">
+                </div>
+            </div>
             <p><strong>Title:</strong> ${announcement.title}</p>
             <p><strong>Content:</strong> ${announcement.content}</p>
             <p><strong>Created At:</strong> ${new Date(announcement.created_at).toLocaleString('fi-FI')}</p>
@@ -94,34 +101,81 @@ async function populateEditAnnouncementModal(announcementId) {
         const announcement = await response.json();
 
         document.getElementById('editAnnouncementTitle').value = announcement.title;
-        tinymce.get('editAnnouncementContent').setContent(announcement.content); // Use TinyMCE API to set content
+        tinymce.get('editAnnouncementContent').setContent(announcement.content);
         document.getElementById('editAnnouncementForm').dataset.announcementId = announcementId;
+
+         // Image Handling
+     const imagePreviewContainer = document.getElementById('editAnnouncementImagePreviewContainer');
+     const imagePreview = document.getElementById('editAnnouncementImagePreview');
+     const imageHeading = document.getElementById('editAnnouncementImageHeading');
+     const removeImageButton = document.getElementById('removeAnnouncementImageButton');
+
+     if (announcement.image_url) {
+         imagePreview.src = `https://10.120.32.59/app${announcement.image_url}`;
+         imagePreviewContainer.style.display = 'block';
+         imageHeading.innerText = 'Original Image';
+         removeImageButton.style.display = 'none';
+     } else {
+         imagePreviewContainer.style.display = 'none';
+         removeImageButton.style.display = 'none';
+     }
+
+     const imageInput = document.getElementById('editAnnouncementImage');
+     imageInput.addEventListener('change', function () {
+         const file = imageInput.files[0];
+         if (file) {
+             const reader = new FileReader();
+             reader.onload = function (e) {
+                 imagePreview.src = e.target.result;
+                 imagePreviewContainer.style.display = 'block';
+                 imageHeading.innerText = 'New Image';
+                 removeImageButton.style.display = 'inline-block';
+             };
+             reader.readAsDataURL(file);
+         } else {
+             imagePreview.src = `https://10.120.32.59/app${announcement.image_url}`;
+             imagePreviewContainer.style.display = 'block';
+             imageHeading.innerText = 'Original Image';
+             removeImageButton.style.display = 'none';
+         }
+     });
+
+     removeImageButton.addEventListener('click', function () {
+         imagePreview.src = `https://10.120.32.59/app${announcement.image_url}`;
+         imagePreviewContainer.style.display = 'block';
+         imageHeading.innerText = 'Original Image';
+         removeImageButton.style.display = 'none';
+         imageInput.value = '';
+     });
+
     } catch (error) {
         console.error('Error populating edit announcement modal:', error);
     }
 }
 
 // Function to handle the edit announcement form submission
-document.getElementById('editAnnouncementForm').addEventListener('submit', async function (event) {
+const editAnnouncementForm = document.getElementById('editAnnouncementForm');
+editAnnouncementForm.addEventListener('submit', async function (event) {
     event.preventDefault();
 
     const announcementId = this.dataset.announcementId;
-    const updatedAnnouncement = {
-        title: document.getElementById('editAnnouncementTitle').value,
-        content: tinymce.get('editAnnouncementContent').getContent(), // Fetch content from TinyMCE
-    };
+    const formData = new FormData();
+    formData.append('title', document.getElementById('editAnnouncementTitle').value);
+    formData.append('content', tinymce.get('editAnnouncementContent').getContent());
+
+    const newImage = document.getElementById('editAnnouncementImage').files[0];
+    if (newImage) {
+        formData.append('image', newImage);
+    } else {
+        formData.append('image', originalImageUrl);
+    }
 
     try {
         const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updatedAnnouncement),
+            body: formData,
         });
 
-        console.log('Response:', response); // Log the response for debugging
-        console.log('Updated Announcement:', updatedAnnouncement); // Log the updated announcement for debugging
         if (!response.ok) {
             throw new Error('Failed to update announcement');
         }
@@ -137,25 +191,24 @@ document.getElementById('editAnnouncementForm').addEventListener('submit', async
 });
 
 // Function to handle the add announcement form submission
-document.getElementById('addAnnouncementForm').addEventListener('submit', async function (event) {
+const addAnnouncementForm = document.getElementById('addAnnouncementForm');
+addAnnouncementForm.addEventListener('submit', async function (event) {
     event.preventDefault();
 
-    const newAnnouncement = {
-        title: document.getElementById('addAnnouncementTitle').value,
-        content: tinymce.get('addAnnouncementContent').getContent(), // Fetch content from TinyMCE
-    };
+    const formData = new FormData();
+    formData.append('title', document.getElementById('addAnnouncementTitle').value);
+    formData.append('content', tinymce.get('addAnnouncementContent').getContent());
+    const imageFile = document.getElementById('imageAnnouncement').files[0];
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
 
     try {
         const response = await fetch('https://10.120.32.59/app/api/v1/announcements', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newAnnouncement),
+            body: formData,
         });
 
-        console.log('Response:', response); // Log the response for debugging
-        console.log('New Announcement:', newAnnouncement); // Log the new announcement for debugging
         if (!response.ok) {
             throw new Error('Failed to add announcement');
         }
