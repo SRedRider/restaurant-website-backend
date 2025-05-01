@@ -84,11 +84,12 @@ const createNewOrder = async (req, res) => {
     if (!address.street || typeof address.street !== 'string' || address.street.trim() === '') {
       return res.status(400).json({ message: 'Address must include a valid street' });
     }
-    if (!address.city || typeof address.city !== 'string' || address.city.trim() === '') {
-      return res.status(400).json({ message: 'Address must include a valid city' });
+    if (!address.city || typeof address.city !== 'string' || address.city.trim() === '' || !['Helsinki', 'Espoo', 'Vantaa'].includes(address.city)) {
+      return res.status(400).json({ message: 'Address must include a valid city: Helsinki, Espoo, or Vantaa' });
     }
-    if (!address.postalCode || typeof address.postalCode !== 'string' || address.postalCode.trim() === '') {
-      return res.status(400).json({ message: 'Address must include a valid postal code' });
+    const postalCodeRegex = /^\d{5}$/;
+    if (!address.postalCode || typeof address.postalCode !== 'string' || !postalCodeRegex.test(address.postalCode)) {
+      return res.status(400).json({ message: 'Address must include a valid Finnish postal code (5 digits)' });
     }
   }
 
