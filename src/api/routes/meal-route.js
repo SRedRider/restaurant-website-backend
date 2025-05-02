@@ -24,5 +24,6 @@ router.post('/', isAdmin, upload.single('image'), mealController.addMeal);
 router.get('/', checkVisibleAccess, mealController.getAllMeals);
 router.get('/:id', checkVisibleAccess, mealController.getMealById);
 router.put('/:id', isAdmin, checkVisibleAccess, upload.single('image'), mealController.updateMeal);
+router.delete('/:id', isAdmin, mealController.deleteMeal);
 
 module.exports = router;

@@ -106,5 +106,19 @@ const updateMeal = async (req, res) => {
     }
 };
 
+const deleteMeal = async (req, res) => {
+    try {
+        const meal = await Meal.getMealById(req.params.id, req.isAdmin);
+        if (!meal) {
+            return res.status(404).json({ message: 'Meal not found' });
+        }
 
-module.exports = { addMeal, getAllMeals, getMealById, updateMeal };
+        await Meal.deleteMeal(req.params.id);
+        res.status(200).json({ message: 'Meal deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting meal:', error);
+        res.status(500).json({ error: 'Database error' });
+    }
+};
+
+module.exports = { addMeal, getAllMeals, getMealById, updateMeal, deleteMeal };

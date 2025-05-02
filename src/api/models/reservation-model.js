@@ -106,7 +106,7 @@ const checkAndBookReservation = async (date, time, guestCount, details) => {
     await connection.commit();
     connection.release();
 
-    return { success: true, reservationId};
+    return { success: true, reservationId, allocatedTables: tablesToAllocate };
   } catch (err) {
     console.error(err);
     if (connection) {
@@ -397,4 +397,51 @@ const updateReservationTable = async (id, details) => {
   }
 };
 
-module.exports = { getMaxChairs, checkAndBookReservation, getAllReservations, getReservationDays, getReservationById, updateReservation, deleteReservation, getReservationTables, getReservationTableById, updateReservationTable };
+// Add a new table
+const addReservationTable = async ({chairs }) => {
+  const table_number = Math.floor(100 + Math.random() * 900); // 5-digit random number
+  try {
+    const result = await db.query('INSERT INTO tables (table_number, chairs) VALUES (?, ?)', [
+      table_number,
+      chairs
+    ]);
+
+    if (result[0].affectedRows === 0) {
+      throw new Error('Failed to add table');
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error(err);
+    throw new Error('Error adding table');
+  }
+};
+
+// Delete a table
+const deleteReservationTable = async (id) => {
+  try {
+    // Check if the table is allocated in any reservation
+    const [rows] = await db.query(
+      'SELECT COUNT(*) as count FROM reservations WHERE FIND_IN_SET(?, allocated_tables)',
+      [id]
+    );
+
+    if (rows[0].count > 0) {
+      return { success: false, message: 'Table is currently allocated in a reservation and cannot be deleted' };
+    }
+
+    // Proceed to delete the table if not allocated
+    const result = await db.query('DELETE FROM tables WHERE id = ?', [id]);
+
+    if (result[0].affectedRows === 0) {
+      return { success: false, message: 'Table not found' };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error(err);
+    throw new Error('Error deleting table');
+  }
+};
+
+module.exports = { getMaxChairs, checkAndBookReservation, getAllReservations, getReservationDays, getReservationById, updateReservation, deleteReservation, getReservationTables, getReservationTableById, updateReservationTable, addReservationTable, deleteReservationTable };

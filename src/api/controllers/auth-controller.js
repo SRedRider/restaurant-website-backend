@@ -221,7 +221,7 @@ const resetPassword = async (req, res) => {
 const getAllUsers = async (req, res) => {
     try {
         const users = await userModel.getAllUsers(); // Fetch users from the model
-        res.status(200).json({ users });  // Return the users as a JSON response
+        res.status(200).json(users);  // Return the users as a JSON response
     } catch (error) {
         console.error('Error fetching users:', error);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -399,6 +399,63 @@ const getFavouriteItems = async (req, res) => {
     }
 };
 
+// Get a user by ID
+const getUserById = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const user = await userModel.getUserById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+// Update a user by ID
+const updateUserById = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const { email, name, role, status } = req.body;
+
+        if (!email || !name || !role || !status) {
+            return res.status(400).json({ message: 'All fields are required.' });
+        }
+
+        const updated = await userModel.updateUser(userId, { email, name, role, status });
+
+        if (!updated) {
+            return res.status(404).json({ message: 'User not found or update failed.' });
+        }
+
+        res.status(200).json({ message: 'User updated successfully.' });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+// Delete a user by ID
+const deleteUserById = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const deleted = await userModel.deleteUser(userId);
+
+        if (!deleted) {
+            return res.status(404).json({ message: 'User not found or delete failed.' });
+        }
+
+        res.status(200).json({ message: 'User deleted successfully.' });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -410,5 +467,8 @@ module.exports = {
     updateCurrentUser,
     addFavouriteItem,
     removeFavouriteItem,
-    getFavouriteItems
+    getFavouriteItems,
+    getUserById,
+    updateUserById,
+    deleteUserById
 };

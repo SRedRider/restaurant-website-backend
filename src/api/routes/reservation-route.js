@@ -15,11 +15,17 @@ router.get('/available-days', reservationController.getAvailableDays);
 // Fetch reservation tables
 router.get('/tables', isAdmin, reservationController.getReservationTables);
 
+// Add a new table
+router.post('/tables', isAdmin, reservationController.addReservationTable);
+
 // Fetch a reservation table by ID
 router.get('/tables/:id', reservationController.getReservationTableById);
 
 // Update a reservation table
 router.put('/tables/:id', isAdmin, reservationController.updateReservationTable);
+
+// Delete a table
+router.delete('/tables/:id', isAdmin, reservationController.deleteReservationTable);
 
 router.post('/test', reservationController.testReservationAvailability);
 

@@ -35,7 +35,7 @@ const bookReservation = async (req, res) => {
         reservationId: result.reservationId,
         allocatedTables: result.allocatedTables
       });
-      await sendConfirmationEmail(email, name, date, time, guest_count, notes);
+      await sendConfirmationEmail(email, name, date, time, guest_count, notes, result.allocatedTables);
     } else {
       res.status(400).json({ success: false, message: result.message });
     }
@@ -99,7 +99,7 @@ const getAvailableDays = async (req, res) => {
   });
 
 // Updated the email content to present reservation details as a single paragraph instead of separate sections
-const sendConfirmationEmail = async (email, name, reservationDate, reservationTime, guest_count, notes) => {
+const sendConfirmationEmail = async (email, name, reservationDate, reservationTime, guest_count, notes, allocatedTables) => {
   const formattedDate = moment(reservationDate, 'YYYY-MM-DD').format('DD.MM.YYYY');
 
   const mailOptions = {
@@ -112,7 +112,6 @@ const sendConfirmationEmail = async (email, name, reservationDate, reservationTi
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservation Confirmation</title>
     <style>
         /* General Reset */
         * {
@@ -216,7 +215,8 @@ const sendConfirmationEmail = async (email, name, reservationDate, reservationTi
         <h1>Reservation Confirmation</h1>
         <p style="margin-top: 30px;">Dear <span class="highlight">${name}</span>,</p>
         <p>Thank you for choosing our restaurant! We are pleased to confirm your reservation for <span class="highlight">${guest_count}</span> guest(s) on <span class="highlight">${formattedDate}</span> at <span class="highlight">${reservationTime}</span>.</p>
-        <p>${notes ? `Additional notes: <span class="highlight">${notes}</span>.` : ''}</p>
+        <p>${notes ? `Additional notes: <span class="highlight">${notes}</span>` : ''}</p>
+        <p>Table number(s): <span class="highlight">${allocatedTables.join(', ')}</span></p>
 
         <p>We kindly ask that you arrive a few minutes early to ensure a smooth seating process. </p>
             
@@ -403,4 +403,52 @@ const updateReservationTable = async (req, res) => {
   }
 };
 
-module.exports = { bookReservation, getReservations, getAvailableDays, testReservationAvailability, getReservationById, updateReservation, deleteReservation, getReservationTables, getReservationTableById, updateReservationTable };
+// Add a new table
+const addReservationTable = async (req, res) => {
+  const {chairs } = req.body;
+
+
+  if (!chairs) {
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
+
+  try {
+    const result = await reservationModel.addReservationTable({ chairs });
+
+    if (result.success) {
+      res.status(201).json({ success: true, message: 'Table added successfully' });
+    } else {
+      res.status(400).json({ success: false, message: 'Failed to add table' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Error adding table' });
+  }
+};
+
+// Delete a table
+const deleteReservationTable = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ success: false, message: 'Table ID is required' });
+  }
+
+  try {
+    const result = await reservationModel.deleteReservationTable(id);
+
+    if (result.success) {
+      res.status(200).json({ success: true, message: 'Table deleted successfully' });
+    } else if (result.message === 'Table is currently allocated in a reservation and cannot be deleted') {
+      res.status(400).json({ success: false, message: 'Table is currently allocated in a reservation and cannot be deleted' });
+      console.log(result.message);
+    } else {
+      res.status(404).json({ success: false, message: 'Table not found' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Error deleting table' });
+  }
+};
+
+module.exports = { bookReservation, getReservations, getAvailableDays, testReservationAvailability, getReservationById, updateReservation, deleteReservation, getReservationTables, getReservationTableById, updateReservationTable, addReservationTable, deleteReservationTable };

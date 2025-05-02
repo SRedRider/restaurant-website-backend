@@ -33,7 +33,7 @@ async function fetchReservations() {
                     <td>
                         <button class="btn btn-primary view-reservation" onclick="viewReservationDetails(${reservation.reservation_id})" data-bs-toggle="modal" data-bs-target="#reservationModal">View</button>
                         <button class="btn btn-secondary edit-reservation" onclick="populateEditReservationModal(${reservation.reservation_id})" data-bs-toggle="modal" data-bs-target="#editReservationModal">Edit</button>
-                        <button class="btn btn-danger edit-reservation" onclick="deleteReservation(${reservation.reservation_id})" data-bs-toggle="modal" data-bs-target="#deleteReservationModal">Delete</button>
+                        <button class="btn btn-danger edit-reservation" onclick="showDeleteConfirmationModal(${reservation.reservation_id})" data-bs-toggle="modal" data-bs-target="#deleteReservationModal">Delete</button>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -67,11 +67,11 @@ async function fetchTables() {
         tables.forEach(table => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${table.id}</td>
                 <td>${table.table_number}</td>
                 <td>${table.chairs}</td>
                 <td>
                     <button class="btn btn-secondary" onclick="populateEditTableModal(${table.id})" data-bs-toggle="modal" data-bs-target="#editTableModal">Edit</button>
+                    <button class="btn btn-danger" onclick="showDeleteConfirmationModalTable(${table.id})" data-bs-toggle="modal" data-bs-target="#deleteTableModal">Delete</button>
                 </td>
             `;
             tbody.appendChild(row);
@@ -235,7 +235,7 @@ document.getElementById('editTableForm').addEventListener('submit', async functi
             body: JSON.stringify(updatedTable)
         });
 
-        console.log('Updated Table:', JSON.stringify(updatedTable, null, 2));
+        showToast('Table updated successfully!', 'success');
 
         if (!response.ok) {
             throw new Error('Failed to update table');
@@ -250,6 +250,124 @@ document.getElementById('editTableForm').addEventListener('submit', async functi
         alert('An error occurred while updating the table');
     }
 });
+
+// Add a new table
+async function addTable() {
+    const chairs = document.getElementById('addTableChairs').value;
+
+    if (!chairs) {
+        showToast('Please fill in all fields.', 'error');
+        return;
+    }
+
+    const newTable = {
+        chairs: parseInt(chairs, 10)
+    };
+
+    try {
+        const response = await fetch('https://10.120.32.59/app/api/v1/reservations/tables', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            body: JSON.stringify(newTable)
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to add table');
+        }
+
+        showToast('Table added successfully!', 'success');
+        fetchTables(); // Refresh the tables list
+
+        const addTableModal = bootstrap.Modal.getInstance(document.getElementById('addTableModal'));
+        addTableModal.hide();
+    } catch (error) {
+        console.error('Error adding table:', error);
+        alert('An error occurred while adding the table');
+    }
+}
+
+document.getElementById('addTableForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+    addTable();
+});
+
+// Show the delete confirmation modal and handle the delete action
+function showDeleteConfirmationModal(reservationId) {
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteReservationConfirmationModal'));
+    const confirmDeleteButton = document.getElementById('confirmReservationDeleteButton');
+
+    confirmDeleteButton.onclick = async function () {
+        try {
+            const response = await fetch(`https://10.120.32.59/app/api/v1/reservations/${reservationId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete reservation');
+            } else {
+                showToast('Reservation deleted successfully!');
+                fetchReservations(); // Refresh the reservations list
+            }
+        } catch (error) {
+            console.error('Error deleting table:', error);
+            alert('An error occurred while deleting the reservation');
+        } finally {
+            deleteModal.hide();
+        }
+    };
+
+    deleteModal.show();
+}
+
+// Show the delete confirmation modal and handle the delete action for tables
+function showDeleteConfirmationModalTable(tableId) {
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+    const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+    const deleteTableError = document.getElementById('deleteTableError');
+    deleteTableError.innerHTML = ''; // Clear any previous error message
+    confirmDeleteButton.onclick = async function () {
+        try {
+            const response = await fetch(`https://10.120.32.59/app/api/v1/reservations/tables/${tableId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                },
+            });
+
+            const result = await response.json(); // Assuming the response is JSON
+
+            if (!response.ok) {
+                if (result.message === 'Table is currently allocated in a reservation and cannot be deleted') {
+                    deleteTableError.innerHTML = result.message;
+                    return;
+                } else {
+                    throw new Error('Failed to delete table');
+                }
+            } else {
+                showToast('Table deleted successfully!');
+                fetchTables(); // Refresh the tables list
+                deleteModal.hide();
+            }
+        } catch (error) {
+            console.error('Error deleting table:', error);
+        } finally {
+           // deleteModal.hide();
+        }
+    };
+
+    deleteModal.show();
+}
+
+
+
 
 async function initializeTable(tableId, pageSize) {
     $(tableId).bootstrapTable({
@@ -293,6 +411,15 @@ async function fetchAvailableDays() {
     } catch (error) {
         console.error('Error fetching available days:', error);
     }
+}
+
+function showToast(message) {
+    const toastElement = document.getElementById('successToast');
+    const toastBody = toastElement.querySelector('.toast-body');
+    toastBody.textContent = message;
+
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
 }
 
 document.addEventListener('DOMContentLoaded', function() {

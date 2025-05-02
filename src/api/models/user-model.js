@@ -113,6 +113,12 @@ const checkItemExists = async (itemId, type) => {
     return rows[0].count > 0;
 };
 
+// Delete a user by ID
+const deleteUser = async (userId) => {
+    const [result] = await promisePool.query('DELETE FROM users WHERE id = ?', [userId]);
+    return result.affectedRows > 0;
+};
+
 module.exports = {
     getUserByEmail,
     createUser,
@@ -127,5 +133,6 @@ module.exports = {
     addFavourite,
     removeFavourite,
     getFavourites,
-    checkItemExists
+    checkItemExists,
+    deleteUser
 };
