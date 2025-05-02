@@ -1,9 +1,9 @@
 const db = require('../../utils/database');
 const moment = require('moment-timezone');
 
-const addAnnouncement = async (title, content, image_url) => {
-  const query = 'INSERT INTO announcements (title, content, image_url) VALUES (?, ?, ?)';
-  const [result] = await db.query(query, [title, content, image_url]);
+const addAnnouncement = async (title, content, image_url, visible) => {
+  const query = 'INSERT INTO announcements (title, content, image_url, visible) VALUES (?, ?, ?, ?)';
+  const [result] = await db.query(query, [title, content, image_url, visible]);
   return result.insertId;
 };
 
@@ -12,9 +12,9 @@ const deleteAnnouncement = async (id) => {
   await db.query(query, [id]);
 };
 
-const editAnnouncement = async (id, title, content, image_url) => {
-  const query = 'UPDATE announcements SET title = ?, content = ?, image_url = ?, updated_at = NOW() WHERE id = ?';
-  await db.query(query, [title, content, image_url, id]);
+const editAnnouncement = async (id, title, content, image_url, visible) => {
+  const query = 'UPDATE announcements SET title = ?, content = ?, image_url = ?, visible = ? WHERE id = ?';
+  await db.query(query, [title, content, image_url, visible, id]);
 };
 
 const getAllAnnouncements = async () => {

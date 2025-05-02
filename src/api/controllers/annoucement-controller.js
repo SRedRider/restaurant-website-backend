@@ -1,5 +1,6 @@
 const Announcement = require('../models/annoucement-model');
 const Discord = require('../../services/discordService');
+const e = require('cors');
 
 // Get all announcements
 const getAllAnnouncements = async (req, res) => {
@@ -31,15 +32,15 @@ const getAnnouncementById = async (req, res) => {
 
 // Add detailed error logging to the addAnnouncement controller
 const addAnnouncement = async (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, visible } = req.body;
   const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
 
   try {
-    if (!title || !content) {
-      return res.status(400).json({ error: 'Title and content are required.' });
+    if (!title || !content || !visible || !image_url) {
+      return res.status(400).json({ error: 'Title, content, image and visibility are required' });
     }
 
-    await Announcement.addAnnouncement(title, content, image_url);
+    await Announcement.addAnnouncement(title, content, image_url, visible);
     res.status(201).json({ message: 'Announcement added successfully', image_url });
   } catch (error) {
     console.error('Error adding announcement:', error);
@@ -61,9 +62,12 @@ const deleteAnnouncement = async (req, res) => {
 
 const editAnnouncement = async (req, res) => {
   const { id } = req.params;
-  const { title, content } = req.body;
+  const { title, content, visible } = req.body;
   const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
 
+  if (!title || !content || !visible || !image_url) {
+    return res.status(400).json({ error: 'Title, content, image and visibility are required' });
+  }
   try {
     const currentAnnouncement = await Announcement.getAnnouncementById(id);
     if (!currentAnnouncement) {
@@ -72,7 +76,7 @@ const editAnnouncement = async (req, res) => {
 
     const finalImageUrl = image_url || currentAnnouncement.image_url;
 
-    await Announcement.editAnnouncement(id, title, content, finalImageUrl);
+    await Announcement.editAnnouncement(id, title, content, finalImageUrl, visible);
     res.status(200).json({ message: 'Announcement updated successfully', image_url: finalImageUrl });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update announcement' });

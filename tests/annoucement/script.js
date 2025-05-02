@@ -1,7 +1,10 @@
+// Define originalImageUrl globally
+let originalImageUrl = '';
+
 // Function to fetch and display all announcements
 async function fetchAnnouncements() {
     try {
-        const response = await fetch('https://10.120.32.59/app/api/v1/announcements', {
+        const response = await fetch('http://localhost:3000/api/v1/announcements', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
@@ -21,8 +24,8 @@ async function fetchAnnouncements() {
             row.innerHTML = `
                 <td>${announcement.id}</td>
                 <td>${announcement.title}</td>
-                <td>${announcement.content}</td>
                 <a href="https://10.120.32.59/app${announcement.image_url}"><td>${announcement.image_url ? `<img src="https://10.120.32.59/app${announcement.image_url}" alt="Image" style="width: 50px; height: 50px;">` : 'No Image'}</td></a>
+                <td><span class="badge ${announcement.visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${announcement.visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span></td>
                 <td>${new Date(announcement.created_at).toLocaleString('fi-FI')}</td>
                 <td>${new Date(announcement.updated_at).toLocaleString('fi-FI')}</td>
                 <td>
@@ -43,7 +46,7 @@ async function fetchAnnouncements() {
 // Function to view announcement details
 async function viewAnnouncementDetails(announcementId) {
     try {
-        const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
+        const response = await fetch(`http://localhost:3000/api/v1/announcements/${announcementId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
@@ -59,6 +62,9 @@ async function viewAnnouncementDetails(announcementId) {
 
         modalBody.innerHTML = `
             <p><strong>ID:</strong> ${announcement.id}</p>
+            <span class="badge ${announcement.visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'} ms-2">
+                    ${announcement.visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}
+            </span>
             <div class="row mb-4">
                 <!-- Image in the center -->
                 <div class="col-md-12 text-center mb-3">
@@ -66,7 +72,8 @@ async function viewAnnouncementDetails(announcementId) {
                 </div>
             </div>
             <p><strong>Title:</strong> ${announcement.title}</p>
-            <p><strong>Content:</strong> ${announcement.content}</p>
+            <p><strong>Content:</strong></p>
+            <div>${announcement.content}</div>
             <p><strong>Created At:</strong> ${new Date(announcement.created_at).toLocaleString('fi-FI')}</p>
             <p><strong>Updated At:</strong> ${new Date(announcement.updated_at).toLocaleString('fi-FI')}</p>
         `;
@@ -82,7 +89,7 @@ function showDeleteConfirmationModal(announcementId) {
 
     confirmDeleteButton.onclick = async function () {
         try {
-            const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
+            const response = await fetch(`http://localhost:3000/api/v1/announcements/${announcementId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
@@ -108,7 +115,7 @@ function showDeleteConfirmationModal(announcementId) {
 // Function to populate the edit announcement modal
 async function populateEditAnnouncementModal(announcementId) {
     try {
-        const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
+        const response = await fetch(`http://localhost:3000/api/v1/announcements/${announcementId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
@@ -123,51 +130,55 @@ async function populateEditAnnouncementModal(announcementId) {
 
         document.getElementById('editAnnouncementTitle').value = announcement.title;
         tinymce.get('editAnnouncementContent').setContent(announcement.content);
+        document.getElementById('editAnnouncementVisible').value = announcement.visible;
         document.getElementById('editAnnouncementForm').dataset.announcementId = announcementId;
 
-         // Image Handling
-     const imagePreviewContainer = document.getElementById('editAnnouncementImagePreviewContainer');
-     const imagePreview = document.getElementById('editAnnouncementImagePreview');
-     const imageHeading = document.getElementById('editAnnouncementImageHeading');
-     const removeImageButton = document.getElementById('removeAnnouncementImageButton');
+        // Set originalImageUrl to the announcement's image URL
+        originalImageUrl = announcement.image_url ? `https://10.120.32.59/app${announcement.image_url}` : '';
 
-     if (announcement.image_url) {
-         imagePreview.src = `https://10.120.32.59/app${announcement.image_url}`;
-         imagePreviewContainer.style.display = 'block';
-         imageHeading.innerText = 'Original Image';
-         removeImageButton.style.display = 'none';
-     } else {
-         imagePreviewContainer.style.display = 'none';
-         removeImageButton.style.display = 'none';
-     }
+        // Image Handling
+        const imagePreviewContainer = document.getElementById('editAnnouncementImagePreviewContainer');
+        const imagePreview = document.getElementById('editAnnouncementImagePreview');
+        const imageHeading = document.getElementById('editAnnouncementImageHeading');
+        const removeImageButton = document.getElementById('removeAnnouncementImageButton');
 
-     const imageInput = document.getElementById('editAnnouncementImage');
-     imageInput.addEventListener('change', function () {
-         const file = imageInput.files[0];
-         if (file) {
-             const reader = new FileReader();
-             reader.onload = function (e) {
-                 imagePreview.src = e.target.result;
-                 imagePreviewContainer.style.display = 'block';
-                 imageHeading.innerText = 'New Image';
-                 removeImageButton.style.display = 'inline-block';
-             };
-             reader.readAsDataURL(file);
-         } else {
-             imagePreview.src = `https://10.120.32.59/app${announcement.image_url}`;
-             imagePreviewContainer.style.display = 'block';
-             imageHeading.innerText = 'Original Image';
-             removeImageButton.style.display = 'none';
-         }
-     });
+        if (announcement.image_url) {
+            imagePreview.src = originalImageUrl;
+            imagePreviewContainer.style.display = 'block';
+            imageHeading.innerText = 'Original Image';
+            removeImageButton.style.display = 'none';
+        } else {
+            imagePreviewContainer.style.display = 'none';
+            removeImageButton.style.display = 'none';
+        }
 
-     removeImageButton.addEventListener('click', function () {
-         imagePreview.src = `https://10.120.32.59/app${announcement.image_url}`;
-         imagePreviewContainer.style.display = 'block';
-         imageHeading.innerText = 'Original Image';
-         removeImageButton.style.display = 'none';
-         imageInput.value = '';
-     });
+        const imageInput = document.getElementById('editAnnouncementImage');
+        imageInput.addEventListener('change', function () {
+            const file = imageInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreviewContainer.style.display = 'block';
+                    imageHeading.innerText = 'New Image';
+                    removeImageButton.style.display = 'inline-block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.src = originalImageUrl;
+                imagePreviewContainer.style.display = 'block';
+                imageHeading.innerText = 'Original Image';
+                removeImageButton.style.display = 'none';
+            }
+        });
+
+        removeImageButton.addEventListener('click', function () {
+            imagePreview.src = originalImageUrl;
+            imagePreviewContainer.style.display = 'block';
+            imageHeading.innerText = 'Original Image';
+            removeImageButton.style.display = 'none';
+            imageInput.value = '';
+        });
 
     } catch (error) {
         console.error('Error populating edit announcement modal:', error);
@@ -183,6 +194,7 @@ editAnnouncementForm.addEventListener('submit', async function (event) {
     const formData = new FormData();
     formData.append('title', document.getElementById('editAnnouncementTitle').value);
     formData.append('content', tinymce.get('editAnnouncementContent').getContent());
+    formData.append('visible', document.getElementById('editAnnouncementVisible').value);
 
     const newImage = document.getElementById('editAnnouncementImage').files[0];
     if (newImage) {
@@ -192,7 +204,7 @@ editAnnouncementForm.addEventListener('submit', async function (event) {
     }
 
     try {
-        const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
+        const response = await fetch(`http://localhost:3000/api/v1/announcements/${announcementId}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
@@ -222,13 +234,14 @@ addAnnouncementForm.addEventListener('submit', async function (event) {
     const formData = new FormData();
     formData.append('title', document.getElementById('addAnnouncementTitle').value);
     formData.append('content', tinymce.get('addAnnouncementContent').getContent());
+    formData.append('visible', document.getElementById('addAnnouncementVisible').value);
     const imageFile = document.getElementById('imageAnnouncement').files[0];
     if (imageFile) {
         formData.append('image', imageFile);
     }
 
     try {
-        const response = await fetch('https://10.120.32.59/app/api/v1/announcements', {
+        const response = await fetch('http://localhost:3000/api/v1/announcements', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization

@@ -95,8 +95,8 @@
                     <tr>
                         <th>ID</th>
                         <th>Title</th>
-                        <th>Content</th>
                         <th>Image</th>
+                        <th>Visible</th>
                         <th>Created At</th>
                         <th>Updated At</th>
                         <th>Actions</th>
@@ -135,6 +135,13 @@
                                 <img id="imagePreviewAnnouncement" src="" alt="Image Preview" class="img-fluid" style="max-height: 300px;">
                             </div>
                         </div>
+                        <div class="mb-3">
+                            <label for="addAnnouncementVisible" class="form-label">Visible:</label>
+                            <select id="addAnnouncementVisible" name="addAnnouncementVisible" class="form-select">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
                         <button type="submit" class="btn btn-primary">Add Announcement</button>
                     </form>
                 </div>
@@ -168,6 +175,13 @@
                                 <img id="editAnnouncementImagePreview" src="" alt="Announcement Image" class="img-fluid" style="max-height: 300px;">
                                 <button type="button" class="btn btn-danger mt-2" id="removeAnnouncementImageButton" style="display: none;">Remove Image</button>
                             </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAnnouncementVisible" class="form-label">Visible:</label>
+                            <select id="editAnnouncementVisible" name="editAnnouncementVisible" class="form-select">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </form>

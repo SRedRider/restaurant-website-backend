@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS `announcements` (
   `title` varchar(255) NOT NULL,
   `content` text NOT NULL,
   `image_url` varchar(255) DEFAULT NULL,
+  `visible` enum('yes','no') DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
