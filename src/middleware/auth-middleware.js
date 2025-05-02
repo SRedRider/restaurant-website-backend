@@ -52,7 +52,10 @@ const isAdminOrUser = (req, res, next) => {
 const checkVisibleAccess = (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
-    if (token) {
+    if (token === undefined || token === '') {
+        req.isAdmin = false; // If no token or empty token, treat as non-admin
+        console.log('No token provided or empty token, user is treated as non-admin');
+    } else {
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             req.user = decoded;
@@ -66,11 +69,9 @@ const checkVisibleAccess = (req, res, next) => {
                 console.log('User is not admin');
             }
         } catch (error) {
-            return res.status(401).json({ message: 'Invalid or expired token' });
+            console.log('Invalid or expired token, user is treated as non-admin');
+            req.isAdmin = false; // Treat as non-admin if token is invalid or expired
         }
-    } else {
-        req.isAdmin = false; // If no token, treat as non-admin
-        console.log('No token provided, user is treated as non-admin');
     }
 
     next(); // Proceed to the next middleware/controller
