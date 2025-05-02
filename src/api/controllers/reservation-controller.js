@@ -1,5 +1,6 @@
 const reservationModel = require('../models/reservation-model');
 const nodemailer = require('nodemailer');
+const Discord = require('../../services/discordService');
 const moment = require('moment-timezone'); // Ensure moment is imported
 
 // Book reservation
@@ -36,11 +37,15 @@ const bookReservation = async (req, res) => {
         allocatedTables: result.allocatedTables
       });
       await sendConfirmationEmail(email, name, date, time, guest_count, notes, result.allocatedTables);
+      Discord.sendReservationToDiscord(`New reservation: ${name}, Date: ${date}, Time: ${time}, Guests: ${guest_count}, Notes: ${notes}, Tables: ${result.allocatedTables.join(', ')}`);
     } else {
       res.status(400).json({ success: false, message: result.message });
+      console.log(result.message); // Log the error message for debugging
+      Discord.sendErrorToDiscord(`(RESERVATION - bookReservation) ${result.message}`);
     }
   } catch (err) {
     console.error(err);
+    Discord.sendErrorToDiscord(`(RESERVATION - bookReservation) ${err}`);
     res.status(500).json({ success: false, message: 'An error occurred while booking the reservation' });
   }
 }
@@ -52,6 +57,7 @@ const getReservations = async (req, res) => {
     res.status(200).json(reservations);
   } catch (err) {
     console.error(err);
+    Discord.sendErrorToDiscord(`(RESERVATION - getReservations) ${err}`);
     res.status(500).json({ success: false, message: 'Error fetching reservations' });
   }
 }
@@ -83,6 +89,7 @@ const getAvailableDays = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
+    Discord.sendErrorToDiscord(`(RESERVATION - getAvailableDays) ${err}`);
     res.status(500).json({ message: 'Error fetching available days' });
   }
 }
@@ -237,6 +244,7 @@ const sendConfirmationEmail = async (email, name, reservationDate, reservationTi
     await transporter.sendMail(mailOptions);
   } catch (err) {
     console.error('Error sending email:', err);
+    Discord.sendErrorToDiscord(`(RESERVATION - sendConfirmationEmail) ${err}`);
     throw new Error('Failed to send confirmation email');
   }
 };
@@ -274,6 +282,7 @@ const testReservationAvailability = async (req, res) => {
     res.status(200).json({ success: true, unavailableDates });
   } catch (err) {
     console.error(err);
+    Discord.sendErrorToDiscord(`(RESERVATION - testReservationAvailability) ${err}`);
     res.status(500).json({ success: false, message: 'Error testing reservation availability' });
   }
 };
@@ -299,6 +308,7 @@ const getReservationById = async (req, res) => {
     res.status(200).json(reservation);
   } catch (err) {
     console.error(err);
+    Discord.sendErrorToDiscord(`(RESERVATION - getReservationById) ${err}`);
     res.status(500).json({ success: false, message: 'Error fetching reservation' });
   }
 };
@@ -324,6 +334,7 @@ const updateReservation = async (req, res) => {
     }
   } catch (err) {
     console.error(err);
+    Discord.sendErrorToDiscord(`(RESERVATION - updateReservation) ${err}`);
     res.status(500).json({ success: false, message: 'Error updating reservation' });
   }
 };
@@ -346,6 +357,7 @@ const deleteReservation = async (req, res) => {
     }
   } catch (err) {
     console.error(err);
+    Discord.sendErrorToDiscord(`(RESERVATION - deleteReservation) ${err}`);
     res.status(500).json({ success: false, message: 'Error deleting reservation' });
   }
 };
@@ -356,6 +368,7 @@ const getReservationTables = async (req, res) => {
     res.status(200).json(tables);
   } catch (err) {
     console.error(err);
+    Discord.sendErrorToDiscord(`(RESERVATION - getReservationTables) ${err}`);
     res.status(500).json({ success: false, message: 'Error fetching reservation tables' });
   }
 };
@@ -377,6 +390,7 @@ const getReservationTableById = async (req, res) => {
     res.status(200).json(table);
   } catch (err) {
     console.error(err);
+    Discord.sendErrorToDiscord(`(RESERVATION - getReservationTableById) ${err}`);
     res.status(500).json({ success: false, message: 'Error fetching table by ID' });
   }
 };
@@ -399,6 +413,7 @@ const updateReservationTable = async (req, res) => {
     }
   } catch (err) {
     console.error(err);
+    Discord.sendErrorToDiscord(`(RESERVATION - updateReservationTable) ${err}`);
     res.status(500).json({ success: false, message: 'Error updating table' });
   }
 };
@@ -422,6 +437,7 @@ const addReservationTable = async (req, res) => {
     }
   } catch (err) {
     console.error(err);
+    Discord.sendErrorToDiscord(`(RESERVATION - addReservationTable) ${err}`);
     res.status(500).json({ success: false, message: 'Error adding table' });
   }
 };
@@ -447,6 +463,7 @@ const deleteReservationTable = async (req, res) => {
     }
   } catch (err) {
     console.error(err);
+    Discord.sendErrorToDiscord(`(RESERVATION - deleteReservationTable) ${err}`);
     res.status(500).json({ success: false, message: 'Error deleting table' });
   }
 };

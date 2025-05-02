@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const Discord = require('../../services/discordService');
 const { createOrder, getAllOrders, getOrderById, updateOrder} = require('../models/order-model');
 const { getItemById } = require('../models/item-model');
 const { getMealById } = require('../models/meal-model');
@@ -127,8 +128,10 @@ const createNewOrder = async (req, res) => {
 
     // Return the enriched order
     res.status(201).json({ message: 'Order created successfully', order_id: enrichedOrder.order_id, order: enrichedOrder });
+    Discord.sendOrderToDiscord(`New order created! #${order_id}`); // Send a message to Discord
   } catch (error) {
     console.error(error);
+    Discord.sendErrorToDiscord("(ORDER - createNewOrder) " + error); // Send the error to Discord
     res.status(500).json({ message: 'Failed to create order' });
   }
 };
@@ -176,6 +179,7 @@ const enrichOrderItems = async (orderId, isAdmin) => {
     return order; // Return the fully enriched order with items details
   } catch (error) {
     console.error(error);
+    Discord.sendErrorToDiscord("(ORDER - enrichOrderItems) " + error); // Send the error to Discord
     throw new Error(`Failed to enrich order items: ${error.message}`);
   }
 };
@@ -206,6 +210,7 @@ const getOrders = async (req, res) => {
     res.status(200).json(enrichedOrders);
   } catch (error) {
     console.error(error);
+    Discord.sendErrorToDiscord("(ORDER - getOrders) " + error); // Send the error to Discord
     res.status(500).json({ message: 'Failed to retrieve orders' });
   }
 };
@@ -236,6 +241,7 @@ const getOrder = async (req, res) => {
     res.status(200).json(enrichedOrder);
   } catch (error) {
     console.error(error);
+    Discord.sendErrorToDiscord("(ORDER - getOrder) " + error); // Send the error to Discord
     res.status(500).json({ message: 'Failed to retrieve order' });
   }
 };
@@ -527,6 +533,7 @@ const editOrder = async (req, res) => {
     res.status(200).json({ message: 'Order updated successfully', order: updatedOrder });
   } catch (error) {
     console.error(error);
+    Discord.sendErrorToDiscord("(ORDER - editOrder) " + error); // Send the error to Discord
     res.status(500).json({ message: 'Failed to update order' });
   }
 };
@@ -779,6 +786,7 @@ const sendOrderConfirmationEmail = async (email, order) => {
   return new Promise((resolve, reject) => {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
+        Discord.sendErrorToDiscord("ORDER - sendOrderConfirmationEmail" + error); // Send the error to Discord
         return reject(error); // If there is an error, reject the promise
       }
       resolve(info); // If successful, resolve the promise
@@ -823,6 +831,7 @@ const getOrdersByUser = async (req, res) => {
     res.status(200).json(enrichedOrders);
   } catch (error) {
     console.error(error);
+    Discord.sendErrorToDiscord("(ORDER - getOrdersByUser) " + error); // Send the error to Discord
     res.status(500).json({ message: 'Failed to retrieve user orders' });
   }
 };

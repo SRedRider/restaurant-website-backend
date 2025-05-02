@@ -360,6 +360,25 @@ async function fetchItemName(itemId) {
     }
 }
 
+async function fetchItemData(itemId) {
+    try {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/items/${itemId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Replace with real JWT
+            }
+        });
+        if (!response.ok) {
+            return { name: 'Not available', visible: 'Not available' };
+        }
+        const data = await response.json();
+        return { name: data.name || 'Not available', visible: data.visible || 'Not available' };
+    } catch (error) {
+        console.error(`Error fetching data for ${itemId}:`, error);
+        return { name: 'Not available', visible: 'Not available' };
+    }
+}
+
 async function viewMealDetails(id) {
     try {
         const response = await fetch(`https://10.120.32.59/app/api/v1/meals/${id}`, {
@@ -371,16 +390,16 @@ async function viewMealDetails(id) {
         const meal = await response.json();
         const viewMealDetailsDiv = document.getElementById('viewMealDetails');
 
-        // Fetch names for each item
-        const names = await Promise.all([
-            fetchItemName(meal.hamburger_id),
-            fetchItemName(meal.wrap_id),
-            fetchItemName(meal.chicken_burger_id),
-            fetchItemName(meal.vegan_id),
-            fetchItemName(meal.side_id),
-            fetchItemName(meal.breakfast_id),
-            fetchItemName(meal.dessert_id),
-            fetchItemName(meal.drink_id)
+        // Fetch names and visibility for each item
+        const itemsData = await Promise.all([
+            fetchItemData(meal.hamburger_id),
+            fetchItemData(meal.wrap_id),
+            fetchItemData(meal.chicken_burger_id),
+            fetchItemData(meal.vegan_id),
+            fetchItemData(meal.side_id),
+            fetchItemData(meal.breakfast_id),
+            fetchItemData(meal.dessert_id),
+            fetchItemData(meal.drink_id)
         ]);
 
         viewMealDetailsDiv.innerHTML = `
@@ -418,19 +437,19 @@ async function viewMealDetails(id) {
                 </div>
 
                 <div class="row mb-4">
-                    <!-- Left side with item names -->
+                    <!-- Left side with item names and visibility -->
                     <div class="col-md-6">
-                        <p><strong>Hamburger:</strong> ${names[0]} (ID: ${meal.hamburger_id})</p>
-                        <p><strong>Wrap:</strong> ${names[1]} (ID: ${meal.wrap_id})</p>
-                        <p><strong>Chicken Burger:</strong> ${names[2]} (ID: ${meal.chicken_burger_id})</p>
+                        <p><strong>Hamburger:</strong> ${itemsData[0].name} ${itemsData[0].name !== 'Not available' ? `<span class="badge ${itemsData[0].visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${itemsData[0].visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span>` : ''}</p>
+                        <p><strong>Wrap:</strong> ${itemsData[1].name} ${itemsData[1].name !== 'Not available' ? `<span class="badge ${itemsData[1].visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${itemsData[1].visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span>` : ''}</p>
+                        <p><strong>Chicken Burger:</strong> ${itemsData[2].name} ${itemsData[2].name !== 'Not available' ? `<span class="badge ${itemsData[2].visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${itemsData[2].visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span>` : ''}</p>
                     </div>
                     <!-- Right side with Vegan, Side, Breakfast, Dessert, Drink -->
                     <div class="col-md-6">
-                        <p><strong>Vegan:</strong> ${names[3]} (ID: ${meal.vegan_id})</p>
-                        <p><strong>Side:</strong> ${names[4]} (ID: ${meal.side_id})</p>
-                        <p><strong>Breakfast:</strong> ${names[5]} (ID: ${meal.breakfast_id})</p>
-                        <p><strong>Dessert:</strong> ${names[6]} (ID: ${meal.dessert_id})</p>
-                        <p><strong>Drink:</strong> ${names[7]} (ID: ${meal.drink_id})</p>
+                        <p><strong>Vegan:</strong> ${itemsData[3].name} ${itemsData[3].name !== 'Not available' ? `<span class="badge ${itemsData[3].visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${itemsData[3].visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span>` : ''}</p>
+                        <p><strong>Side:</strong> ${itemsData[4].name} ${itemsData[4].name !== 'Not available' ? `<span class="badge ${itemsData[4].visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${itemsData[4].visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span>` : ''}</p>
+                        <p><strong>Breakfast:</strong> ${itemsData[5].name} ${itemsData[5].name !== 'Not available' ? `<span class="badge ${itemsData[5].visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${itemsData[5].visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span>` : ''}</p>
+                        <p><strong>Dessert:</strong> ${itemsData[6].name} ${itemsData[6].name !== 'Not available' ? `<span class="badge ${itemsData[6].visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${itemsData[6].visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span>` : ''}</p>
+                        <p><strong>Drink:</strong> ${itemsData[7].name} ${itemsData[7].name !== 'Not available' ? `<span class="badge ${itemsData[7].visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${itemsData[7].visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span>` : ''}</p>
                     </div>
                 </div>
 

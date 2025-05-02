@@ -1,4 +1,5 @@
 const Meal = require('../models/meal-model');
+const Discord = require('../../services/discordService');
 
 const addMeal = async (req, res) => {
     const { name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, visible } = req.body;
@@ -19,6 +20,7 @@ const addMeal = async (req, res) => {
         res.status(201).json({ message: 'Meal added successfully', id: mealId, image_url });
     } catch (error) {
         console.error('Error adding meal:', error);
+        Discord.sendErrorToDiscord(`(MEAL - addMeal) ${error}`);
         res.status(500).json({ error: 'Database error' });
     }
 };
@@ -37,6 +39,8 @@ const getAllMeals = async (req, res) => {
         res.json(mealsWithType);
         res.json(meals);
     } catch (error) {
+        console.error('Error fetching meals:', error);
+        Discord.sendErrorToDiscord(`(MEAL - getAllMeals) ${error}`);
         res.status(500).json({ error: 'Database error' });
     }
 };
@@ -60,6 +64,7 @@ const getMealById = async (req, res) => {
     } catch (error) {
         // If there's a database error or other issues, return 500
         console.error("Error occurred while fetching meal:", error);
+        Discord.sendErrorToDiscord(`(MEAL - getMealById) ${error}`);
         res.status(500).json({ error: 'Database error' });
     }
 };
@@ -102,6 +107,7 @@ const updateMeal = async (req, res) => {
         res.status(200).json({ message: 'Meal updated successfully' });
     } catch (error) {
         console.error('Error updating meal:', error);
+        Discord.sendErrorToDiscord(`(MEAL - updateMeal) ${error}`);
         res.status(500).json({ error: 'Database error', details: error.message });
     }
 };
@@ -117,6 +123,7 @@ const deleteMeal = async (req, res) => {
         res.status(200).json({ message: 'Meal deleted successfully' });
     } catch (error) {
         console.error('Error deleting meal:', error);
+        Discord.sendErrorToDiscord(`(MEAL - deleteMeal) ${error}`);
         res.status(500).json({ error: 'Database error' });
     }
 };

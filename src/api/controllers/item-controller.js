@@ -1,4 +1,5 @@
 const Item = require('../models/item-model');
+const Discord = require('../../services/discordService');
 
 const addItem = async (req, res) => {
     const { category, name, description, ingredients, allergens, size, price, stock, visible } = req.body;
@@ -51,6 +52,7 @@ const addItem = async (req, res) => {
         res.status(201).json({ message: 'Item added successfully', id: itemId, image_url });
     } catch (error) {
         console.error('Error adding item:', error);
+        Discord.sendErrorToDiscord(`(ITEM - addItem) ${error}`);
         res.status(500).json({ error: 'Database error', details: error.message });
     }
 };
@@ -71,6 +73,8 @@ const getAllItems = async (req, res) => {
 
         res.json(itemsWithType);
     } catch (error) {
+        console.error('Error fetching items:', error);
+        Discord.sendErrorToDiscord(`(ITEM - getAllItems) ${error}`);
         res.status(500).json({ error: 'Database error' });
     }
 };
@@ -89,6 +93,8 @@ const getItemById = async (req, res) => {
 
         res.json(itemWithType);
     } catch (error) {
+        console.error('Error fetching item by ID:', error);
+        Discord.sendErrorToDiscord(`(ITEM - getItemById) ${error}`);
         res.status(500).json({ error: 'Database error' });
     }
 };
@@ -100,6 +106,7 @@ const deleteItem = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Database error' });
         console.error('Error deleting:', error);
+        Discord.sendErrorToDiscord(`(ITEM - deleteItem) ${error}`);
     }
 };
 
@@ -111,6 +118,7 @@ const checkItemMealAssociation = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Database error' });
         console.error('Error checking item association:', error);
+        Discord.sendErrorToDiscord(`(ITEM - checkItemMealAssociation) ${error}`);
     }
 };
 
@@ -142,6 +150,7 @@ const updateItem = async (req, res) => {
         res.status(200).json({ message: 'Item updated successfully' });
     } catch (error) {
         console.error('Error updating item:', error);
+        Discord.sendErrorToDiscord(`(ITEM - updateItem) ${error}`);
         res.status(500).json({ error: 'Database error', details: error.message });
     }
 };

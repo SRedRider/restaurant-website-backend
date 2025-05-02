@@ -1,4 +1,5 @@
 const Contact = require('../models/contact-model');
+const Discord = require('../../services/discordService');
 
 const addContact = async (req, res) => {
     const { title, description} = req.body;
@@ -12,8 +13,10 @@ const addContact = async (req, res) => {
     try {
         const contactId = await Contact.createContact(user_id, title, description);
         res.status(201).json({ message: 'Contact added successfully', id: contactId });
+        Discord.sendContactToDiscord(`New contact added by user ID ${user_id}: ${title} - ${description}`);
     } catch (error) {
         console.error('Error adding contact:', error);
+        Discord.sendErrorToDiscord(`(CONTACT - addContact) ${error.message}`);
         res.status(500).json({ error: 'Database error', details: error.message });
     }
 };
@@ -27,6 +30,7 @@ const getAllContacts = async (req, res) => {
         res.status(200).json(contacts);
     } catch (error) {
         console.error('Error fetching contacts:', error);
+        Discord.sendErrorToDiscord(`(CONTACT - getAllContacts) ${error.message}`);
         res.status(500).json({ error: 'Database error', details: error.message });
     }
 };
@@ -47,6 +51,7 @@ const getContactById = async (req, res) => {
         res.status(200).json(contactWithoutUserId);
     } catch (error) {
         console.error('Error fetching contact by ID:', error);
+        Discord.sendErrorToDiscord(`(CONTACT - getContactById) ${error.message}`);
         res.status(500).json({ error: 'Database error', details: error.message });
     }
 };
@@ -60,6 +65,7 @@ const getUserContacts = async (req, res) => {
         res.status(200).json(contacts);
     } catch (error) {
         console.error('Error fetching user contacts:', error);
+        Discord.sendErrorToDiscord(`(CONTACT - getUserContacts) ${error.message}`);
         res.status(500).json({ error: 'Database error', details: error.message });
     }
 };

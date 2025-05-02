@@ -1,4 +1,5 @@
 const Announcement = require('../models/annoucement-model');
+const Discord = require('../../services/discordService');
 
 // Get all announcements
 const getAllAnnouncements = async (req, res) => {
@@ -7,6 +8,7 @@ const getAllAnnouncements = async (req, res) => {
     res.status(200).json(announcements);
   } catch (error) {
     console.error('Error fetching announcements:', error);
+    Discord.sendErrorToDiscord(`(ANNOUNCEMENT - getAllAnnouncements) ${error}`);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
@@ -22,6 +24,7 @@ const getAnnouncementById = async (req, res) => {
     res.status(200).json(announcement);
   } catch (error) {
     console.error('Error fetching announcement:', error);
+    Discord.sendErrorToDiscord(`(ANNOUNCEMENT - getAnnouncementById) ${error}`);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
@@ -40,6 +43,7 @@ const addAnnouncement = async (req, res) => {
     res.status(201).json({ message: 'Announcement added successfully', image_url });
   } catch (error) {
     console.error('Error adding announcement:', error);
+    Discord.sendErrorToDiscord(`(ANNOUNCEMENT - addAnnouncement) ${error}`);
     res.status(500).json({ error: 'Failed to add announcement', details: error.message });
   }
 };
@@ -50,6 +54,7 @@ const deleteAnnouncement = async (req, res) => {
     await Announcement.deleteAnnouncement(id);
     res.status(200).json({ message: 'Announcement deleted successfully' });
   } catch (error) {
+    console.error('Error deleting announcement:', error);
     res.status(500).json({ error: 'Failed to delete announcement' });
   }
 };
@@ -72,6 +77,7 @@ const editAnnouncement = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Failed to update announcement' });
     console.error('Error updating announcement:', error);
+    Discord.sendErrorToDiscord(`(ANNOUNCEMENT - editAnnouncement) ${error}`);
   }
 };
 

@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const Discord = require('../../services/discordService');
 const userModel = require('../models/user-model');
 require('dotenv').config();
 
@@ -80,6 +81,7 @@ const registerUser = async (req, res) => {
             return res.status(500).json({ message: 'Failed to send verification email.' });
         }
         res.status(201).json({ message: 'Registration successful! Please check your email to verify your account.' });
+        Discord.sendMessage(`New user registered: ${name} (${email})`); // Send message to Discord
     });
 };
 
@@ -214,6 +216,7 @@ const resetPassword = async (req, res) => {
         res.status(200).json({ message: 'Your password has been successfully reset.' });
     } catch (error) {
         console.error("Error resetting password:", error);  // Log the error
+        Discord.sendErrorToDiscord(`(AUTH - resetPassword) ${error}`);  // Send error message to Discord
         res.status(500).json({ message: 'An error occurred while resetting the password.' });
     }
 };
@@ -224,6 +227,7 @@ const getAllUsers = async (req, res) => {
         res.status(200).json(users);  // Return the users as a JSON response
     } catch (error) {
         console.error('Error fetching users:', error);
+        Discord.sendErrorToDiscord(`(AUTH - getAllUsers) ${error}`);  // Send error message to Discord
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
@@ -248,6 +252,7 @@ const getCurrentUser = async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching current user:', error);
+        Discord.sendErrorToDiscord(`(AUTH - getCurrentUser) ${error}`);  // Send error message to Discord
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
@@ -329,6 +334,7 @@ const updateCurrentUser = async (req, res) => {
         });
     } catch (error) {
         console.error('Error updating user:', error);
+        Discord.sendErrorToDiscord(`(AUTH - updateCurrentUser) ${error}`);  // Send error message to Discord
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
@@ -361,6 +367,7 @@ const addFavouriteItem = async (req, res) => {
         res.status(201).json({ message: 'Favourite added successfully.', favouriteId });
     } catch (error) {
         console.error('Error adding favourite:', error);
+        Discord.sendErrorToDiscord(`(AUTH - addFavouriteItem) ${error}`);  // Send error message to Discord
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
@@ -383,6 +390,7 @@ const removeFavouriteItem = async (req, res) => {
         }
     } catch (error) {
         console.error('Error removing favourite:', error);
+        Discord.sendErrorToDiscord(`(AUTH - removeFavouriteItem) ${error}`);  // Send error message to Discord
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
@@ -395,6 +403,7 @@ const getFavouriteItems = async (req, res) => {
         res.status(200).json({ favourites });
     } catch (error) {
         console.error('Error fetching favourites:', error);
+        Discord.sendErrorToDiscord(`(AUTH - getFavouriteItems) ${error}`);  // Send error message to Discord
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
@@ -412,6 +421,7 @@ const getUserById = async (req, res) => {
         res.status(200).json(user);
     } catch (error) {
         console.error('Error fetching user:', error);
+        Discord.sendErrorToDiscord(`(AUTH - getUserById) ${error}`);  // Send error message to Discord
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
@@ -435,6 +445,7 @@ const updateUserById = async (req, res) => {
         res.status(200).json({ message: 'User updated successfully.' });
     } catch (error) {
         console.error('Error updating user:', error);
+        Discord.sendErrorToDiscord(`(AUTH - updateUserById) ${error}`);  // Send error message to Discord
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
@@ -452,6 +463,7 @@ const deleteUserById = async (req, res) => {
         res.status(200).json({ message: 'User deleted successfully.' });
     } catch (error) {
         console.error('Error deleting user:', error);
+        Discord.sendErrorToDiscord(`(AUTH - deleteUserById) ${error}`);  // Send error message to Discord
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
