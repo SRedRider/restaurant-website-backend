@@ -23,8 +23,8 @@ async function fetchUsers() {
                 <td>${user.name}</td>
                 <td>${user.email}</td>
                 <td>${user.role}</td>
-                <td>${user.status}</td>
-                <td>${user.verified}</td>
+                <td>${user.status === 'enabled' ? '<span class="badge bg-success">Enabled</span>' : '<span class="badge bg-danger">Disabled</span>'}</td>
+                <td>${user.verified == '1' ? '<span class="badge bg-success">Verified</span>' : '<span class="badge bg-danger">Not verified</span>'}</td>
                 <td>${new Date(user.created_at).toLocaleString('fi-FI')}</td>
                 <td>${new Date(user.updated_at).toLocaleString('fi-FI')}</td>
                 <td>

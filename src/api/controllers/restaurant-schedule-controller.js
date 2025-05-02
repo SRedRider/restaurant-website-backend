@@ -16,6 +16,7 @@ const addSchedule = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ message: 'Error adding schedule', error: error.message });
+        console.error('Error adding schedule:', error); // Log the error for debugging
     }
 };
 
