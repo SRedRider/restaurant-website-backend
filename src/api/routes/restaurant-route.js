@@ -10,4 +10,10 @@ router.post('/', restaurantController.addSchedule);
 // Get all schedules sorted by date
 router.get('/', restaurantController.getSchedules);
 
+// Update an existing schedule
+router.put('/:id', restaurantController.updateSchedule);
+
+// Delete a schedule
+router.delete('/:id', restaurantController.deleteSchedule);
+
 module.exports = router;

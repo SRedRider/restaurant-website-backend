@@ -8,6 +8,9 @@ document.getElementById('itemForm').addEventListener('submit', async function (e
     const itemAlert = document.getElementById('itemAlert');
     const imagePreviewContainer = document.getElementById('imagePreviewContainer');
     const imagePreview = document.getElementById('imagePreview');
+    
+    itemAlert.style.display = 'none'; // Hide alert initially
+    itemAlert.className = ""; // Reset class name
 
     // Collect selected allergens from checkboxes
     const selectedAllergens = [];
@@ -69,7 +72,6 @@ document.getElementById('itemForm').addEventListener('submit', async function (e
     fetchItemsForMeals();
 });
 
-    
 
 // Create Meal Form Submit
 document.getElementById('mealForm').addEventListener('submit', async (e) => {
@@ -101,6 +103,9 @@ document.getElementById('mealForm').addEventListener('submit', async (e) => {
     const mealAlert = document.getElementById('mealAlert');
     const imagePreviewContainerMeal = document.getElementById('imagePreviewContainerMeal');
     const imagePreviewMeal = document.getElementById('imagePreviewMeal');
+
+    mealAlert.style.display = 'none'; // Hide alert initially
+    mealAlert.className = ""; // Reset class name
 
     // Disable the button and show the loading spinner
     submitButton.disabled = true;
@@ -194,6 +199,8 @@ async function fetchItems() {
             let row = document.createElement('tr');
             row.innerHTML = `
                 <td>${item.id}</td>
+                <td><span class="badge ${item.stock.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${item.stock.toLowerCase() === 'yes' ? 'In Stock' : 'Out of Stock'}</span></td>
+                <td><span class="badge ${item.visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${item.visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span></td>
                 <td>${item.name}</td>
                 <td>${item.category}</td>
                 <td>${item.description}</td>
@@ -202,8 +209,6 @@ async function fetchItems() {
                 <td>${item.size}</td>
                 <td><img src="https://10.120.32.59/app${item.image_url}" alt="${item.name}" style="width: 50px; height: 50px;"></td>
                 <td>${item.price}€</td>
-                <td><span class="badge ${item.stock.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${item.stock.toLowerCase() === 'yes' ? 'In Stock' : 'Out of Stock'}</span></td>
-                <td><span class="badge ${item.visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${item.visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span></td>
                 <td>${item.created_at}</td>
                 <td>
                     <button class="btn btn-info btn-sm" onclick="viewItemDetails(${item.id})">View</button>
@@ -233,6 +238,8 @@ async function fetchMeals() {
             let row = document.createElement('tr');
             row.innerHTML = `
                 <td>${meal.id}</td>
+                <td><span class="badge ${meal.stock.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${meal.stock.toLowerCase() === 'yes' ? 'In Stock' : 'Out of Stock'}</span></td>
+                <td><span class="badge ${meal.visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${meal.visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span></td>
                 <td>${meal.name}</td>
                 <td>${meal.description}</td>
                 <td>${meal.hamburger_id}</td>
@@ -246,8 +253,6 @@ async function fetchMeals() {
                 
                 <td><img src="https://10.120.32.59/app${meal.image_url}" alt="${meal.name}" style="width: 50px; height: 50px;"></td>
                 <td>${meal.price}€</td>
-                <td><span class="badge ${meal.stock.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${meal.stock.toLowerCase() === 'yes' ? 'In Stock' : 'Out of Stock'}</span></td>
-                <td><span class="badge ${meal.visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${meal.visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span></td>
                 <td>${meal.created_at}</td>
                 <td>
                     <button class="btn btn-info btn-sm" onclick="viewMealDetails(${meal.id})">View</button>
@@ -453,6 +458,9 @@ async function viewMealDetails(id) {
 // Open the Edit Modal with Item Data
 async function editItem(id) {
     const editForm = document.getElementById('editItemForm');
+    const editItemAlert = document.getElementById('editItemAlert');
+    editItemAlert.style.display = 'none'; // Hide alert initially
+    editItemAlert.className = ""; // Reset class name
     editForm.reset();
     try {
         const response = await fetch(`https://10.120.32.59/app/api/v1/items/${id}`, {
@@ -614,6 +622,9 @@ async function editItem(id) {
 
 async function editMeal(id) {
     const editForm = document.getElementById('editMealForm');
+    const editMealAlert = document.getElementById('editMealAlert');
+    editMealAlert.style.display = 'none'; // Hide alert initially
+    editMealAlert.className = ""; // Reset class name
     editForm.reset();
     try {
         const response = await fetch(`https://10.120.32.59/app/api/v1/meals/${id}`, {
@@ -967,4 +978,5 @@ function showToast(message) {
 document.addEventListener('DOMContentLoaded', function() {
     fetchItems();
     fetchMeals();
+    fetchItemsForMeals();
 });

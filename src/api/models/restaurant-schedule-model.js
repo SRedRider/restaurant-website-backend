@@ -39,4 +39,22 @@ const getSchedules = async () => {
     return formattedSchedules; // Return the formatted schedules
 };
 
-module.exports = { addSchedule, getSchedules };
+// Update an existing schedule in the database
+const updateSchedule = async (id, date, open_time, close_time, status, message) => {
+    const [result] = await promisePool.query(
+        'UPDATE restaurant_schedule SET date = ?, open_time = ?, close_time = ?, status = ?, message = ? WHERE id = ?',
+        [date, open_time, close_time, status, message, id]
+    );
+    return result;
+};
+
+// Delete a schedule from the database
+const deleteSchedule = async (id) => {
+    const [result] = await promisePool.query(
+        'DELETE FROM restaurant_schedule WHERE id = ?',
+        [id]
+    );
+    return result;
+};
+
+module.exports = { addSchedule, getSchedules, updateSchedule, deleteSchedule };

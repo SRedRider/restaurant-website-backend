@@ -4,7 +4,10 @@ const restaurantScheduleModel = require('../models/restaurant-schedule-model');
 const addSchedule = async (req, res) => {
     try {
         const { date, open_time, close_time, status, message } = req.body;
-
+        
+        if (open_time && close_time && open_time >= close_time) {
+            return res.status(400).json({ message: 'Open time must be before close time.' });
+        }
         // Call the model function to add the schedule to the database
         const result = await restaurantScheduleModel.addSchedule(
             date, open_time, close_time, status, message
@@ -32,4 +35,47 @@ const getSchedules = async (req, res) => {
     }
 };
 
-module.exports = { addSchedule, getSchedules };
+// Update an existing schedule
+const updateSchedule = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { date, open_time, close_time, status, message } = req.body;
+
+        if (open_time && close_time && open_time >= close_time) {
+            return res.status(400).json({ message: 'Open time must be before close time.' });
+        }
+        
+        // Call the model function to update the schedule in the database
+        const result = await restaurantScheduleModel.updateSchedule(
+            id, date, open_time, close_time, status, message
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Schedule not found' });
+        }
+
+        res.status(200).json({ message: 'Schedule updated successfully!' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating schedule', error: error.message });
+    }
+};
+
+// Delete a schedule
+const deleteSchedule = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Call the model function to delete the schedule from the database
+        const result = await restaurantScheduleModel.deleteSchedule(id);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Schedule not found' });
+        }
+
+        res.status(200).json({ message: 'Schedule deleted successfully!' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting schedule', error: error.message });
+    }
+};
+
+module.exports = { addSchedule, getSchedules, updateSchedule, deleteSchedule };

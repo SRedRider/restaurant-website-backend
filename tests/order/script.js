@@ -1,3 +1,67 @@
+
+async function fetchOrders() {
+    try {
+        const response = await fetch('https://10.120.32.59/app/api/v1/orders/', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch orders');
+        }
+
+
+        const orders = await response.json();
+        const tbody = document.getElementById('OrdersBody');
+        tbody.innerHTML = '';
+
+
+        orders.forEach(order => {
+            const itemsList = order.items.map(item => `${item.quantity} x Item (${item.id}) (€${item.price.toFixed(2)})`).join(', ');
+            const address = order.method === "pickup" ? "N/A" : `${order.address.street}, ${order.address.postalCode}, ${order.address.city}`;
+
+            // Add color badges for status
+            const statusBadge = {
+                'processing': '<span class="badge bg-warning text-dark">Processing</span>',
+                'preparing': '<span class="badge bg-primary">Preparing</span>',
+                'ready': '<span class="badge bg-info text-dark">Ready</span>',
+                'completed': '<span class="badge bg-success">Completed</span>'
+            }[order.status] || `<span class="badge bg-secondary">${order.status}</span>`;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${order.order_id}</td>
+                <td>${statusBadge}</td>
+                <td>${order.user_id ? order.user_id : 'No user ID'}</td>
+                <td>${order.customer_name}</td>
+                <td>${order.customer_phone}</td>
+                <td>${order.customer_email}</td>
+                <td>${itemsList}</td>
+                <td>${order.method}</td>
+                <td>${address}</td>
+                <td>${order.scheduled_time}</td>
+                <td>${order.notes}</td>
+                <td>${order.total_price}€</td>
+                <td>${new Date(order.created_at).toLocaleString('fi-FI')}</td>
+                <td>${new Date(order.updated_at).toLocaleString('fi-FI')}</td>
+                <td>
+                    <button class="btn btn-primary view-order" onclick="viewOrderDetails(${order.order_id})" data-bs-toggle="modal" data-bs-target="#orderModal">View</button>
+                    <button class="btn btn-secondary edit-order" onclick="populateEditOrderModal(${order.order_id})" data-bs-toggle="modal" data-bs-target="#editOrderModal">Edit</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        initializeTable('#OrdersTable', 5);
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+    }
+};
+
+
+
 // Make viewOrderDetails globally accessible
 async function viewOrderDetails(orderId) {
     try {
@@ -322,68 +386,6 @@ document.getElementById('editOrderForm').addEventListener('submit', async functi
         showFormErrors([`Error: ${error.message}`]);
     }
 });
-
-
-
-async function fetchOrders() {
-    try {
-        const response = await fetch('https://10.120.32.59/app/api/v1/orders/', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch orders');
-        }
-
-
-        const orders = await response.json();
-        const tbody = document.getElementById('OrdersBody');
-        tbody.innerHTML = '';
-
-
-        orders.forEach(order => {
-            const itemsList = order.items.map(item => `${item.quantity} x Item (${item.id}) (€${item.price.toFixed(2)})`).join(', ');
-            const address = order.method === "pickup" ? "N/A" : `${order.address.street}, ${order.address.postalCode}, ${order.address.city}`;
-
-            // Add color badges for status
-            const statusBadge = {
-                'processing': '<span class="badge bg-warning text-dark">Processing</span>',
-                'preparing': '<span class="badge bg-primary">Preparing</span>',
-                'ready': '<span class="badge bg-info text-dark">Ready</span>',
-                'completed': '<span class="badge bg-success">Completed</span>'
-            }[order.status] || `<span class="badge bg-secondary">${order.status}</span>`;
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${order.order_id}</td>
-                <td>${order.customer_name}</td>
-                <td>${order.customer_phone}</td>
-                <td>${order.customer_email}</td>
-                <td>${itemsList}</td>
-                <td>${order.method}</td>
-                <td>${address}</td>
-                <td>${order.scheduled_time}</td>
-                <td>${order.notes}</td>
-                <td>${order.total_price}€</td>
-                <td>${statusBadge}</td>
-                <td>${new Date(order.created_at).toLocaleString('fi-FI')}</td>
-                <td>${new Date(order.updated_at).toLocaleString('fi-FI')}</td>
-                <td>
-                    <button class="btn btn-primary view-order" onclick="viewOrderDetails(${order.order_id})" data-bs-toggle="modal" data-bs-target="#orderModal">View</button>
-                    <button class="btn btn-secondary edit-order" onclick="populateEditOrderModal(${order.order_id})" data-bs-toggle="modal" data-bs-target="#editOrderModal">Edit</button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-
-        initializeTable('#OrdersTable', 5);
-    } catch (error) {
-        console.error('Error fetching orders:', error);
-    }
-};
 
 
 // Handle enabling/disabling the scheduled time input based on the selected option

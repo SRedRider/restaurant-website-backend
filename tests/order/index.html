@@ -15,6 +15,23 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+
+    <!-- Add custom styles to make the table fit within the viewport -->
+    <style>
+        #OrdersTable {
+            font-size: 0.9rem; /* Reduce font size */
+            table-layout: auto; /* Allow table to adjust column widths */
+        }
+
+        #OrdersTable th, #OrdersTable td {
+            white-space: nowrap; /* Prevent text wrapping */
+            padding: 0.5rem; /* Reduce padding */
+        }
+
+        .table-container {
+            overflow-x: auto; /* Enable horizontal scrolling if necessary */
+        }
+    </style>
 </head>
 <body>
         <!-- Navbar -->
@@ -31,6 +48,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="../account/index.html">Account</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="../schedule/index.html">Restaurant Scedule</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="../menu/index.html">Menu</a>
@@ -89,6 +109,8 @@
                 <thead>
                     <tr>
                         <th data-field="order_id" data-sortable="true" data-filter-control="input">Order ID</th>
+                        <th data-field="status" data-sortable="true" data-filter-control="select">Status</th>
+                        <th data-field="user_id" data-sortable="true" data-filter-control="input">User ID</th>
                         <th data-field="customer_name" data-sortable="true" data-filter-control="input">Customer Name</th>
                         <th data-field="customer_phone" data-sortable="true" data-filter-control="input">Phone</th>
                         <th data-field="customer_email" data-sortable="true" data-filter-control="input">Email</th>
@@ -98,7 +120,6 @@
                         <th data-field="scheduled_time" data-sortable="true" data-filter-control="input">Scheduled Time</th>
                         <th data-field="notes" data-sortable="false" data-filter-control="input">Notes</th>
                         <th data-field="total_price" data-sortable="true" data-filter-control="input">Total Price</th>
-                        <th data-field="status" data-sortable="true" data-filter-control="select">Status</th>
                         <th data-field="created_at" data-sortable="true" data-filter-control="input">Created At</th>
                         <th data-field="updated_at" data-sortable="true" data-filter-control="input">Updated At</th>
                         <th data-field="action" data-sortable="false">Action</th>
