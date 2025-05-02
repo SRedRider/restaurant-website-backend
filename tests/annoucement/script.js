@@ -3,6 +3,9 @@ async function fetchAnnouncements() {
     try {
         const response = await fetch('https://10.120.32.59/app/api/v1/announcements', {
             method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
+            }
         });
 
         if (!response.ok) {
@@ -42,6 +45,9 @@ async function viewAnnouncementDetails(announcementId) {
     try {
         const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
             method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
+            }
         });
 
         if (!response.ok) {
@@ -78,6 +84,9 @@ function showDeleteConfirmationModal(announcementId) {
         try {
             const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
                 method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
+                }
             });
 
             if (!response.ok) {
@@ -101,6 +110,9 @@ async function populateEditAnnouncementModal(announcementId) {
     try {
         const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
             method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
+            }
         });
 
         if (!response.ok) {
@@ -182,6 +194,9 @@ editAnnouncementForm.addEventListener('submit', async function (event) {
     try {
         const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
             method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
+            },
             body: formData,
         });
 
@@ -215,6 +230,9 @@ addAnnouncementForm.addEventListener('submit', async function (event) {
     try {
         const response = await fetch('https://10.120.32.59/app/api/v1/announcements', {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
+            },
             body: formData,
         });
 

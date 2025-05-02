@@ -23,8 +23,8 @@ router.delete('/favourites', isAdminOrUser, authController.removeFavouriteItem);
 router.get('/favourites', isAdminOrUser, authController.getFavouriteItems);
 
 // Add routes for viewing, editing, and deleting users
-router.get('/users/:id' , authController.getUserById);
-router.put('/users/:id', authController.updateUserById);
-router.delete('/users/:id', authController.deleteUserById);
+router.get('/users/:id', isAdmin, authController.getUserById);
+router.put('/users/:id', isAdmin, authController.updateUserById);
+router.delete('/users/:id', isAdmin, authController.deleteUserById);
 
 module.exports = router;

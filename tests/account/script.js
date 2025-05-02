@@ -3,6 +3,9 @@ async function fetchUsers() {
     try {
         const response = await fetch('https://10.120.32.59/app/api/v1/users', {
             method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
+            }
         });
 
         if (!response.ok) {
@@ -42,6 +45,9 @@ async function viewUserDetails(userId) {
     try {
         const response = await fetch(`https://10.120.32.59/app/api/v1/users/${userId}`, {
             method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
+            }
         });
 
         if (!response.ok) {
@@ -71,6 +77,9 @@ async function populateEditUserModal(userId) {
     try {
         const response = await fetch(`https://10.120.32.59/app/api/v1/users/${userId}`, {
             method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
+            }
         });
 
         if (!response.ok) {
@@ -107,6 +116,7 @@ editUserForm.addEventListener('submit', async function (event) {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
             },
             body: JSON.stringify(updatedUser),
         });
@@ -142,6 +152,9 @@ async function deleteUser(userId) {
     try {
         const response = await fetch(`https://10.120.32.59/app/api/v1/users/${userId}`, {
             method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
+            }
         });
 
         if (!response.ok) {
