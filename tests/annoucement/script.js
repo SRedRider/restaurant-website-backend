@@ -4,7 +4,7 @@ let originalImageUrl = '';
 // Function to fetch and display all announcements
 async function fetchAnnouncements() {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/announcements', {
+        const response = await fetch('https://10.120.32.59/app/api/v1/announcements', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
@@ -46,7 +46,7 @@ async function fetchAnnouncements() {
 // Function to view announcement details
 async function viewAnnouncementDetails(announcementId) {
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/announcements/${announcementId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
@@ -89,7 +89,7 @@ function showDeleteConfirmationModal(announcementId) {
 
     confirmDeleteButton.onclick = async function () {
         try {
-            const response = await fetch(`http://localhost:3000/api/v1/announcements/${announcementId}`, {
+            const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
@@ -115,7 +115,7 @@ function showDeleteConfirmationModal(announcementId) {
 // Function to populate the edit announcement modal
 async function populateEditAnnouncementModal(announcementId) {
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/announcements/${announcementId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
@@ -204,7 +204,7 @@ editAnnouncementForm.addEventListener('submit', async function (event) {
     }
 
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/announcements/${announcementId}`, {
+        const response = await fetch(`https://10.120.32.59/app/api/v1/announcements/${announcementId}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
@@ -241,7 +241,7 @@ addAnnouncementForm.addEventListener('submit', async function (event) {
     }
 
     try {
-        const response = await fetch('http://localhost:3000/api/v1/announcements', {
+        const response = await fetch('https://10.120.32.59/app/api/v1/announcements', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token for authorization
