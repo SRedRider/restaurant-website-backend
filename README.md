@@ -5,7 +5,7 @@
 </div>
 
 ## Description
-This repository contains the backend system for the **Burger Company**. It is designed to manage the restaurant's backend operations and the admin system. The backend provides APIs and services to handle reservations, orders, menus, announcements, and more. It also includes an admin dashboard for efficient management.
+This repository contains the backend system for the **Burger Company**. It is designed to manage the restaurant's backend operations and the admin system. The backend provides APIs and services to handle reservations, orders, menus, announcements, and more.
 
 ---
 
