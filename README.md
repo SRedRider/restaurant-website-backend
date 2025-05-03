@@ -93,13 +93,13 @@ The backend is built using **Node.js** with the **Express.js** framework. This c
   - **Routes**: `contact-route.js`
 
 ### Email Notifications
-- **Description**: Sends reservation confirmations and updates via email. This feature ensures that customers receive timely updates about their reservations.
+- **Description**: Automatically sends reservation confirmations, order confirmations, and order-ready notifications via email to keep customers informed and up to date.
 - **Technologies**:
   - **Library**: Nodemailer
   - **Templates**: HTML files in `email-templates/`
 
 ### Discord Integration
-- **Description**: Notifies staff about reservations and errors via Discord. This feature helps the staff stay informed about important updates and issues.
+- **Description**: Notifies staff about reservations, orders and errors via Discord. This feature helps the staff stay informed about important updates and issues.
 - **Technologies**:
   - **Library**: Axios for making API requests to Discord's webhook system
   - **Service**: `discordService.js`
