@@ -1,6 +1,8 @@
 # Burger Company
 
-![Burger Company Logo](https://users.metropolia.fi/~quangth/restaurant/images/logo_trimmed.png)
+<div align="center">
+  <img src="https://users.metropolia.fi/~quangth/restaurant/images/logo_trimmed.png" alt="Burger Company Logo">
+</div>
 
 ## Description
 This repository contains the backend system for the **Burger Company**. It is designed to manage the restaurant's backend operations and the admin system. The backend provides APIs and services to handle reservations, orders, menus, announcements, and more. It also includes an admin dashboard for efficient management.
@@ -8,7 +10,10 @@ This repository contains the backend system for the **Burger Company**. It is de
 ---
 
 ## Framework
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white) ![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+<div align="center">
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js">
+  <img src="https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express.js">
+</div>
 
 The backend is built using **Node.js** with the **Express.js** framework. This combination provides a robust and scalable environment for building RESTful APIs and handling server-side logic efficiently.
 
@@ -106,8 +111,17 @@ The backend is built using **Node.js** with the **Express.js** framework. This c
 
 ---
 
+## Architecture
+<div align="center">
+  <img src="https://via.placeholder.com/800x400?text=System+Architecture" alt="System Architecture">
+</div>
+
+---
+
 ## License
-![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
+<div align="center">
+  <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License">
+</div>
 
 This project is licensed under the MIT License. See the LICENSE file for details.
 
