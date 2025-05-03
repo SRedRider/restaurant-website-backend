@@ -242,14 +242,14 @@ async function fetchMeals() {
                 <td><span class="badge ${meal.visible.toLowerCase() === 'yes' ? 'bg-success' : 'bg-danger'}">${meal.visible.toLowerCase() === 'yes' ? 'Visible' : 'Not Visible'}</span></td>
                 <td>${meal.name}</td>
                 <td>${meal.description}</td>
-                <td>${meal.hamburger_id}</td>
-                <td>${meal.wrap_id}</td>
-                <td>${meal.chicken_burger_id}</td>
-                <td>${meal.vegan_id}</td>
-                <td>${meal.side_id}</td>
-                <td>${meal.breakfast_id}</td>
-                <td>${meal.dessert_id}</td>
-                <td>${meal.drink_id}</td>
+                <td>${meal.item_ids.hamburger_id}</td>
+                <td>${meal.item_ids.wrap_id}</td>
+                <td>${meal.item_ids.chicken_burger_id}</td>
+                <td>${meal.item_ids.vegan_id}</td>
+                <td>${meal.item_ids.side_id}</td>
+                <td>${meal.item_ids.breakfast_id}</td>
+                <td>${meal.item_ids.dessert_id}</td>
+                <td>${meal.item_ids.drink_id}</td>
                 
                 <td><img src="https://10.120.32.59/app${meal.image_url}" alt="${meal.name}" style="width: 50px; height: 50px;"></td>
                 <td>${meal.price}€</td>
@@ -392,14 +392,14 @@ async function viewMealDetails(id) {
 
         // Fetch names and visibility for each item
         const itemsData = await Promise.all([
-            fetchItemData(meal.hamburger_id),
-            fetchItemData(meal.wrap_id),
-            fetchItemData(meal.chicken_burger_id),
-            fetchItemData(meal.vegan_id),
-            fetchItemData(meal.side_id),
-            fetchItemData(meal.breakfast_id),
-            fetchItemData(meal.dessert_id),
-            fetchItemData(meal.drink_id)
+            fetchItemData(meal.item_ids.hamburger_id),
+            fetchItemData(meal.item_ids.wrap_id),
+            fetchItemData(meal.item_ids.chicken_burger_id),
+            fetchItemData(meal.item_ids.vegan_id),
+            fetchItemData(meal.item_ids.side_id),
+            fetchItemData(meal.item_ids.breakfast_id),
+            fetchItemData(meal.item_ids.dessert_id),
+            fetchItemData(meal.item_ids.drink_id)
         ]);
 
         viewMealDetailsDiv.innerHTML = `
@@ -804,7 +804,7 @@ async function fetchItemsForEditMeal(meal) {
         items.forEach(item => {
             const categoryData = categories[item.category];
             if (categoryData) {
-                const isSelected = meal[categoryData.key] === item.id ? 'selected' : '';
+                const isSelected = meal.item_ids[categoryData.key] === item.id ? 'selected' : '';
                 const isDisabled = item.stock === 'no' ? 'disabled' : '';
                 const badge = item.stock === 'no' ? ' (No Stock)' : '';
                 const option = `<option value="${item.id}" ${isSelected} ${isDisabled}>${item.name}${badge}</option>`;
