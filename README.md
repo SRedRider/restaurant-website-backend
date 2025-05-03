@@ -111,13 +111,6 @@ The backend is built using **Node.js** with the **Express.js** framework. This c
 
 ---
 
-## Architecture
-<div align="center">
-  <img src="https://via.placeholder.com/800x400?text=System+Architecture" alt="System Architecture">
-</div>
-
----
-
 ## License
 <div align="center">
   <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License">
