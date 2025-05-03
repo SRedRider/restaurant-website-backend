@@ -400,7 +400,7 @@ const getFavouriteItems = async (req, res) => {
     try {
         const userId = req.user.userId; // Extracted from the token by middleware
         const favourites = await userModel.getFavourites(userId);
-        res.status(200).json({ favourites });
+        res.status(200).json(favourites);
     } catch (error) {
         console.error('Error fetching favourites:', error);
         Discord.sendErrorToDiscord(`(AUTH - getFavouriteItems) ${error}`);  // Send error message to Discord

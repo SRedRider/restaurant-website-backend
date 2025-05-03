@@ -97,7 +97,7 @@ const removeFavourite = async (userId, itemId, type) => {
 // Get all favourite items for a user
 const getFavourites = async (userId) => {
     const [rows] = await promisePool.query(
-        'SELECT item_id, type FROM favourites WHERE user_id = ?',
+        'SELECT id, item_id, type FROM favourites WHERE user_id = ?',
         [userId]
     );
     return rows;
