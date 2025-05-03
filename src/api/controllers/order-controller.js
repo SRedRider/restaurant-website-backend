@@ -721,7 +721,7 @@ const sendOrderConfirmationEmail = async (email, order) => {
         <h3>Order Information</h3>
         <p><strong>Order ID:</strong> ${order.order_id}</p>
         <p><strong>Order Created At:</strong> ${createdAt}</p>
-        <p><strong>Method:</strong> ${order.method}</p>
+        <p><strong>Method:</strong> ${order.method.charAt(0).toUpperCase() + order.method.slice(1)}</p>
 
         ${order.method === 'delivery' ? `
           <div class="address">
@@ -749,7 +749,7 @@ const sendOrderConfirmationEmail = async (email, order) => {
         <div class="info">
             <h3>Additional Information</h3>
             <p><strong>Notes:</strong> ${order.notes || 'None'}</p>
-            <p><strong>Scheduled Food Ready:</strong> ${scheduledTime}</p>
+            <p><strong>Scheduled Food Ready:</strong> ${new Date(scheduledTime).toLocaleString('fi-FI')}</p>
         </div>
 
         <h3 style="margin-top:50px">Total Price</h3>
