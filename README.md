@@ -1,6 +1,6 @@
 # Burger Company
 
-![Burger Company Logo](https://via.placeholder.com/600x200?text=Burger+Company)
+![Burger Company Logo](https://users.metropolia.fi/~quangth/restaurant/images/logo_trimmed.png)
 
 ## Description
 This repository contains the backend system for the **Burger Company**. It is designed to manage the restaurant's backend operations and the admin system. The backend provides APIs and services to handle reservations, orders, menus, announcements, and more. It also includes an admin dashboard for efficient management.
@@ -103,11 +103,6 @@ The backend is built using **Node.js** with the **Express.js** framework. This c
 
 ## API Documentation
 📄 For detailed information about the API endpoints and their usage, please refer to the [API Documentation](docs/API.md).
-
----
-
-## Architecture
-![System Architecture](https://via.placeholder.com/800x400?text=System+Architecture)
 
 ---
 
