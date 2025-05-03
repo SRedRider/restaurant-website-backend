@@ -19,6 +19,7 @@ app.use('/api/v1/reservations', require('./api/routes/reservation-route'));
 app.use('/api/v1/schedule', require('./api/routes/restaurant-route')); // Handle restaurant-related routes
 app.use('/api/v1/announcements', require('./api/routes/annoucement-route')); // Handle announcement-related routes
 app.use('/api/v1/contacts', require('./api/routes/contact-route')); // Handle contact-related routes
+app.use('/api/v1/search', require('./api/routes/search-route')); // Handle search-related routes
 
 // Handle 404 - Not Found
 app.use((req, res) => {
