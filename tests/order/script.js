@@ -374,7 +374,7 @@ document.getElementById('editOrderForm').addEventListener('submit', async functi
         }
 
         // Log the updated order in the console for debugging
-        console.log('Order successfully updated!');
+        showToast('Order updated successfully!');
         fetchOrders();  // Refresh the orders list
 
         // Close modal
@@ -400,5 +400,13 @@ document.querySelectorAll('input[name="scheduledTimeOption"]').forEach(option =>
     });
 });
 
+function showToast(message) {
+    const toastElement = document.getElementById('successToast');
+    const toastBody = toastElement.querySelector('.toast-body');
+    toastBody.textContent = message;
+
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+}
 
 document.addEventListener('DOMContentLoaded', fetchOrders);

@@ -23,4 +23,12 @@ const getContactsByUserId = async (userId) => {
     return rows;
 };
 
-module.exports = { createContact, getAllContacts, getContactById, getContactsByUserId };
+const updateContact = async (id, title, description, status) => {
+    const [result] = await db.query(
+        `UPDATE contacts SET title = ?, description = ?, status = ? WHERE id = ?`,
+        [title, description, status, id]
+    );
+    return result.affectedRows > 0;
+};
+
+module.exports = { createContact, getAllContacts, getContactById, getContactsByUserId, updateContact };

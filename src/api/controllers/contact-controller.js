@@ -23,9 +23,6 @@ const addContact = async (req, res) => {
 
 const getAllContacts = async (req, res) => {
     try {
-        if (!req.isAdmin) {
-            return res.status(403).json({ error: 'Access denied' });
-        }
         const contacts = await Contact.getAllContacts();
         res.status(200).json(contacts);
     } catch (error) {
@@ -41,12 +38,18 @@ const getContactById = async (req, res) => {
         const contact = await Contact.getContactById(req.params.id);
         if (!contact) return res.status(404).json({ error: 'Contact not found' });
 
-        if (!req.isAdmin && contact.user_id !== requested.userId) {
+        if (requested.role !== "admin" && contact.user_id !== requested.userId) {
+            console.log(requested.role, contact.user_id, requested.userId);
             return res.status(403).json({ error: 'Access denied' });
         }
 
+        let contactWithoutUserId = contact; // Default to the full contact object
         // Remove user_id from the response
-        const { user_id, ...contactWithoutUserId } = contact;
+        if (requested.role !== "admin") {
+            const { user_id, ...contactWithoutUserId } = contact;
+        } else {
+            contactWithoutUserId = contact; // Admins can see the user_id
+        }
 
         res.status(200).json(contactWithoutUserId);
     } catch (error) {
@@ -70,4 +73,36 @@ const getUserContacts = async (req, res) => {
     }
 };
 
-module.exports = { addContact, getAllContacts, getContactById, getUserContacts };
+const editContact = async (req, res) => {
+    const { id } = req.params;
+    const { title, description, status } = req.body; // Added 'status' field
+    const requested = req.user;
+
+    if (!title || !description || !status) { // Validate 'status' field
+        return res.status(400).json({ error: 'Title, description, and status are required' });
+    }
+
+    try {
+        const contact = await Contact.getContactById(id);
+        if (!contact) {
+            return res.status(404).json({ error: 'Contact not found' });
+        }
+
+        if (requested.role !== "admin") {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+
+        const updated = await Contact.updateContact(id, title, description, status); // Pass 'status' to updateContact
+        if (updated) {
+            res.status(200).json({ message: 'Contact updated successfully' });
+        } else {
+            res.status(500).json({ error: 'Failed to update contact' });
+        }
+    } catch (error) {
+        console.error('Error updating contact:', error);
+        Discord.sendErrorToDiscord(`(CONTACT - editContact) ${error.message}`);
+        res.status(500).json({ error: 'Database error', details: error.message });
+    }
+};
+
+module.exports = { addContact, getAllContacts, getContactById, getUserContacts, editContact };
