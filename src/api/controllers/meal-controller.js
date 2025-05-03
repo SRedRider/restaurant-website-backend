@@ -30,14 +30,37 @@ const getAllMeals = async (req, res) => {
         // Use the isAdmin flag from the middleware
         const meals = await Meal.getAllMeals(req.isAdmin); // Pass isAdmin flag to model
 
-        // Add type: "meal" to each meal in the response
-        const mealsWithType = meals.map(meal => ({
-            ...meal,
-            type: "meal"
-        }));
+        // Add type: "meal" and consolidate item IDs into `item_ids`
+        const mealsWithType = meals.map(meal => {
+            const item_ids = {
+                hamburger_id: meal.hamburger_id,
+                wrap_id: meal.wrap_id,
+                chicken_burger_id: meal.chicken_burger_id,
+                vegan_id: meal.vegan_id,
+                side_id: meal.side_id,
+                breakfast_id: meal.breakfast_id,
+                dessert_id: meal.dessert_id,
+                drink_id: meal.drink_id
+            };
+
+            // Remove individual item ID fields from the meal object
+            delete meal.hamburger_id;
+            delete meal.wrap_id;
+            delete meal.chicken_burger_id;
+            delete meal.vegan_id;
+            delete meal.side_id;
+            delete meal.breakfast_id;
+            delete meal.dessert_id;
+            delete meal.drink_id;
+
+            return {
+                ...meal,
+                item_ids,
+                type: "meal"
+            };
+        });
 
         res.json(mealsWithType);
-        res.json(meals);
     } catch (error) {
         console.error('Error fetching meals:', error);
         Discord.sendErrorToDiscord(`(MEAL - getAllMeals) ${error}`);
@@ -54,9 +77,32 @@ const getMealById = async (req, res) => {
             return res.status(404).json({ error: 'Meal not found' });
         }
 
+        // Consolidate item IDs into `item_ids`
+        const item_ids = {
+            hamburger_id: meal.hamburger_id,
+            wrap_id: meal.wrap_id,
+            chicken_burger_id: meal.chicken_burger_id,
+            vegan_id: meal.vegan_id,
+            side_id: meal.side_id,
+            breakfast_id: meal.breakfast_id,
+            dessert_id: meal.dessert_id,
+            drink_id: meal.drink_id
+        };
+
+        // Remove individual item ID fields from the meal object
+        delete meal.hamburger_id;
+        delete meal.wrap_id;
+        delete meal.chicken_burger_id;
+        delete meal.vegan_id;
+        delete meal.side_id;
+        delete meal.breakfast_id;
+        delete meal.dessert_id;
+        delete meal.drink_id;
+
         // Add type: "meal" to the response
         const mealWithType = {
             ...meal,
+            item_ids,
             type: "meal"
         };
 
