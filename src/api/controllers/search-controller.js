@@ -1,6 +1,5 @@
 const Search = require('../models/search-model');
-const Item = require('../models/item-model');
-const Meal = require('../models/meal-model');
+const Discord = require('../../services/discordService');
 
 const searchAll = async (req, res) => {
   const { query } = req.query;
@@ -22,6 +21,7 @@ const searchAll = async (req, res) => {
     res.status(200).json({ announcements: sanitizedAnnouncements, items: sanitizedItems, meals: sanitizedMeals });
   } catch (error) {
     console.error('Error during search:', error);
+    Discord.sendErrorToDiscord(`(SEARCH - searchAll) ${error}`);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
