@@ -6,6 +6,81 @@
     <title>Admin Dashboard</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #343a40;
+        }
+
+        .card-text {
+            font-size: 1rem;
+            color: #6c757d;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .display-4 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #343a40;
+        }
+
+        .lead {
+            font-size: 1.25rem;
+            color: #6c757d;
+        }
+
+        .logout-btn {
+            background-color: #dc3545;
+            border: none;
+            border-radius: 5px;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            color: #fff;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .logout-btn:hover {
+            background-color: #a71d2a;
+        }
+
+        .text-center {
+            margin-bottom: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+    </style>
 </head>
 <body class="bg-light">
     <script>
@@ -28,6 +103,25 @@
         <div class="text-center mb-4">
             <h1 class="display-4">Admin Dashboard</h1>
             <p class="lead">Welcome to the admin dashboard. Manage your restaurant efficiently.</p>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Total Orders</h5>
+                        <p class="card-text display-4" id="total-orders">Fetching...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Total Order Price</h5>
+                        <p class="card-text display-4" id="total-order-price">Fetching...</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="row g-4">
@@ -88,7 +182,7 @@
         </div>
 
         <div class="text-center mt-5">
-            <button class="btn btn-danger" onclick="logout()">Logout</button>
+            <button class="btn logout-btn" onclick="logout()">Logout</button>
         </div>
     </div>
 
@@ -100,6 +194,29 @@
             alert('You have been logged out.');
             window.location.href = 'login.html';
         }
+
+        async function fetchOrderData() {
+            try {
+                const response = await fetch('http://localhost:3000/api/v1/orders/', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                const orders = await response.json();
+
+                const totalOrders = orders.length;
+                const totalOrderPrice = orders.reduce((sum, order) => sum + parseFloat(order.total_price), 0).toFixed(2);
+
+                document.getElementById('total-orders').textContent = totalOrders;
+                document.getElementById('total-order-price').textContent = `€${totalOrderPrice}`;
+            } catch (error) {
+                console.error('Error fetching order data:', error);
+                document.getElementById('total-orders').textContent = 'Error';
+                document.getElementById('total-order-price').textContent = 'Error';
+            }
+        }
+
+        fetchOrderData();
     </script>
 </body>
 </html>
