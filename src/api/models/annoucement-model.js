@@ -17,11 +17,23 @@ const editAnnouncement = async (id, title, content, image_url, visible) => {
   await db.query(query, [title, content, image_url, visible, id]);
 };
 
-const getAllAnnouncements = async () => {
-  const query = 'SELECT * FROM announcements ORDER BY created_at DESC';
+const getAllAnnouncements = async (isAdmin) => {
+  let query = 'SELECT * FROM announcements';
+
+  // If not admin, only return announcements that are visible
+  if (!isAdmin) {
+    query += " WHERE visible = 'yes'";
+  }
+
+  query += ' ORDER BY created_at DESC';
+
   const [rows] = await db.query(query);
 
   return rows.map((announcement) => {
+    if (!isAdmin) {
+      // Remove admin-specific fields for non-admin users
+      delete announcement.visible;
+    }
     if (announcement.created_at) {
       announcement.created_at = moment
         .utc(announcement.created_at)
@@ -38,12 +50,22 @@ const getAllAnnouncements = async () => {
   });
 };
 
-const getAnnouncementById = async (id) => {
-  const query = 'SELECT * FROM announcements WHERE id = ?';
+const getAnnouncementById = async (id, isAdmin) => {
+  let query = 'SELECT * FROM announcements WHERE id = ?';
+
+  // If not admin, ensure the announcement is visible
+  if (!isAdmin) {
+    query += " AND visible = 'yes'";
+  }
+
   const [rows] = await db.query(query, [id]);
   if (rows.length === 0) return null;
 
   const announcement = rows[0];
+  if (!isAdmin) {
+    // Remove admin-specific fields for non-admin users
+    delete announcement.visible;
+  }
   if (announcement.created_at) {
     announcement.created_at = moment
       .utc(announcement.created_at)

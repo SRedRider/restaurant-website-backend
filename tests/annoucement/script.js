@@ -1,7 +1,7 @@
 // Define originalImageUrl globally
 let originalImageUrl = '';
 
-// Function to fetch and display all announcements
+// Update the fetchAnnouncements function to include visible status
 async function fetchAnnouncements() {
     try {
         const response = await fetch('https://10.120.32.59/app/api/v1/announcements', {
@@ -185,7 +185,7 @@ async function populateEditAnnouncementModal(announcementId) {
     }
 }
 
-// Function to handle the edit announcement form submission
+// Ensure the editAnnouncementForm includes the visible field
 const editAnnouncementForm = document.getElementById('editAnnouncementForm');
 editAnnouncementForm.addEventListener('submit', async function (event) {
     event.preventDefault();
@@ -226,7 +226,7 @@ editAnnouncementForm.addEventListener('submit', async function (event) {
     }
 });
 
-// Function to handle the add announcement form submission
+// Ensure the addAnnouncementForm includes the visible field
 const addAnnouncementForm = document.getElementById('addAnnouncementForm');
 addAnnouncementForm.addEventListener('submit', async function (event) {
     event.preventDefault();
@@ -276,7 +276,6 @@ addAnnouncementForm.addEventListener('submit', async function (event) {
         alert(`Error adding announcement: ${error.message}`);
     }
 });
-
 
 function showToast(message) {
     const toastElement = document.getElementById('successToast');

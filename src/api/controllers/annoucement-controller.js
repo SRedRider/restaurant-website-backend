@@ -5,7 +5,7 @@ const e = require('cors');
 // Get all announcements
 const getAllAnnouncements = async (req, res) => {
   try {
-    const announcements = await Announcement.getAllAnnouncements();
+    const announcements = await Announcement.getAllAnnouncements(req.isAdmin);
     res.status(200).json(announcements);
   } catch (error) {
     console.error('Error fetching announcements:', error);
@@ -18,7 +18,7 @@ const getAllAnnouncements = async (req, res) => {
 const getAnnouncementById = async (req, res) => {
   const { id } = req.params;
   try {
-    const announcement = await Announcement.getAnnouncementById(id);
+    const announcement = await Announcement.getAnnouncementById(id, req.isAdmin);
     if (!announcement) {
       return res.status(404).json({ message: 'Announcement not found' });
     }
@@ -66,6 +66,7 @@ const editAnnouncement = async (req, res) => {
   const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
 
   if (!title || !content || !visible || !image_url) {
+    console.error('Missing required fields:', { title, content, visible, image_url });
     return res.status(400).json({ error: 'Title, content, image and visibility are required' });
   }
   try {
@@ -90,5 +91,5 @@ module.exports = {
   deleteAnnouncement,
   editAnnouncement,
   getAllAnnouncements,
-  getAnnouncementById
+  getAnnouncementById,
 };

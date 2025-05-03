@@ -3,6 +3,7 @@ const router = express.Router();
 const announcementController = require('../controllers/annoucement-controller');
 const multer = require('multer');
 const path = require('path');
+const { isAdmin, checkVisibleAccess } = require('../../middleware/auth-middleware');
 
 // Multer Storage Configuration
 const storage = multer.diskStorage({
@@ -44,18 +45,18 @@ router.use((err, req, res, next) => {
 });
 
 // Add a new announcement
-router.post('/', upload.single('image'), announcementController.addAnnouncement);
+router.post('/', isAdmin, upload.single('image'), announcementController.addAnnouncement);
 
 // Get all announcements
-router.get('/', announcementController.getAllAnnouncements);
+router.get('/', checkVisibleAccess, announcementController.getAllAnnouncements);
 
 // Get an announcement by ID
-router.get('/:id', announcementController.getAnnouncementById);
+router.get('/:id', checkVisibleAccess, announcementController.getAnnouncementById);
 
 // Delete an announcement
-router.delete('/:id', announcementController.deleteAnnouncement);
+router.delete('/:id', isAdmin, announcementController.deleteAnnouncement);
 
 // Edit an announcement
-router.put('/:id', upload.single('image'), announcementController.editAnnouncement);
+router.put('/:id', isAdmin, upload.single('image'), announcementController.editAnnouncement);
 
 module.exports = router;
