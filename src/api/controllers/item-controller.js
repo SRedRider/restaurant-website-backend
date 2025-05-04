@@ -28,7 +28,7 @@ const addItem = async (req, res) => {
     const sizeValue = size && size.trim() ? size : null;
 
     // Validate required fields
-    if (!category || !name || !description || !ingredients || !allergensString || !price || !image_url) {
+    if (!category || !name || !description || !ingredients || !price || !image_url) {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
