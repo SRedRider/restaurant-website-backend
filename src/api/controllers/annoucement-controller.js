@@ -65,9 +65,9 @@ const editAnnouncement = async (req, res) => {
   const { title, content, visible } = req.body;
   const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
 
-  if (!title || !content || !visible || !image_url) {
-    console.error('Missing required fields:', { title, content, visible, image_url });
-    return res.status(400).json({ error: 'Title, content, image and visibility are required' });
+  if (!title || !content || !visible ) {
+    console.error('Missing required fields:', { title, content, visible });
+    return res.status(400).json({ error: 'Title, content and visibility are required' });
   }
   try {
     const currentAnnouncement = await Announcement.getAnnouncementById(id);
