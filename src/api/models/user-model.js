@@ -119,6 +119,15 @@ const deleteUser = async (userId) => {
     return result.affectedRows > 0;
 };
 
+// Add a function to remove a favourite item by ID
+const removeFavouriteById = async (id) => {
+    const [result] = await promisePool.query(
+        'DELETE FROM favourites WHERE id = ?',
+        [id]
+    );
+    return result.affectedRows > 0;
+};
+
 module.exports = {
     getUserByEmail,
     createUser,
@@ -134,5 +143,6 @@ module.exports = {
     removeFavourite,
     getFavourites,
     checkItemExists,
-    deleteUser
+    deleteUser,
+    removeFavouriteById
 };

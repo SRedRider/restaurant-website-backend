@@ -468,6 +468,23 @@ const deleteUserById = async (req, res) => {
     }
 };
 
+// Update the removeFavouriteItemById function to use the model
+const removeFavouriteItemById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const isDeleted = await userModel.removeFavouriteById(id);
+
+        if (!isDeleted) {
+            return res.status(404).json({ message: 'Favourite item not found' });
+        }
+
+        res.status(200).json({ message: 'Favourite item deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting favourite item:', error);
+        res.status(500).json({ message: 'An error occurred while deleting the favourite item', error });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
@@ -482,5 +499,6 @@ module.exports = {
     getFavouriteItems,
     getUserById,
     updateUserById,
-    deleteUserById
+    deleteUserById,
+    removeFavouriteItemById
 };

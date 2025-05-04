@@ -166,6 +166,93 @@ Use this base URL to access the API routes described in the documentation.
 
 ---
 
+## Favourites Routes
+
+### Add Favourite Item
+**POST** `/api/v1/favourites`
+
+**Description:** Add an item or meal to the user's favourites.
+The `type` field in the favourites API can have one of the following values:
+
+- **item**: Refers to a single menu item.
+- **meal**: Refers to a meal that includes multiple items.
+
+
+**Request Body:**
+```json
+{
+  "itemId": "number",
+  "type": "string" // Either "item" or "meal"
+}
+```
+
+**Responses:**
+- **201 Created:**
+  ```json
+  {
+    "message": "Favourite added successfully.",
+    "favouriteId": "number"
+  }
+  ```
+- **400 Bad Request:**
+  - Invalid item ID or type.
+  - This item is already in your favourites.
+- **404 Not Found:**
+  - Item does not exist.
+- **500 Internal Server Error:**
+  - Failed to add favourite.
+
+**Authentication:** User or Admin
+
+---
+
+### Remove Favourite Item
+**DELETE** `/api/v1/favourites/:id`
+
+**Description:** Remove a favourite item or meal by its ID.
+
+**Path Parameters:**
+- `id` (number): Favourite ID.
+
+**Responses:**
+- **200 OK:**
+  ```json
+  {
+    "message": "Favourite item deleted successfully."
+  }
+  ```
+- **404 Not Found:**
+  - Favourite item not found.
+- **500 Internal Server Error:**
+  - Failed to delete favourite item.
+
+**Authentication:** User or Admin
+
+---
+
+### Get All Favourite Items
+**GET** `/api/v1/favourites`
+
+**Description:** Retrieve all favourite items or meals for the logged-in user.
+
+**Responses:**
+- **200 OK:**
+  ```json
+  [
+    {
+      "id": "number",
+      "item_id": "number",
+      "type": "string" // Either "item" or "meal"
+    }
+  ]
+  ```
+- **500 Internal Server Error:**
+  - Failed to retrieve favourites.
+
+**Authentication:** User or Admin
+
+---
+
 ## Reservation Routes
 
 ### Book a Reservation
