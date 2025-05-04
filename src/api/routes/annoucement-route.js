@@ -57,6 +57,6 @@ router.get('/:id', checkVisibleAccess, announcementController.getAnnouncementByI
 router.delete('/:id', isAdmin, announcementController.deleteAnnouncement);
 
 // Edit an announcement
-router.put('/:id', isAdmin, upload.single('image'), announcementController.editAnnouncement);
+router.put('/:id', isAdmin, checkVisibleAccess, upload.single('image'), announcementController.editAnnouncement);
 
 module.exports = router;

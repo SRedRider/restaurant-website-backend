@@ -70,7 +70,7 @@ const editAnnouncement = async (req, res) => {
     return res.status(400).json({ error: 'Title, content and visibility are required' });
   }
   try {
-    const currentAnnouncement = await Announcement.getAnnouncementById(id);
+    const currentAnnouncement = await Announcement.getAnnouncementById(id, req.isAdmin);
     if (!currentAnnouncement) {
       return res.status(404).json({ message: 'Announcement not found' });
     }
