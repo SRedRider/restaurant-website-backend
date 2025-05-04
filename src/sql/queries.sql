@@ -195,6 +195,8 @@ CREATE TABLE IF NOT EXISTS `reservations` (
   `remaining_chairs` int(11) DEFAULT 20,
   `allocated_tables` varchar(255) DEFAULT NULL,
   `status` enum('full','available') DEFAULT 'available',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
@@ -218,6 +220,8 @@ CREATE TABLE IF NOT EXISTS `reservation_details` (
   `time` time NOT NULL,
   `notes` text DEFAULT NULL,
   `allocated_tables` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
@@ -250,6 +254,8 @@ CREATE TABLE IF NOT EXISTS `restaurant_schedule` (
   `close_time` time NOT NULL,
   `status` enum('open','close') DEFAULT 'open',
   `message` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `date` (`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
@@ -268,6 +274,8 @@ CREATE TABLE IF NOT EXISTS `tables` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `table_number` int(11) NOT NULL,
   `chairs` int(11) DEFAULT 5,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
@@ -291,6 +299,8 @@ CREATE TABLE IF NOT EXISTS `favourites` (
   `user_id` int(11) NOT NULL,
   `item_id` int(11) NOT NULL,
   `type` enum('item','meal') NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
   UNIQUE KEY `unique_user_item` (`user_id`, `item_id`, `type`)
