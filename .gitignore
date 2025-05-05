@@ -2,7 +2,7 @@
 
 .vscode
 
-tests/
+admin/
 
 # Logs
 logs
