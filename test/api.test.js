@@ -143,4 +143,22 @@ describe('Restaurant API v1', () => {
         expect(response.status).toBe(400);
         expect(response.body).toHaveProperty('message', 'Total price mismatch: The calculated total is 7.99, but received 50');
     });
+
+    it('should return 200 for delete account', async () => {
+        const response = await request(baseUrl)
+            .delete('users/13')
+            .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NjQ3NzM3NiwiZXhwIjoxNzQ2NDgwOTc2fQ.QH5ZMeANshTQcjJ7YDoSh-jTuwVDi0rtwkL7Cm4becI');
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty('message', 'User deleted successfully.');
+    });
+
+    it('should return 404 for non-existent user', async () => {
+        const response = await request(baseUrl)
+            .delete('users/99999999') // Non-existent user ID
+            .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NjQ3NzM3NiwiZXhwIjoxNzQ2NDgwOTc2fQ.QH5ZMeANshTQcjJ7YDoSh-jTuwVDi0rtwkL7Cm4becI');
+
+        expect(response.status).toBe(404);
+        expect(response.body).toHaveProperty('message', 'User not found or delete failed.');
+    });
 });
