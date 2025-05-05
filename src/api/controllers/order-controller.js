@@ -143,7 +143,7 @@ const createNewOrder = async (req, res) => {
 const enrichOrderItems = async (orderId, isAdmin) => {
   try {
     // Get the order by orderId
-    const order = await getOrderById(orderId);
+    const order = await getOrderById(orderId, isAdmin); // Pass isAdmin flag here
     if (!order) {
       throw new Error('Order not found');
     }
@@ -220,10 +220,10 @@ const getOrders = async (req, res) => {
 const getOrder = async (req, res) => {
   const { orderId } = req.params;
   const requested = req.user;
-  console.log("Requested user:", requested); // Log the requested user
-
+  
   try {
-    const order = await getOrderById(orderId);
+    console.log("Requested order ID:", req.isAdmin); // Log the requested order ID
+    const order = await getOrderById(orderId, req.isAdmin);
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
@@ -255,7 +255,7 @@ const editOrder = async (req, res) => {
 
   try {
     // Fetch the existing order
-    const existingOrder = await getOrderById(orderId);
+    const existingOrder = await getOrderById(orderId, requested.isAdmin);
     if (!existingOrder) {
       return res.status(404).json({ message: 'Order not found' });
     }
