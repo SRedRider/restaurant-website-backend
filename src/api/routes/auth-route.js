@@ -19,7 +19,7 @@ router.put('/users/update', isAdminOrUser, authController.updateCurrentUser);
 
 // Add routes for managing favourites
 router.post('/favourites', isAdminOrUser, authController.addFavouriteItem);
-router.delete('/favourites/:id', isAdminOrUser, authController.removeFavouriteItemById);
+router.delete('/favourites/', isAdminOrUser, authController.removeFavouriteItem);
 router.get('/favourites', isAdminOrUser, authController.getFavouriteItems);
 
 // Add routes for viewing, editing, and deleting users

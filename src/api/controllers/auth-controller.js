@@ -78,6 +78,7 @@ const registerUser = async (req, res) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
+            Discord.sendErrorToDiscord(`(AUTH - registerUser - mail) ${error}`);  // Send error message to Discord
             return res.status(500).json({ message: 'Failed to send verification email.' });
         }
         res.status(201).json({ message: 'Registration successful! Please check your email to verify your account.' });
