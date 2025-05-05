@@ -30,13 +30,33 @@ const addSchedule = async (req, res) => {
 const getSchedules = async (req, res) => {
     try {
         // Call the model function to get all schedules
-        const schedules = await restaurantScheduleModel.getSchedules();
+        const schedules = await restaurantScheduleModel.getSchedules(req.isAdmin);
 
         res.status(200).json(schedules);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching schedules', error: error.message });
         console.error('Error fetching schedules:', error); // Log the error for debugging
         Discord.sendErrorToDiscord(`(SCHEDULE - getSchedules) ${error}`); // Send error to Discord
+    }
+};
+
+// Get a specific schedule by ID (if needed)
+const getScheduleById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Call the model function to get a specific schedule by ID
+        const schedule = await restaurantScheduleModel.getScheduleById(id, req.isAdmin);
+
+        if (!schedule) {
+            return res.status(404).json({ message: 'Schedule not found' });
+        }
+
+        res.status(200).json(schedule);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching schedule', error: error.message });
+        console.error('Error fetching schedule:', error); // Log the error for debugging
+        Discord.sendErrorToDiscord(`(SCHEDULE - getScheduleById) ${error}`); // Send error to Discord
     }
 };
 
@@ -89,4 +109,4 @@ const deleteSchedule = async (req, res) => {
     }
 };
 
-module.exports = { addSchedule, getSchedules, updateSchedule, deleteSchedule };
+module.exports = { addSchedule, getSchedules, getScheduleById, updateSchedule, deleteSchedule };
