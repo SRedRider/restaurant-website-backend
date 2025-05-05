@@ -117,11 +117,11 @@ const getOrderById = async (orderId) => {
 
 
 const updateOrder = async (orderId, updateData) => {
-  const { customer_name, customer_phone, customer_email, items, method, address, scheduled_time, notes, total_price, status } = updateData;
+  const { customer_name, customer_phone, customer_email, items, method, address, scheduled_time, notes, total_price, status, requestedBy } = updateData;
 
   const query = `
     UPDATE orders
-    SET customer_name = ?, customer_phone = ?, customer_email = ?, items = ?, method = ?, address = ?, scheduled_time = ?, notes = ?, total_price = ?, status = ?
+    SET customer_name = ?, customer_phone = ?, customer_email = ?, items = ?, method = ?, address = ?, scheduled_time = ?, notes = ?, total_price = ?, status = ?, updated_by = ?
     WHERE order_id = ?
   `;
 
@@ -136,6 +136,7 @@ const updateOrder = async (orderId, updateData) => {
     notes,
     total_price,
     status,
+    requestedBy,
     orderId
   ]);
 
@@ -155,7 +156,8 @@ const updateOrder = async (orderId, updateData) => {
     scheduled_time,
     notes,
     total_price,
-    status
+    status,
+    requestedBy,
   };
 };
 

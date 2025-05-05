@@ -44,14 +44,16 @@ const updateSchedule = async (req, res) => {
     try {
         const { id } = req.params;
         const { date, open_time, close_time, status, message } = req.body;
+        const requested = req.user;
 
         if (open_time && close_time && open_time >= close_time) {
             return res.status(400).json({ message: 'Open time must be before close time.' });
         }
         
         // Call the model function to update the schedule in the database
+        console.log(requested.userId, date, open_time, close_time, status, message);
         const result = await restaurantScheduleModel.updateSchedule(
-            id, date, open_time, close_time, status, message
+            id, date, open_time, close_time, status, message, requested.userId
         );
 
         if (result.affectedRows === 0) {

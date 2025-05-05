@@ -317,6 +317,7 @@ const getReservationById = async (req, res) => {
 const updateReservation = async (req, res) => {
   const { id } = req.params;
   const { date, time, guest_count, name, phone, email, notes } = req.body;
+  const requested = req.user.userId;
 
   if (!id || !date || !time || !guest_count || !name || !phone || !email) {
     return res.status(400).json({ success: false, message: 'All fields are required' });
@@ -324,7 +325,7 @@ const updateReservation = async (req, res) => {
 
 
   try {
-    const result = await reservationModel.updateReservation(id, { date, time, guest_count, name, phone, email, notes });
+    const result = await reservationModel.updateReservation(id, { date, time, guest_count, name, phone, email, notes, requested });
 
     if (result.success) {
       res.status(200).json({ success: true, message: 'Reservation updated successfully' });

@@ -64,6 +64,7 @@ const editAnnouncement = async (req, res) => {
   const { id } = req.params;
   const { title, content, visible } = req.body;
   const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
+  const requested = req.user;
 
   if (!title || !content || !visible ) {
     console.error('Missing required fields:', { title, content, visible });
@@ -77,7 +78,7 @@ const editAnnouncement = async (req, res) => {
 
     const finalImageUrl = image_url || currentAnnouncement.image_url;
 
-    await Announcement.editAnnouncement(id, title, content, finalImageUrl, visible);
+    await Announcement.editAnnouncement(id, title, content, finalImageUrl, visible, requested.userId);
     res.status(200).json({ message: 'Announcement updated successfully', image_url: finalImageUrl });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update announcement' });

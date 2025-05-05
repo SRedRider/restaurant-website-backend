@@ -122,7 +122,7 @@ const createNewOrder = async (req, res) => {
     const { id, order_id } = await createOrder(user_id, customer_name, customer_phone, customer_email, items, method, method === 'delivery' ? address : null, finalTime, notes, total_price);
     
     // Enrich order items after creation
-    const enrichedOrder = await enrichOrderItems(order_id);
+    const enrichedOrder = await enrichOrderItems(order_id, req.isAdmin); // Pass the isAdmin flag
 
     await sendOrderConfirmationEmail(customer_email, enrichedOrder);
 
@@ -201,7 +201,7 @@ const getOrders = async (req, res) => {
     const enrichedOrders = await Promise.all(
       orders.map(async (order) => {
         // Enrich the items in each order
-        const enrichedOrder = await enrichOrderItems(order.order_id);
+        const enrichedOrder = await enrichOrderItems(order.order_id, req.isAdmin); // Pass the isAdmin flag
         return enrichedOrder;
       })
     );
@@ -251,6 +251,7 @@ const getOrder = async (req, res) => {
 const editOrder = async (req, res) => {
   const { orderId } = req.params;
   const { customer_name, customer_phone, customer_email, items, method, address, scheduled_time, notes, total_price, status } = req.body;
+  const requested = req.user;
 
   try {
     // Fetch the existing order
@@ -335,7 +336,8 @@ const editOrder = async (req, res) => {
       scheduled_time,
       notes,
       total_price,
-      status
+      status,
+      requestedBy: requested.userId,
     });
 
     if (!updatedOrder) {

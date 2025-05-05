@@ -55,14 +55,11 @@ const getAllItems = async (isAdmin) => {
 
 const getItemById = async (id, isAdmin) => {
   try {
-    console.log("Fetching item with ID:", id); // Debugging line to check the ID being fetched
-    console.log("Is admin:", isAdmin); // Debugging line to check if the user is admin
       let query = 'SELECT * FROM items WHERE id = ?';
 
       // If not admin, ensure the item is visible
       if (!isAdmin) {
           query += " AND visible = 'yes'";
-          console.log("Query for non-admin:", query); // Debugging line to check the query
       }
 
       const [rows] = await db.query(query, [id]);
@@ -119,12 +116,12 @@ const deleteItem = async (id) => {
     await db.query(`DELETE FROM items WHERE id = ?`, [id]);
 };
 
-const updateItem = async (id, category, name, description, ingredients, allergens, size, price, image_url, stock, visible) => {
+const updateItem = async (id, category, name, description, ingredients, allergens, size, price, image_url, stock, visible, updated_by) => {
   const allergensString = Array.isArray(allergens) ? allergens.join(',') : allergens;
 
   await db.query(
-      `UPDATE items SET category = ?, name = ?, description = ?, ingredients = ?, allergens = ?, size = ?, price = ?, image_url = ?, stock = ?, visible = ? WHERE id = ?`,
-      [category, name, description, ingredients, allergensString, size, price, image_url, stock, visible, id]
+      `UPDATE items SET category = ?, name = ?, description = ?, ingredients = ?, allergens = ?, size = ?, price = ?, image_url = ?, stock = ?, visible = ?, updated_by = ? WHERE id = ?`,
+      [category, name, description, ingredients, allergensString, size, price, image_url, stock, visible, updated_by, id]
   );
 };
 

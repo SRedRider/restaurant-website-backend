@@ -431,12 +431,13 @@ const updateUserById = async (req, res) => {
     try {
         const userId = req.params.id;
         const { email, name, role, status } = req.body;
+        const requested = req.user;
 
         if (!email || !name || !role || !status) {
             return res.status(400).json({ message: 'All fields are required.' });
         }
 
-        const updated = await userModel.updateUser(userId, { email, name, role, status });
+        const updated = await userModel.updateUser(userId, email, name, role, status, requested.userId);
 
         if (!updated) {
             return res.status(404).json({ message: 'User not found or update failed.' });

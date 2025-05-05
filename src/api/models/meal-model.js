@@ -147,10 +147,10 @@ const deleteMeal = async (id) => {
     await db.query(`DELETE FROM meals WHERE id = ?`, [id]);
 };
 
-const updateMeal = async (id, name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url, visible) => {
+const updateMeal = async (id, name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url, visible, updated_by) => {
     await db.query(
-        `UPDATE meals SET name = ?, description = ?, price = ?, hamburger_id = ?, wrap_id = ?, chicken_burger_id = ?, vegan_id = ?, side_id = ?, breakfast_id = ?, dessert_id = ?, drink_id = ?, image_url = ?, visible = ? WHERE id = ?`,
-        [name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url, visible, id]
+        `UPDATE meals SET name = ?, description = ?, price = ?, hamburger_id = ?, wrap_id = ?, chicken_burger_id = ?, vegan_id = ?, side_id = ?, breakfast_id = ?, dessert_id = ?, drink_id = ?, image_url = ?, visible = ?, updated_by = ? WHERE id = ?`,
+        [name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url, visible, updated_by, id]
     );
   };
 

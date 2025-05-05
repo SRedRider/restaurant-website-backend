@@ -254,7 +254,7 @@ const updateReservation = async (id, details) => {
 
     // Update reservation details
     const result = await connection.query(
-      'UPDATE reservation_details SET date = ?, time = ?, guest_count = ?, name = ?, phone = ?, email = ?, notes = ?, allocated_tables = ? WHERE reservation_id = ?',
+      'UPDATE reservation_details SET date = ?, time = ?, guest_count = ?, name = ?, phone = ?, email = ?, notes = ?, allocated_tables = ?, updated_by = ? WHERE reservation_id = ?',
       [
         details.date,
         details.time,
@@ -264,6 +264,7 @@ const updateReservation = async (id, details) => {
         details.email,
         details.notes,
         tablesToAllocate.join(','),
+        details.requested,
         id
       ]
     );

@@ -92,7 +92,7 @@ const editContact = async (req, res) => {
             return res.status(403).json({ error: 'Access denied' });
         }
 
-        const updated = await Contact.updateContact(id, title, description, status); // Pass 'status' to updateContact
+        const updated = await Contact.updateContact(id, title, description, status, requested.userId); // Pass 'status' to updateContact
         if (updated) {
             res.status(200).json({ message: 'Contact updated successfully' });
         } else {

@@ -12,9 +12,9 @@ const deleteAnnouncement = async (id) => {
   await db.query(query, [id]);
 };
 
-const editAnnouncement = async (id, title, content, image_url, visible) => {
-  const query = 'UPDATE announcements SET title = ?, content = ?, image_url = ?, visible = ? WHERE id = ?';
-  await db.query(query, [title, content, image_url, visible, id]);
+const editAnnouncement = async (id, title, content, image_url, visible, updated_by) => {
+  const query = 'UPDATE announcements SET title = ?, content = ?, image_url = ?, visible = ?, updated_by = ? WHERE id = ?';
+  await db.query(query, [title, content, image_url, visible, updated_by, id]);
 };
 
 const getAllAnnouncements = async (isAdmin) => {

@@ -23,10 +23,10 @@ const getContactsByUserId = async (userId) => {
     return rows;
 };
 
-const updateContact = async (id, title, description, status) => {
+const updateContact = async (id, title, description, status, updated_by) => {
     const [result] = await db.query(
-        `UPDATE contacts SET title = ?, description = ?, status = ? WHERE id = ?`,
-        [title, description, status, id]
+        `UPDATE contacts SET title = ?, description = ?, status = ?, updated_by = ? WHERE id = ?`,
+        [title, description, status, updated_by, id]
     );
     return result.affectedRows > 0;
 };

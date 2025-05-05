@@ -65,14 +65,9 @@ const getUserById = async (userId) => {
 };
 
 // Update user details
-const updateUser = async (userId, updatedFields) => {
-    const fields = Object.keys(updatedFields);
-    const values = Object.values(updatedFields);
-
-    const setClause = fields.map(field => `${field} = ?`).join(', ');
-    const query = `UPDATE users SET ${setClause} WHERE id = ?`;
-
-    const [result] = await promisePool.query(query, [...values, userId]);
+const updateUser = async (userId, email, name, role, status, updated_by) => {
+    const query = 'UPDATE users SET email = ?, name = ?, role = ?, status = ?, updated_by = ? WHERE id = ?';
+    const [result] = await promisePool.query(query, [email, name, role, status, updated_by, userId]);
     return result.affectedRows > 0;
 };
 

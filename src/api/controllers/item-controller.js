@@ -124,8 +124,9 @@ const checkItemMealAssociation = async (req, res) => {
 
 
 const updateItem = async (req, res) => {
+    const { id } = req.params;
     const { category, name, description, ingredients, allergens, size, price, otherAllergens, stock, visible } = req.body;
-
+    const requested = req.user;
     let finalAllergens = allergens ? allergens.split(',') : [];
     
     if (otherAllergens) {
@@ -136,7 +137,7 @@ const updateItem = async (req, res) => {
     const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
 
     // If no image is uploaded, keep the existing image
-    const currentItem = await Item.getItemById(req.params.id, req.isAdmin);
+    const currentItem = await Item.getItemById(id, req.isAdmin);
     if (!currentItem) {
         return res.status(404).json({ message: 'Item not found' });
     }
@@ -146,7 +147,7 @@ const updateItem = async (req, res) => {
     const allergensValue = finalAllergens.length > 0 ? finalAllergens.join(',') : null;
 
     try {
-        await Item.updateItem(req.params.id, category, name, description, ingredients, allergensValue, sizeValue, price, finalImageUrl, stock, visible);
+        await Item.updateItem(id, category, name, description, ingredients, allergensValue, sizeValue, price, finalImageUrl, stock, visible, requested.userId);
         res.status(200).json({ message: 'Item updated successfully' });
     } catch (error) {
         console.error('Error updating item:', error);

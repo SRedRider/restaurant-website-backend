@@ -40,10 +40,10 @@ const getSchedules = async () => {
 };
 
 // Update an existing schedule in the database
-const updateSchedule = async (id, date, open_time, close_time, status, message) => {
+const updateSchedule = async (id, date, open_time, close_time, status, message, updated_by) => {
     const [result] = await promisePool.query(
-        'UPDATE restaurant_schedule SET date = ?, open_time = ?, close_time = ?, status = ?, message = ? WHERE id = ?',
-        [date, open_time, close_time, status, message, id]
+        'UPDATE restaurant_schedule SET date = ?, open_time = ?, close_time = ?, status = ?, message = ?, updated_by = ? WHERE id = ?',
+        [date, open_time, close_time, status, message, updated_by, id]
     );
     return result;
 };

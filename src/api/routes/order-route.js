@@ -9,11 +9,11 @@ const router = express.Router();
 router.post('/', checkVisibleAccess, createNewOrder);
 
 // Route to get all orders
-router.get('/', isAdmin, getOrders);
+router.get('/', isAdmin, checkVisibleAccess, getOrders);
 
 router.get('/:orderId', isAdminOrUser, checkVisibleAccess, getOrder);
 
-router.put('/:orderId', isAdmin, editOrder);
+router.put('/:orderId', isAdmin, checkVisibleAccess, editOrder);
 
 // Add a new route to get orders for a specific user
 router.get('/user/:userId', isAdminOrUser, checkVisibleAccess, getOrdersByUser);
