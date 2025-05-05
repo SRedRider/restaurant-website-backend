@@ -123,6 +123,15 @@ const removeFavouriteById = async (id) => {
     return result.affectedRows > 0;
 };
 
+// Add a new function to update the last login time
+const updateLastLogin = async (userId) => {
+    const [result] = await promisePool.query(
+        'UPDATE users SET last_login = NOW() WHERE id = ?',
+        [userId]
+    );
+    return result.affectedRows > 0;
+};
+
 module.exports = {
     getUserByEmail,
     createUser,
@@ -139,5 +148,6 @@ module.exports = {
     getFavourites,
     checkItemExists,
     deleteUser,
-    removeFavouriteById
+    removeFavouriteById,
+    updateLastLogin
 };

@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const Discord = require('../../services/discordService');
-const userModel = require('../models/user-model');
+const authModel = require('../models/auth-model');
 require('dotenv').config();
 
 // Helper function to read email templates
@@ -24,7 +24,7 @@ const registerUser = async (req, res) => {
     const { email, name, password, retype_password } = req.body;
 
     // Check if user already exists
-    const existingUser = await userModel.getUserByEmail(email);
+    const existingUser = await authModel.getUserByEmail(email);
     if (existingUser) {
         return res.status(400).json({ message: 'Email already in use.' });
     }
@@ -52,7 +52,7 @@ const registerUser = async (req, res) => {
     const verificationToken = crypto.randomBytes(32).toString('hex');
 
     // Create user in the database
-    const userId = await userModel.createUser({
+    const userId = await authModel.createUser({
         email, name, password: hashedPassword, role: 'customer', verification_token: verificationToken
     });
 
@@ -90,7 +90,7 @@ const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     // Check if the user exists
-    const user = await userModel.getUserByEmail(email);
+    const user = await authModel.getUserByEmail(email);
     if (!user) {
         return res.status(400).json({ message: 'Email does not exist' });
     }
@@ -106,6 +106,9 @@ const loginUser = async (req, res) => {
         return res.status(400).json({ message: 'Account is either disabled or not verified.' });
     }
 
+    // Update last login time
+    await authModel.updateLastLogin(user.id);
+
     // Generate JWT token
     const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
@@ -115,7 +118,7 @@ const loginUser = async (req, res) => {
 // Verify user email
 const verifyEmail = async (req, res) => {
     const { token } = req.query;
-    const isVerified = await userModel.verifyUser(token);
+    const isVerified = await authModel.verifyUser(token);
 
     if (isVerified) {
         res.status(200).json({ message: 'Your email has been successfully verified.' });
@@ -129,7 +132,7 @@ const forgotPassword = async (req, res) => {
     const { email } = req.body;
 
     // Check if user exists
-    const user = await userModel.getUserByEmail(email);
+    const user = await authModel.getUserByEmail(email);
     if (!user) {
         return res.status(400).json({ message: 'Email not found.' });
     }
@@ -152,7 +155,7 @@ const forgotPassword = async (req, res) => {
     const resetTokenExpiry = new Date(Date.now() + 3600000); // Token expires in 1 hour
 
     // Save reset token and expiry to the database
-    await userModel.updateResetToken(user.id, resetToken, resetTokenExpiry);
+    await authModel.updateResetToken(user.id, resetToken, resetTokenExpiry);
 
     // Send email with reset token
     const transporter = nodemailer.createTransport({
@@ -192,7 +195,7 @@ const resetPassword = async (req, res) => {
         console.log("New Password:", newPassword);  // Log the new password
 
         // Find user by reset token
-        const user = await userModel.getUserByResetToken(token);
+        const user = await authModel.getUserByResetToken(token);
 
         if (!user || new Date() > new Date(user.reset_token_expiry)) {
             return res.status(400).json({ message: 'Invalid or expired token.' });
@@ -210,8 +213,8 @@ const resetPassword = async (req, res) => {
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
         // Update password in the database and clear the reset token
-        await userModel.updatePassword(user.id, hashedPassword);
-        await userModel.clearResetToken(user.id);
+        await authModel.updatePassword(user.id, hashedPassword);
+        await authModel.clearResetToken(user.id);
 
         res.status(200).json({ message: 'Your password has been successfully reset.' });
     } catch (error) {
@@ -223,7 +226,7 @@ const resetPassword = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
     try {
-        const users = await userModel.getAllUsers(); // Fetch users from the model
+        const users = await authModel.getAllUsers(); // Fetch users from the model
         res.status(200).json(users);  // Return the users as a JSON response
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -236,7 +239,7 @@ const getAllUsers = async (req, res) => {
 const getCurrentUser = async (req, res) => {
     try {
         const userId = req.user.userId; // Extracted from the token by middleware
-        const user = await userModel.getUserById(userId);
+        const user = await authModel.getUserById(userId);
 
         if (!user) {
             return res.status(404).json({ message: 'User not found.' });
@@ -283,7 +286,7 @@ const updateCurrentUser = async (req, res) => {
         }
 
         // Check if the new email already exists
-        const existingUser = await userModel.getUserByEmail(email);
+        const existingUser = await authModel.getUserByEmail(email);
         if (existingUser && existingUser.id !== userId) {
             return res.status(400).json({ message: 'Email already in use.' });
         }
@@ -298,7 +301,7 @@ const updateCurrentUser = async (req, res) => {
         const verificationToken = crypto.randomBytes(32).toString('hex');
 
         // Update user in the database
-        await userModel.updateUser(userId, {
+        await authModel.updateUser(userId, {
             email,
             name,
             password: hashedPassword,
@@ -350,20 +353,20 @@ const addFavouriteItem = async (req, res) => {
         }
 
         // Check if the item exists
-        const itemExists = await userModel.checkItemExists(itemId, type);
+        const itemExists = await authModel.checkItemExists(itemId, type);
         if (!itemExists) {
             return res.status(404).json({ message: 'Item does not exist.' });
         }
 
         // Check if the favourite already exists
-        const existingFavourite = await userModel.getFavourites(userId);
+        const existingFavourite = await authModel.getFavourites(userId);
         const isDuplicate = existingFavourite.some(fav => fav.item_id === itemId && fav.type === type);
 
         if (isDuplicate) {
             return res.status(400).json({ message: 'This item is already in your favourites.' });
         }
 
-        const favouriteId = await userModel.addFavourite(userId, itemId, type);
+        const favouriteId = await authModel.addFavourite(userId, itemId, type);
         res.status(201).json({ message: 'Favourite added successfully.', favouriteId });
     } catch (error) {
         console.error('Error adding favourite:', error);
@@ -382,7 +385,7 @@ const removeFavouriteItem = async (req, res) => {
             return res.status(400).json({ message: 'Invalid item ID or type.' });
         }
 
-        const isRemoved = await userModel.removeFavourite(userId, itemId, type);
+        const isRemoved = await authModel.removeFavourite(userId, itemId, type);
         if (isRemoved) {
             res.status(200).json({ message: 'Favourite removed successfully.' });
         } else {
@@ -399,7 +402,7 @@ const removeFavouriteItem = async (req, res) => {
 const getFavouriteItems = async (req, res) => {
     try {
         const userId = req.user.userId; // Extracted from the token by middleware
-        const favourites = await userModel.getFavourites(userId);
+        const favourites = await authModel.getFavourites(userId);
         res.status(200).json(favourites);
     } catch (error) {
         console.error('Error fetching favourites:', error);
@@ -412,7 +415,7 @@ const getFavouriteItems = async (req, res) => {
 const getUserById = async (req, res) => {
     try {
         const userId = req.params.id;
-        const user = await userModel.getUserById(userId);
+        const user = await authModel.getUserById(userId);
 
         if (!user) {
             return res.status(404).json({ message: 'User not found.' });
@@ -437,7 +440,7 @@ const updateUserById = async (req, res) => {
             return res.status(400).json({ message: 'All fields are required.' });
         }
 
-        const updated = await userModel.updateUser(userId, email, name, role, status, requested.userId);
+        const updated = await authModel.updateUser(userId, email, name, role, status, requested.userId);
 
         if (!updated) {
             return res.status(404).json({ message: 'User not found or update failed.' });
@@ -455,7 +458,7 @@ const updateUserById = async (req, res) => {
 const deleteUserById = async (req, res) => {
     try {
         const userId = req.params.id;
-        const deleted = await userModel.deleteUser(userId);
+        const deleted = await authModel.deleteUser(userId);
 
         if (!deleted) {
             return res.status(404).json({ message: 'User not found or delete failed.' });
@@ -473,7 +476,7 @@ const deleteUserById = async (req, res) => {
 const removeFavouriteItemById = async (req, res) => {
     try {
         const { id } = req.params;
-        const isDeleted = await userModel.removeFavouriteById(id);
+        const isDeleted = await authModel.removeFavouriteById(id);
 
         if (!isDeleted) {
             return res.status(404).json({ message: 'Favourite item not found' });
