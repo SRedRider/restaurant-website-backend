@@ -34,6 +34,8 @@ const getAllItems = async (isAdmin) => {
               delete item.visible;
               delete item.created_at;
               delete item.updated_at;
+              delete item.added_by; // Don't expose the added_by field to non-admins
+              delete item.updated_by; // Don't expose the updated_by field to non-admins
           } else {
               // Adjust the `created_at` field to Finland's time zone (Europe/Helsinki)
               if (item.created_at) {
@@ -75,6 +77,8 @@ const getItemById = async (id, isAdmin) => {
               delete item.visible;
               delete item.created_at;
               delete item.updated_at;
+              delete item.added_by; // Don't expose the added_by field to non-admins
+              delete item.updated_by; // Don't expose the updated_by field to non-admins
           } else {
               // Adjust any time-related fields (e.g., created_at, updated_at)
               if (item.created_at) {

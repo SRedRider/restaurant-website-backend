@@ -53,6 +53,8 @@ const getAllMeals = async (isAdmin) => {
                 delete meal.created_at;
                 delete meal.updated_at;
                 delete meal.visible;
+                delete meal.added_by; // Don't expose the added_by field to non-admins
+                delete meal.updated_by; // Don't expose the updated_by field to non-admins
 
                 // Remove fields with null values for non-admin
                 Object.keys(meal).forEach(key => {
@@ -125,6 +127,8 @@ const getMealById = async (id, isAdmin) => {
             delete meal.created_at;
             delete meal.updated_at;
             delete meal.visible;  // Don't expose the visible field to non-admins
+            delete meal.added_by; // Don't expose the added_by field to non-admins
+            delete meal.updated_by; // Don't expose the updated_by field to non-admins
 
             // Remove fields with null values for non-admin
             Object.keys(meal).forEach(key => {

@@ -4,7 +4,6 @@ const moment = require('moment-timezone');
 const { getItemById } = require('../models/item-model');
 const { getMealById } = require('../models/meal-model');
 
-
 // Function to create a new order
 const createOrder = async (user_id = null, customer_name, customer_phone, customer_email, items, method, address = null, scheduled_time = null, notes, total_price) => {
     const order_id = Math.floor(10000 + Math.random() * 90000); // 5-digit random number
@@ -30,10 +29,8 @@ const createOrder = async (user_id = null, customer_name, customer_phone, custom
   
     return { id: result.insertId, order_id };
   };
-  
 
-
-  const getAllOrders = async (isAdmin) => {
+const getAllOrders = async (isAdmin) => {
     const [rows] = await promisePool.query('SELECT * FROM orders');
   
     if (rows.length === 0) {
@@ -52,41 +49,39 @@ const createOrder = async (user_id = null, customer_name, customer_phone, custom
   
             // Fetch details based on the type (item or meal)
             if (item.type === 'item') {
-              itemDetails = await getItemById(item.id, isAdmin); // Assuming isAdmin is available in the order object
+              itemDetails = await getItemById(item.id, isAdmin);
             } else if (item.type === 'meal') {
-              itemDetails = await getMealById(item.id, isAdmin); // Assuming isAdmin is available in the order object
+              itemDetails = await getMealById(item.id, isAdmin);
+
+              if (!isAdmin && itemDetails) {
+                delete itemDetails.added_by;
+                delete itemDetails.updated_by;
+              }
             }
   
-            // If details for the item are not found, log an error and return the item as is
             if (!itemDetails) {
               console.error(`Details not found for item with ID: ${item.id}`);
-              return item; // Return the item as it is if details are not found
+              return item;
             }
   
-            // Return the enriched item with its details
             return {
-              ...item, // Keep the original properties of the item
-              details: itemDetails, // Add the fetched details for the item
+              ...item,
+              details: itemDetails,
             };
           })
         );
   
-        // Return the enriched order
         return {
           ...order,
-          created_at: createdAt, // Store it as formatted local time
-          items: enrichedItems,  // Include enriched item details
-          address: order.address ? JSON.parse(order.address) : null, // Parse address if exists
+          created_at: createdAt,
+          items: enrichedItems,
+          address: order.address ? JSON.parse(order.address) : null,
         };
       })
     );
   
     return enrichedOrders;
   };
-  
-
-
-  
 
 const getOrderById = async (orderId) => {
   const query = 'SELECT * FROM orders WHERE order_id = ?';
@@ -107,14 +102,41 @@ const getOrderById = async (orderId) => {
   }
   // Add any other time fields here if needed
 
+  if (order.items) {
+    order.items = await Promise.all(
+        order.items.map(async (item) => {
+            let itemDetails = null;
+
+            if (item.type === 'item') {
+                itemDetails = await getItemById(item.id, isAdmin);
+            } else if (item.type === 'meal') {
+                itemDetails = await getMealById(item.id, isAdmin);
+
+                if (!isAdmin && itemDetails) {
+                    delete itemDetails.added_by;
+                    delete itemDetails.updated_by;
+                }
+            }
+
+            if (!itemDetails) {
+                console.error(`Details not found for item with ID: ${item.id}`);
+                return item;
+            }
+
+            return {
+                ...item,
+                details: itemDetails,
+            };
+        })
+    );
+  }
+
   return {
     ...order,
     items: JSON.parse(order.items),
     address: order.address ? JSON.parse(order.address) : null
   };
 };
-
-
 
 const updateOrder = async (orderId, updateData) => {
   const { customer_name, customer_phone, customer_email, items, method, address, scheduled_time, notes, total_price, status, requestedBy } = updateData;
@@ -160,7 +182,5 @@ const updateOrder = async (orderId, updateData) => {
     requestedBy,
   };
 };
-
-
 
 module.exports = { createOrder, getAllOrders, getOrderById, updateOrder };
