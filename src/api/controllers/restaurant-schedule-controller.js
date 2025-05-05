@@ -12,12 +12,12 @@ const addSchedule = async (req, res) => {
         }
         // Call the model function to add the schedule to the database
         const result = await restaurantScheduleModel.addSchedule(
-            date, open_time, close_time, status, message
+            date, open_time, close_time, status, message, requested.userId
         );
 
         res.status(201).json({
             message: 'Schedule added successfully!',
-            data: { id: result.insertId, date, open_time, close_time, status, message, requested: requested.userId },
+            data: { id: result.insertId, date, open_time, close_time, status, message},
         });
     } catch (error) {
         res.status(500).json({ message: 'Error adding schedule', error: error.message });
