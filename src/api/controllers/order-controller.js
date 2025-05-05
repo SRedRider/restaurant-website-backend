@@ -450,8 +450,6 @@ const sendOrderConfirmationEmail = async (email, order) => {
     }
   }
 
-  // Ensure created_at is a valid date string
-  const createdAt = order.created_at ? new Date(order.created_at).toLocaleString() : 'Not available';
 
   // Create the HTML content for the email
   let itemsTable = '';
@@ -612,7 +610,7 @@ const sendOrderConfirmationEmail = async (email, order) => {
 
             <h3>Order Information</h3>
             <p><strong>Order ID:</strong> ${order.order_id}</p>
-            <p><strong>Order Created At:</strong> ${createdAt}</p>
+            <p><strong>Order Created At:</strong> ${new Date(order.created_at).toLocaleString('fi')}</p>
             <p><strong>Method:</strong> ${order.method.charAt(0).toUpperCase() + order.method.slice(1)}</p>
 
             ${order.method === 'delivery' ? `
