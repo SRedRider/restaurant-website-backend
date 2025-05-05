@@ -34,13 +34,14 @@ const getAnnouncementById = async (req, res) => {
 const addAnnouncement = async (req, res) => {
   const { title, content, visible } = req.body;
   const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
+  const requested = req.user;
 
   try {
     if (!title || !content || !visible || !image_url) {
       return res.status(400).json({ error: 'Title, content, image and visibility are required' });
     }
 
-    await Announcement.addAnnouncement(title, content, image_url, visible);
+    await Announcement.addAnnouncement(title, content, image_url, visible, requested.userId);
     res.status(201).json({ message: 'Announcement added successfully', image_url });
   } catch (error) {
     console.error('Error adding announcement:', error);

@@ -1,14 +1,14 @@
 const db = require('../../utils/database');
 const moment = require('moment-timezone');
 
-const createItem = async (category, name, description, ingredients, allergens, size, price, image_url, stock, visible) => {
+const createItem = async (category, name, description, ingredients, allergens, size, price, image_url, stock, visible, added_by) => {
   // Ensure allergens is a comma-separated string (already done in the controller)
   const allergensString = Array.isArray(allergens) ? allergens.join(',') : allergens;
 
   const [result] = await db.query(
-    `INSERT INTO items (category, name, description, ingredients, allergens, size, price, image_url, stock, visible) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [category, name, description, ingredients, allergensString, size, price, image_url, stock, visible]
+    `INSERT INTO items (category, name, description, ingredients, allergens, size, price, image_url, stock, visible, added_by) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [category, name, description, ingredients, allergensString, size, price, image_url, stock, visible, added_by]
   );
 
   return result.insertId;

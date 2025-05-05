@@ -421,7 +421,7 @@ const updateReservationTable = async (req, res) => {
 
 // Add a new table
 const addReservationTable = async (req, res) => {
-  const {chairs } = req.body;
+  const {chairs, added_by} = req.body;
 
 
   if (!chairs) {
@@ -429,7 +429,7 @@ const addReservationTable = async (req, res) => {
   }
 
   try {
-    const result = await reservationModel.addReservationTable({ chairs });
+    const result = await reservationModel.addReservationTable({ chairs , added_by });
 
     if (result.success) {
       res.status(201).json({ success: true, message: 'Table added successfully' });

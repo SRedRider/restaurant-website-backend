@@ -2,12 +2,12 @@ const db = require('../../utils/database');
 const moment = require('moment-timezone');
 
 
-const createMeal = async (name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url, visible) => {
+const createMeal = async (name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url, visible, added_by) => {
     try {
         // Insert the data into the 'meals' table with safe placeholders
         const [result] = await db.query(
-            `INSERT INTO meals (name, description, price, hamburger_id, wrap_id, chicken_burger_id, vegan_id, side_id, breakfast_id, dessert_id, drink_id, image_url, visible) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO meals (name, description, price, hamburger_id, wrap_id, chicken_burger_id, vegan_id, side_id, breakfast_id, dessert_id, drink_id, image_url, visible, added_by) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 name,
                 description,
@@ -21,7 +21,8 @@ const createMeal = async (name, description, price, hamburgerId, wrapId, chicken
                 dessertId === 'null' ? null : dessertId, // If dessertId is 'null', set to null
                 drinkId === 'null' ? null : drinkId,     // If drinkId is 'null', set to null
                 image_url,
-                visible
+                visible,
+                added_by
             ]
         );
 

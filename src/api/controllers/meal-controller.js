@@ -4,6 +4,7 @@ const Discord = require('../../services/discordService');
 const addMeal = async (req, res) => {
     const { name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, visible } = req.body;
     const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
+    const requested = req.user;
 
     if (!name || !description || !price || !image_url || !visible) {
         return res.status(400).json({ message: 'Name, description, price, image_url, and visible are required' });
@@ -16,7 +17,7 @@ const addMeal = async (req, res) => {
     }
     
     try {
-        const mealId = await Meal.createMeal(name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url, visible);
+        const mealId = await Meal.createMeal(name, description, price, hamburgerId, wrapId, chicken_burgerId, veganId, sideId, breakfastId, dessertId, drinkId, image_url, visible, requested.userId);
         res.status(201).json({ message: 'Meal added successfully', id: mealId, image_url });
     } catch (error) {
         console.error('Error adding meal:', error);

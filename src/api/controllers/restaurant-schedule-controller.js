@@ -5,6 +5,7 @@ const Discord = require('../../services/discordService');
 const addSchedule = async (req, res) => {
     try {
         const { date, open_time, close_time, status, message } = req.body;
+        const requested = req.user;
         
         if (open_time && close_time && open_time >= close_time) {
             return res.status(400).json({ message: 'Open time must be before close time.' });
@@ -16,7 +17,7 @@ const addSchedule = async (req, res) => {
 
         res.status(201).json({
             message: 'Schedule added successfully!',
-            data: { id: result.insertId, date, open_time, close_time, status, message },
+            data: { id: result.insertId, date, open_time, close_time, status, message, requested: requested.userId },
         });
     } catch (error) {
         res.status(500).json({ message: 'Error adding schedule', error: error.message });

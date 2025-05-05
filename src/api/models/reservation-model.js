@@ -399,12 +399,13 @@ const updateReservationTable = async (id, details) => {
 };
 
 // Add a new table
-const addReservationTable = async ({chairs }) => {
+const addReservationTable = async ({chairs, added_by}) => {
   const table_number = Math.floor(100 + Math.random() * 900); // 5-digit random number
   try {
-    const result = await db.query('INSERT INTO tables (table_number, chairs) VALUES (?, ?)', [
+    const result = await db.query('INSERT INTO tables (table_number, chairs, added_by) VALUES (?, ?, ?)', [
       table_number,
-      chairs
+      chairs,
+      added_by
     ]);
 
     if (result[0].affectedRows === 0) {

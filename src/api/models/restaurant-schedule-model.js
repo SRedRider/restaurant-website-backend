@@ -2,10 +2,10 @@ const promisePool = require('../../utils/database');
 const moment = require('moment-timezone');
 
 // Add a new schedule to the database
-const addSchedule = async (date, open_time, close_time, status, message) => {
+const addSchedule = async (date, open_time, close_time, status, message, added_by) => {
     const [result] = await promisePool.query(
-        'INSERT INTO restaurant_schedule (date, open_time, close_time, status, message) VALUES (?, ?, ?, ?, ?)', 
-        [date, open_time, close_time, status, message]
+        'INSERT INTO restaurant_schedule (date, open_time, close_time, status, message, added_by) VALUES (?, ?, ?, ?, ?, ?)', 
+        [date, open_time, close_time, status, message, added_by]
     );
     return result; // Return the result of the insert query
 };

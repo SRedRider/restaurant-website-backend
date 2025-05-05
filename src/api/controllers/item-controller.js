@@ -4,6 +4,7 @@ const Discord = require('../../services/discordService');
 const addItem = async (req, res) => {
     const { category, name, description, ingredients, allergens, size, price, stock, visible } = req.body;
     const image_url = req.file ? `/public/uploads/${req.file.filename}` : null;
+    const requested = req.user;
 
     // Validate stock and visible values
     const validOptions = ['yes', 'no'];
@@ -47,7 +48,8 @@ const addItem = async (req, res) => {
             price,
             image_url,
             stock.toLowerCase(),   
-            visible.toLowerCase()   
+            visible.toLowerCase(),
+            requested.userId
         );
         res.status(201).json({ message: 'Item added successfully', id: itemId, image_url });
     } catch (error) {

@@ -11,7 +11,7 @@ const addContact = async (req, res) => {
     }
 
     try {
-        const contactId = await Contact.createContact(user_id, title, description);
+        const contactId = await Contact.createContact(user_id, title, description, requested.userId);
         res.status(201).json({ message: 'Contact added successfully', id: contactId });
         Discord.sendContactToDiscord(`New contact added by user ID ${user_id}: ${title} - ${description}`);
     } catch (error) {
