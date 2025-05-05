@@ -1,8 +1,20 @@
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
 const Discord = require('../../services/discordService');
 const { createOrder, getAllOrders, getOrderById, updateOrder} = require('../models/order-model');
 const { getItemById } = require('../models/item-model');
 const { getMealById } = require('../models/meal-model');
+
+// Helper function to read email templates
+const readTemplate = (fileName, replacements) => {
+    let template = fs.readFileSync(path.join(__dirname, '../../email-templates', fileName), 'utf-8');
+    for (const key in replacements) {
+        const regex = new RegExp(`{{${key}}}`, 'g');
+        template = template.replace(regex, replacements[key]);
+    }
+    return template;
+};
 
 // Controller to create a new order
 const createNewOrder = async (req, res) => {
@@ -352,161 +364,7 @@ const editOrder = async (req, res) => {
 
       const emailSubject = `Your Order #${orderId} is Ready`;
 
-      const htmlContent = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        /* General Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* Body Styling */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0D0D0D; /* Dark background */
-            line-height: 1.6;
-            padding: 20px;
-        }
-
-        /* Container */
-        .container {
-            background-color: #1C1C1C;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            color: white;
-        }
-
-        /* Header (Logo Section) */
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header img {
-            max-width: 150px; /* Adjust size of your logo */
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            color: #F7B41A;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h3 {
-            font-size: 1.5rem;
-            color: #F7B41A;
-            margin-top: 20px;
-            margin-bottom: 10px;
-        }
-
-        p {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            color: white;
-        }
-
-        .highlight {
-            color: #F7B41A;
-            font-weight: bold;
-        }
-
-        .total-price {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #F7B41A;
-        }
-
-        .footer {
-            text-align: center;
-            font-size: 0.9rem;
-            color: #F7B41A;
-            margin-top: 30px;
-        }
-
-        a {
-            color: #F7B41A;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s ease;
-        }
-
-        a:hover {
-            color: #FFB84D;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #F7B41A;
-        }
-
-        th {
-            background-color: #333;
-        }
-
-        /* Responsive Design for Small Screens */
-        @media screen and (max-width: 600px) {
-            .container {
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            h3 {
-                font-size: 1.3rem;
-            }
-
-            p {
-                font-size: 1rem;
-            }
-
-            .total-price {
-                font-size: 1.2rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Logo Section -->
-        <div class="header">
-            <img src="https://users.metropolia.fi/~quangth/restaurant/images/logo_trimmed.png" alt="Company Logo"> <!-- Replace with your logo path -->
-        </div>
-        
-        <h1>Your Order is Ready</h1>
-        <p>Dear <span class="highlight">${customer_name}</span>,</p>
-
-        ${emailContent}
-
-        <p>Payment will be made at the time of receiving your order. Thank you</p>
-        <p style="margin-top: 50px;">If you have any questions, feel free to <a href="mailto:burgersinhelsinki@gmail.com">contact us via email</p></a>
-
-        <div class="footer">
-            <p>Best regards,</p>
-            <p>&copy; 2025 <a href="https://users.metropolia.fi/~quangth/restaurant/">Burger Company</a>. All rights reserved.</p>
-        </div>
-    </div>
-</body>
-</html>`;
+      const emailHtml = readTemplate('order-ready.html', { customer_name : customer_name, order_id : orderId, email_content : emailContent });
 
       const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -520,14 +378,46 @@ const editOrder = async (req, res) => {
         from: process.env.EMAIL_USER,
         to: customer_email,
         subject: emailSubject,
-        html: htmlContent,
+        html: emailHtml,
       };
 
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.error('Failed to send email:', error);
+          Discord.sendErrorToDiscord("(ORDER - editOrder - mail) " + error); // Send the error to Discord
         } else {
           console.log('Email sent:', info.response);
+        }
+      });
+    }
+
+    // If the status is "cancelled", send a cancellation email to the customer
+    if (status === 'cancelled') {
+      const emailSubject = `Your Order #${orderId} has been Cancelled`;
+
+      const emailHtml = readTemplate('order-cancelled.html', { customer_name : customer_name, order_id : orderId});
+
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: customer_email,
+        subject: emailSubject,
+        html: emailHtml,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Failed to send cancellation email:', error);
+          Discord.sendErrorToDiscord("(ORDER - editOrder - mail) " + error); // Send the error to Discord
+        } else {
+          console.log('Cancellation email sent:', info.response);
         }
       });
     }
@@ -577,196 +467,196 @@ const sendOrderConfirmationEmail = async (email, order) => {
   });
 
   const htmlContent = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        /* General Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            /* General Reset */
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-        /* Body Styling */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0D0D0D; /* Dark background */
-            line-height: 1.6;
-            padding: 20px;
-        }
-
-        /* Container */
-        .container {
-            background-color: #1C1C1C;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            color: white;
-        }
-
-        /* Header (Logo Section) */
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header img {
-            max-width: 150px; /* Adjust size of your logo */
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            color: #F7B41A;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h3 {
-            font-size: 1.5rem;
-            color: #F7B41A;
-            margin-top: 20px;
-            margin-bottom: 10px;
-        }
-
-        p {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            color: white;
-        }
-
-        .highlight {
-            color: #F7B41A;
-            font-weight: bold;
-        }
-
-        .total-price {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #F7B41A;
-        }
-
-        .footer {
-            text-align: center;
-            font-size: 0.9rem;
-            color: #F7B41A;
-            margin-top: 30px;
-        }
-
-        a {
-            color: #F7B41A;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s ease;
-        }
-
-        a:hover {
-            color: #FFB84D;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #F7B41A;
-        }
-
-        th {
-            background-color: #333;
-        }
-
-        /* Responsive Design for Small Screens */
-        @media screen and (max-width: 600px) {
-            .container {
+            /* Body Styling */
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #0D0D0D; /* Dark background */
+                line-height: 1.6;
                 padding: 20px;
             }
 
+            /* Container */
+            .container {
+                background-color: #1C1C1C;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 40px;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+                color: white;
+            }
+
+            /* Header (Logo Section) */
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .header img {
+                max-width: 150px; /* Adjust size of your logo */
+                margin-bottom: 20px;
+            }
+
             h1 {
-                font-size: 2rem;
+                font-size: 2.5rem;
+                color: #F7B41A;
+                text-align: center;
+                margin-bottom: 20px;
             }
 
             h3 {
-                font-size: 1.3rem;
+                font-size: 1.5rem;
+                color: #F7B41A;
+                margin-top: 20px;
+                margin-bottom: 10px;
             }
 
             p {
-                font-size: 1rem;
+                font-size: 1.1rem;
+                margin-bottom: 15px;
+                color: white;
+            }
+
+            .highlight {
+                color: #F7B41A;
+                font-weight: bold;
             }
 
             .total-price {
-                font-size: 1.2rem;
+                font-size: 1.5rem;
+                font-weight: bold;
+                color: #F7B41A;
             }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Logo Section -->
-        <div class="header">
-            <img src="https://users.metropolia.fi/~quangth/restaurant/images/logo_trimmed.png" alt="Company Logo"> <!-- Replace with your logo path -->
+
+            .footer {
+                text-align: center;
+                font-size: 0.9rem;
+                color: #F7B41A;
+                margin-top: 30px;
+            }
+
+            a {
+                color: #F7B41A;
+                text-decoration: none;
+                font-weight: bold;
+                transition: color 0.3s ease;
+            }
+
+            a:hover {
+                color: #FFB84D;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+
+            th, td {
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #F7B41A;
+            }
+
+            th {
+                background-color: #333;
+            }
+
+            /* Responsive Design for Small Screens */
+            @media screen and (max-width: 600px) {
+                .container {
+                    padding: 20px;
+                }
+
+                h1 {
+                    font-size: 2rem;
+                }
+
+                h3 {
+                    font-size: 1.3rem;
+                }
+
+                p {
+                    font-size: 1rem;
+                }
+
+                .total-price {
+                    font-size: 1.2rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- Logo Section -->
+            <div class="header">
+                <img src="https://users.metropolia.fi/~quangth/restaurant/images/logo_trimmed.png" alt="Company Logo"> <!-- Replace with your logo path -->
+            </div>
+            
+            <h1>Order Confirmation</h1>
+            <p>Dear <span class="highlight">${order.customer_name}</span>,</p>
+            <p>Thank you for your order! Your order has been successfully received. Here are the details:</p>
+
+            <h3>Order Information</h3>
+            <p><strong>Order ID:</strong> ${order.order_id}</p>
+            <p><strong>Order Created At:</strong> ${createdAt}</p>
+            <p><strong>Method:</strong> ${order.method.charAt(0).toUpperCase() + order.method.slice(1)}</p>
+
+            ${order.method === 'delivery' ? `
+              <div class="address">
+                <h3>Delivery Address</h3>
+                <p><strong>${order.address.street}</p>
+                <p><strong>${order.address.postalCode} ${order.address.city}</p>
+              </div>
+            ` : ''}
+
+            <h3>Items</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itemsTable}
+                </tbody>
+            </table>
+
+            <div class="info">
+                <h3>Additional Information</h3>
+                <p><strong>Notes:</strong> ${order.notes || 'None'}</p>
+                <p><strong>Scheduled Food Ready:</strong> ${new Date(scheduledTime).toLocaleString('fi-FI')}</p>
+            </div>
+
+            <h3 style="margin-top:50px">Total Price</h3>
+            <p class="total-price">${totalPrice.toFixed(2)}€</p>
+            <p>Payment will be made at the time of receiving your order. Thank you</p>
+
+            <p style="margin-top: 50px; text-align: center;">If you have any questions, feel free to <a href="mailto:burgersinhelsinki@gmail.com">contact us via email</p></a>
+
+            <div class="footer">
+                <p>Best regards,</p>
+                <p>&copy; 2025 <a href="https://users.metropolia.fi/~quangth/restaurant/">Burger Company</a>. All rights reserved.</p>
+            </div>
         </div>
-        
-        <h1>Order Confirmation</h1>
-        <p>Dear <span class="highlight">${order.customer_name}</span>,</p>
-        <p>Thank you for your order! Your order has been successfully received. Here are the details:</p>
-
-        <h3>Order Information</h3>
-        <p><strong>Order ID:</strong> ${order.order_id}</p>
-        <p><strong>Order Created At:</strong> ${createdAt}</p>
-        <p><strong>Method:</strong> ${order.method.charAt(0).toUpperCase() + order.method.slice(1)}</p>
-
-        ${order.method === 'delivery' ? `
-          <div class="address">
-            <h3>Delivery Address</h3>
-            <p><strong>${order.address.street}</p>
-            <p><strong>${order.address.postalCode} ${order.address.city}</p>
-          </div>
-        ` : ''}
-
-        <h3>Items</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Item Name</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${itemsTable}
-            </tbody>
-        </table>
-
-        <div class="info">
-            <h3>Additional Information</h3>
-            <p><strong>Notes:</strong> ${order.notes || 'None'}</p>
-            <p><strong>Scheduled Food Ready:</strong> ${new Date(scheduledTime).toLocaleString('fi-FI')}</p>
-        </div>
-
-        <h3 style="margin-top:50px">Total Price</h3>
-        <p class="total-price">${totalPrice.toFixed(2)}€</p>
-        <p>Payment will be made at the time of receiving your order. Thank you</p>
-
-        <p style="margin-top: 50px; text-align: center;">If you have any questions, feel free to <a href="mailto:burgersinhelsinki@gmail.com">contact us via email</p></a>
-
-        <div class="footer">
-            <p>Best regards,</p>
-            <p>&copy; 2025 <a href="https://users.metropolia.fi/~quangth/restaurant/">Burger Company</a>. All rights reserved.</p>
-        </div>
-    </div>
-</body>
-</html>
+    </body>
+    </html>
   `;
 
   // Set up the nodemailer transporter
