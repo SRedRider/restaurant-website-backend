@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `scheduled_time` varchar(50) DEFAULT NULL,
   `notes` text DEFAULT NULL,
   `total_price` decimal(10,2) DEFAULT NULL,
-  `status` enum('processing','preparing','ready','completed') DEFAULT 'processing',
+  `status` enum('processing','preparing','ready','completed','cancelled') DEFAULT 'processing',
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `updated_by` int(11) DEFAULT NULL,
