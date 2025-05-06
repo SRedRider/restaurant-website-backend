@@ -41,7 +41,7 @@ describe('Restaurant API v1', () => {
         const response = await request(baseUrl)
             .post('favourites')
             .send({
-                itemId: 29,
+                itemId: 36,
                 type: 'item',
             })
             .set('Authorization', adminAuthToken);
@@ -51,6 +51,15 @@ describe('Restaurant API v1', () => {
         expect(response.body).toHaveProperty('favouriteId'); // Ensure favouriteId is in the response
 
         favouriteId = response.body.favouriteId; // Store the favouriteId for later use
+    });
+
+    it('Should return 200 for deleting a favourite item', async () => {
+        const response = await request(baseUrl)
+            .delete(`favourites/${favouriteId}`) // Use the dynamically stored favouriteId
+            .set('Authorization', adminAuthToken);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty('message', 'Favourite item deleted successfully.');
     });
 
     it('should return 404 if the item does not exist', async () => {
@@ -77,7 +86,7 @@ describe('Restaurant API v1', () => {
                 customer_phone: '0401234567',
                 customer_email: 'johndoe@example.com',
                 items: [
-                    { id: 28, quantity: 1, price: 7.99, type: 'item' },
+                    { id: 29, quantity: 1, price: 8.49, type: 'item' },
                 ],
                 method: 'delivery',
                 address: {
@@ -87,7 +96,7 @@ describe('Restaurant API v1', () => {
                 },
                 scheduled_time: '2023-10-01T12:00:00Z',
                 notes: 'Leave at the door',
-                total_price: 7.99
+                total_price: 8.49
             })
             .set('Authorization', authToken);
 
@@ -108,7 +117,7 @@ describe('Restaurant API v1', () => {
                 customer_phone: '0401234567',
                 customer_email: 'johndoe@example.com',
                 items: [
-                    { id: 28, quantity: 1, price: 7.99, type: 'item' },
+                    { id: 29, quantity: 1, price: 8.49, type: 'item' },
                 ],
                 method: 'delivery',
                 address: {
@@ -123,7 +132,7 @@ describe('Restaurant API v1', () => {
             .set('Authorization', authToken);
 
         expect(response.status).toBe(400);
-        expect(response.body).toHaveProperty('message', 'Total price mismatch: The calculated total is 7.99, but received 50');
+        expect(response.body).toHaveProperty('message', 'Total price mismatch: The calculated total is 8.49, but received 50');
     });
 
     it('should return 200 for deleted order', async () => {
@@ -150,15 +159,15 @@ describe('Restaurant API v1', () => {
         expect(response.body).toHaveProperty('message', 'Customer name is required and must be a non-empty string');
     });
 
-
     it('should return 200 for delete account', async () => {
         const response = await request(baseUrl)
-            .delete('users/14')
+            .delete('users/16')
             .set('Authorization', adminAuthToken);
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('message', 'User deleted successfully.');
     });
+
 
     it('should return 404 for non-existent user', async () => {
         const response = await request(baseUrl)
