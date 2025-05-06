@@ -318,6 +318,27 @@ const editOrder = async (req, res) => {
         return res.status(400).json({ message: 'Each item must have a valid price greater than zero' });
       }
 
+      // Check if the item type is valid and check stock status
+      if (item.type === 'item') {
+        itemDetails = await getItemById(item.id, req.isAdmin); // Pass the isAdmin flag
+        if (!itemDetails) {
+          return res.status(400).json({ message: `Item with ID ${item.id} not found or an error occurred` });
+        }
+        if (itemDetails.stock === 'no') {
+          return res.status(400).json({ message: `Item '${itemDetails.name}' is out of stock` });
+        }
+      } else if (item.type === 'meal') {
+        mealDetails = await getMealById(item.id, req.isAdmin); // Pass the isAdmin flag
+        if (!mealDetails) {
+          return res.status(400).json({ message: `Meal with ID ${item.id} not found or an error occurred` });
+        }
+        if (mealDetails.stock === 'no') {
+          return res.status(400).json({ message: `Meal '${mealDetails.name}' is out of stock` });
+        }
+      } else {
+        return res.status(400).json({ message: `Invalid item type: ${item.type}. Expected "item" or "meal"` });
+      }
+
       // Check for duplicates by item id and type
       const itemKey = `${item.id}-${item.type}`;
       if (seenItems.has(itemKey)) {
