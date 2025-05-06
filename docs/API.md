@@ -26,10 +26,10 @@ Use this base URL to access the API routes described in the documentation.
 **Request Body:**
 ```json
 {
-  "email": "string",
-  "name": "string",
-  "password": "string",
-  "retype_password": "string"
+  "email": "string", // required
+  "name": "string", // required
+  "password": "string", // required
+  "retype_password": "string" // required
 }
 ```
 
@@ -57,8 +57,8 @@ Use this base URL to access the API routes described in the documentation.
 **Request Body:**
 ```json
 {
-  "email": "string",
-  "password": "string"
+  "email": "string", // required
+  "password": "string" // required
 }
 ```
 
@@ -90,7 +90,7 @@ Use this base URL to access the API routes described in the documentation.
 **Description:** Verify a user's email address.
 
 **Query Parameters:**
-- `token` (string): Verification token sent to the user's email.
+- `token` (string): Verification token sent to the user's email. // required
 
 **Responses:**
 - **200 OK:**
@@ -114,7 +114,7 @@ Use this base URL to access the API routes described in the documentation.
 **Request Body:**
 ```json
 {
-  "email": "string"
+  "email": "string" // required
 }
 ```
 
@@ -140,13 +140,13 @@ Use this base URL to access the API routes described in the documentation.
 **Description:** Reset a user's password.
 
 **Query Parameters:**
-- `token` (string): Password reset token sent to the user's email.
+- `token` (string): Password reset token sent to the user's email. // required
 
 **Request Body:**
 ```json
 {
-  "newPassword": "string",
-  "retypePassword": "string"
+  "newPassword": "string", // required
+  "retypePassword": "string" // required
 }
 ```
 
@@ -166,6 +166,30 @@ Use this base URL to access the API routes described in the documentation.
 
 ---
 
+### Delete User
+**DELETE** `/api/v1/users/:id`
+
+**Description:** Delete a user by their ID.
+
+**Path Parameters:**
+- `id` (number): User ID. // required
+
+**Responses:**
+- **200 OK:**
+  ```json
+  {
+    "message": "User deleted successfully."
+  }
+  ```
+- **404 Not Found:**
+  - User not found.
+- **500 Internal Server Error:**
+  - Failed to delete user.
+
+**Authentication:** Admin
+
+---
+
 ## Favourites Routes
 
 ### Add Favourite Item
@@ -177,12 +201,11 @@ The `type` field in the favourites API can have one of the following values:
 - **item**: Refers to a single menu item.
 - **meal**: Refers to a meal that includes multiple items.
 
-
 **Request Body:**
 ```json
 {
-  "itemId": "number",
-  "type": "string" // Either "item" or "meal"
+  "itemId": "number", // required
+  "type": "string" // required, either "item" or "meal"
 }
 ```
 
@@ -212,7 +235,7 @@ The `type` field in the favourites API can have one of the following values:
 **Description:** Remove a favourite item or meal by its ID.
 
 **Path Parameters:**
-- `id` (number): Favourite ID.
+- `id` (number): Favourite ID. // required
 
 **Responses:**
 - **200 OK:**
@@ -263,13 +286,13 @@ The `type` field in the favourites API can have one of the following values:
 **Request Body:**
 ```json
 {
-  "date": "string",
-  "time": "string",
-  "guest_count": "number",
-  "name": "string",
-  "phone": "string",
-  "email": "string",
-  "notes": "string"
+  "date": "string", // required
+  "time": "string", // required
+  "guest_count": "number", // required
+  "name": "string", // required
+  "phone": "string", // required
+  "email": "string", // required
+  "notes": "string" // optional
 }
 ```
 
@@ -353,7 +376,7 @@ The `type` field in the favourites API can have one of the following values:
 **Description:** Retrieve a reservation by its ID.
 
 **Path Parameters:**
-- `id` (number): Reservation ID.
+- `id` (number): Reservation ID. // required
 
 **Responses:**
 - **200 OK:**
@@ -452,27 +475,27 @@ The `type` field in the favourites API can have one of the following values:
 **Request Body:**
 ```json
 {
-  "user_id": "number",
-  "customer_name": "string",
-  "customer_phone": "string",
-  "customer_email": "string",
-  "items": [
+  "user_id": "number", // optional
+  "customer_name": "string", // required
+  "customer_phone": "string", // required
+  "customer_email": "string", // required
+  "items": [ // required
     {
-      "id": "number",
+      "id": "number", // required
       "quantity": "number",
       "price": "number",
-      "type": "string"
+      "type": "string" // required, either "item" or "meal"
     }
   ],
-  "method": "string",
-  "address": {
-    "street": "string",
-    "city": "string",
-    "postalCode": "string"
+  "method": "string", // required
+  "address": { // required if method is "delivery"
+    "street": "string", // required
+    "city": "string", // required
+    "postalCode": "string" // required
   },
-  "scheduled_time": "string",
-  "notes": "string",
-  "total_price": "number"
+  "scheduled_time": "string", // required - "Now" or DateTime
+  "notes": "string", // optional
+  "total_price": "number" // required
 }
 ```
 
@@ -621,15 +644,16 @@ The `type` field in the favourites API can have one of the following values:
 **Request Body:**
 ```json
 {
-  "category": "string",
-  "name": "string",
-  "description": "string",
-  "ingredients": "string",
-  "allergens": "string",
-  "size": "string",
-  "price": "number",
-  "stock": "string",
-  "visible": "string"
+  "category": "string", // required
+  "name": "string", // required
+  "description": "string", // required
+  "ingredients": "string", // required
+  "allergens": "string", // optional
+  "size": "string", // optional
+  "price": "number", // required
+  "image_url": "string", // required
+  "stock": "string", // required, either "yes" or "no"
+  "visible": "string" // required, either "yes" or "no"
 }
 ```
 
@@ -775,15 +799,11 @@ The `type` field in the favourites API can have one of the following values:
 **Request Body:**
 ```json
 {
-  "name": "string",
-  "description": "string",
-  "price": "number",
-  "item_ids": {
-    "hamburger_id": "number",
-    "wrap_id": "number",
-    "side_id": "number"
-  },
-  "visible": "string"
+  "name": "string", // required
+  "description": "string", // required
+  "price": "number", // required
+  "image_url": "string", // required
+  "visible": "string" // required, either "yes" or "no"
 }
 ```
 
@@ -929,9 +949,10 @@ The `type` field in the favourites API can have one of the following values:
 **Request Body:**
 ```json
 {
-  "title": "string",
-  "content": "string",
-  "visible": "string"
+  "title": "string", // required
+  "content": "string", // required
+  "image_url": "string", // required
+  "visible": "string" // required, either "yes" or "no"
 }
 ```
 
@@ -1070,8 +1091,8 @@ The `type` field in the favourites API can have one of the following values:
 **Request Body:**
 ```json
 {
-  "title": "string",
-  "description": "string"
+  "title": "string", // required
+  "description": "string" // required
 }
 ```
 
@@ -1218,11 +1239,11 @@ The `type` field in the favourites API can have one of the following values:
 **Request Body:**
 ```json
 {
-  "date": "string",
-  "open_time": "string",
-  "close_time": "string",
-  "status": "string",
-  "message": "string"
+  "date": "string", // required
+  "open_time": "string", // optional
+  "close_time": "string", // optional
+  "status": "string", // required
+  "message": "string" // optional
 }
 ```
 
@@ -1338,12 +1359,12 @@ The `type` field in the favourites API can have one of the following values:
 ## Search Routes
 
 ### Search All
-**GET** `/api/v1/search`
+**GET** `/api/v1/search?query=`
 
 **Description:** Search for announcements, items, and meals.
 
 **Query Parameters:**
-- `query` (string): Search query.
+- `query (string)`: 
 
 **Responses:**
 - **200 OK:**
@@ -1360,3 +1381,4 @@ The `type` field in the favourites API can have one of the following values:
   - Failed to perform search.
 
 **Authentication:** None
+
