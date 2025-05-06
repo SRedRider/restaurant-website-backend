@@ -9,19 +9,29 @@ const router = express.Router();
  * @apiGroup Search
  * @apiDescription Search across announcements, items, and meals.
  *
- * @apiQuery {String} query The search term.
+ * @apiHeader {String} Authorization Bearer token (optional).
  *
- * @apiSuccess {Array} announcements List of matching announcements.
- * @apiSuccess {Array} items List of matching items.
- * @apiSuccess {Array} meals List of matching meals.
+ * @apiQuery {String} query The search query string (required).
  *
- * @apiError {String} error Error message if the search fails.
- * @apiError (400) BadRequest Missing or invalid fields in the request.
- * @apiError (401) Unauthorized User is not authenticated.
- * @apiError (403) Forbidden User does not have permission to access this resource.
- * @apiError (404) NotFound The requested resource was not found.
- * @apiError (500) InternalServerError An unexpected error occurred on the server.
+ * @apiSuccess {Object[]} announcements List of announcements matching the query.
+ * @apiSuccess {String} announcements.id The ID of the announcement.
+ * @apiSuccess {String} announcements.title The title of the announcement.
+ * @apiSuccess {String} announcements.content The content of the announcement.
+ * @apiSuccess {Object[]} items List of items matching the query.
+ * @apiSuccess {String} items.id The ID of the item.
+ * @apiSuccess {String} items.name The name of the item.
+ * @apiSuccess {String} items.description The description of the item.
+ * @apiSuccess {Object[]} meals List of meals matching the query.
+ * @apiSuccess {String} meals.id The ID of the meal.
+ * @apiSuccess {String} meals.name The name of the meal.
+ * @apiSuccess {String} meals.description The description of the meal.
+ *
+ *
+ * @apiError {Object} error Error response object.
+ * @apiError {String} error.error Error message.
+ *
  */
+
 router.get('/', searchAll);
 
 module.exports = router;

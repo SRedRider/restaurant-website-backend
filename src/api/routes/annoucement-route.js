@@ -44,37 +44,106 @@ router.use((err, req, res, next) => {
     next();
 });
 
-// Add a new announcement
+/**
+ * @api {post} /api/v1/announcements Add a new announcement
+ * @apiName AddAnnouncement
+ * @apiGroup Announcements
+ * @apiPermission Admin
+ * 
+ * @apiHeader {String} Authorization Bearer token.
+ * 
+ * @apiBody {String} title Title of the announcement. (Required)
+ * @apiBody {String} content Content of the announcement. (Required)
+ * @apiBody {String} visible Visibility status of the announcement. (Required)
+ * @apiBody {File} image Image file for the announcement. (Required)
+ * 
+ * @apiSuccess {String} message Success message.
+ * @apiSuccess {String} image_url URL of the uploaded image.
+ * 
+ * 
+ * @apiError {String} error Error message.
+ * @apiError {String} details Detailed error message.
+ * 
+ */
 router.post('/', isAdmin, upload.single('image'), announcementController.addAnnouncement);
 
 /**
- * @api {get} /api/v1/announcements Get All Announcements
+ * @api {get} /api/v1/announcements/ Get all announcements
  * @apiName GetAllAnnouncements
  * @apiGroup Announcements
- * @apiDescription Retrieve a list of all announcements.
- *
- * @apiSuccess {Array} announcements List of announcements.
- * @apiSuccess {String} announcements.id The ID of the announcement.
- * @apiSuccess {String} announcements.title The title of the announcement.
- * @apiSuccess {String} announcements.content The content of the announcement.
- *
- * @apiError {String} error Error message if the retrieval fails.
- * @apiError (400) BadRequest Missing or invalid fields in the request.
- * @apiError (401) Unauthorized User is not authenticated.
- * @apiError (403) Forbidden User does not have permission to access this resource.
- * @apiError (404) NotFound The requested resource was not found.
- * @apiError (500) InternalServerError An unexpected error occurred on the server.
+ * @apiPermission Public
+ * 
+ * @apiSuccess {Object[]} announcements List of announcements.
+ * @apiSuccess {Number} announcements.id ID of the announcement.
+ * @apiSuccess {String} announcements.title Title of the announcement.
+ * @apiSuccess {String} announcements.content Content of the announcement.
+ * @apiSuccess {String} announcements.image_url URL of the announcement image.
+ * 
+ * 
+ * @apiError {String} message Error message.
+ * 
  */
-// Get all announcements
 router.get('/', checkVisibleAccess, announcementController.getAllAnnouncements);
 
-// Get an announcement by ID
+/**
+ * @api {get} /api/v1/announcements/:id Get an announcement by ID
+ * @apiName GetAnnouncementById
+ * @apiGroup Announcements
+ * @apiPermission Public
+ * 
+ * @apiParam {Number} id ID of the announcement. (Required)
+ * 
+ * @apiSuccess {Number} id ID of the announcement.
+ * @apiSuccess {String} title Title of the announcement.
+ * @apiSuccess {String} content Content of the announcement.
+ * @apiSuccess {String} image_url URL of the announcement image.
+ * 
+ * 
+ * @apiError {String} message Error message.
+ * 
+ */
 router.get('/:id', checkVisibleAccess, announcementController.getAnnouncementById);
 
-// Delete an announcement
+/**
+ * @api {delete} /api/v1/announcements/:id Delete an announcement
+ * @apiName DeleteAnnouncement
+ * @apiGroup Announcements
+ * @apiPermission Admin
+ * 
+ * @apiHeader {String} Authorization Bearer token.
+ * 
+ * @apiParam {Number} id ID of the announcement. (Required)
+ * 
+ * @apiSuccess {String} message Success message.
+ * 
+ * 
+ * @apiError {String} error Error message.
+ * 
+ */
 router.delete('/:id', isAdmin, announcementController.deleteAnnouncement);
 
-// Edit an announcement
+/**
+ * @api {put} /api/v1/announcements/:id Edit an announcement
+ * @apiName EditAnnouncement
+ * @apiGroup Announcements
+ * @apiPermission Admin
+ * 
+ * @apiHeader {String} Authorization Bearer token.
+ * 
+ * @apiParam {Number} id ID of the announcement. (Required)
+ * 
+ * @apiBody {String} title Title of the announcement. (Required)
+ * @apiBody {String} content Content of the announcement. (Required)
+ * @apiBody {String} visible Visibility status of the announcement. (Required)
+ * @apiBody {File} image Image file for the announcement. (Optional)
+ * 
+ * @apiSuccess {String} message Success message.
+ * @apiSuccess {String} image_url URL of the updated image.
+ * 
+ * 
+ * @apiError {String} error Error message.
+ * 
+ */
 router.put('/:id', isAdmin, checkVisibleAccess, upload.single('image'), announcementController.editAnnouncement);
 
 module.exports = router;
