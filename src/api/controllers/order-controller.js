@@ -307,6 +307,7 @@ const editOrder = async (req, res) => {
     let calculatedTotalPrice = 0;
     const seenItems = new Set(); // Track items to prevent duplicates
 
+    // Update the editOrder function to allow updates for items or meals already in the order, even if out of stock
     for (const item of items) {
       if (!item.id || isNaN(item.id) || item.id <= 0) {
         return res.status(400).json({ message: 'Each item must have a valid id' });
@@ -321,18 +322,18 @@ const editOrder = async (req, res) => {
       // Check if the item type is valid and check stock status
       if (item.type === 'item') {
         itemDetails = await getItemById(item.id, req.isAdmin); // Pass the isAdmin flag
-        if (!itemDetails) {
+        if ((!itemDetails && !existingOrder.items.some(existingItem => existingItem.id === item.id && existingItem.type === 'item'))) {
           return res.status(400).json({ message: `Item with ID ${item.id} not found or an error occurred` });
         }
-        if (itemDetails.stock === 'no') {
+        if (itemDetails && itemDetails.stock === 'no' && !existingOrder.items.some(existingItem => existingItem.id === item.id && existingItem.type === 'item')) {
           return res.status(400).json({ message: `Item '${itemDetails.name}' is out of stock` });
         }
       } else if (item.type === 'meal') {
         mealDetails = await getMealById(item.id, req.isAdmin); // Pass the isAdmin flag
-        if (!mealDetails) {
+        if ((!mealDetails && !existingOrder.items.some(existingItem => existingItem.id === item.id && existingItem.type === 'meal'))) {
           return res.status(400).json({ message: `Meal with ID ${item.id} not found or an error occurred` });
         }
-        if (mealDetails.stock === 'no') {
+        if (mealDetails && mealDetails.stock === 'no' && !existingOrder.items.some(existingItem => existingItem.id === item.id && existingItem.type === 'meal')) {
           return res.status(400).json({ message: `Meal '${mealDetails.name}' is out of stock` });
         }
       } else {
