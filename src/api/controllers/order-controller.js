@@ -472,7 +472,7 @@ const sendOrderConfirmationEmail = async (email, order) => {
       scheduledTime = 'Now'; // If it's "Now", display as is
     } else {
       // Otherwise, parse it as a date and format it
-      scheduledTime = new Date(order.scheduled_time).toLocaleString();
+      scheduledTime = new Date(order.scheduled_time).toLocaleString('fi');
     }
   }
 
@@ -665,7 +665,7 @@ const sendOrderConfirmationEmail = async (email, order) => {
             <div class="info">
                 <h3>Additional Information</h3>
                 <p><strong>Notes:</strong> ${order.notes || 'None'}</p>
-                <p><strong>Scheduled Food Ready:</strong> ${new Date(scheduledTime).toLocaleString('fi-FI')}</p>
+                <p><strong>Scheduled Food Ready:</strong> ${scheduledTime}</p>
             </div>
 
             <h3 style="margin-top:50px">Total Price</h3>
