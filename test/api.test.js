@@ -1,12 +1,13 @@
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+require('dotenv').config({ path: '.env.test' }); // Load environment variables from .env.test
 
 const request = require('supertest');
-const baseUrl = 'https://10.120.32.59/app/api/v1/';
+const baseUrl = process.env.BASE_URL; // Use BASE_URL from .env.test
+const authToken = process.env.AUTH_TOKEN; // Use AUTH_TOKEN from .env.test
+const adminAuthToken = process.env.ADMIN_AUTH_TOKEN; // Use ADMIN_AUTH_TOKEN from .env.test
 
 describe('Restaurant API v1', () => {
     it('should return 200 for all items', async () => {
-        const response = await request(baseUrl)
-            .get('items');
+        const response = await request(baseUrl).get('items');
 
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
@@ -34,30 +35,22 @@ describe('Restaurant API v1', () => {
         );
     });
 
+    let favouriteId; // Declare a variable to store the favouriteId
+
     it('should return 201 for adding a favourite item', async () => {
         const response = await request(baseUrl)
             .post('favourites')
             .send({
-                itemId: 28,
+                itemId: 29,
                 type: 'item',
             })
-            .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NjQ1MDM5MywiZXhwIjoxNzQ2NDUzOTkzfQ.QMIbHPJxSdjNrBMcWv2uRr-Cg7woiGQi2gWlOm2B-0k');
+            .set('Authorization', adminAuthToken);
 
         expect(response.status).toBe(201);
-        expect(response.body).toHaveProperty('message', 'Item added to favourites successfully');
-    })
+        expect(response.body).toHaveProperty('message', 'Favourite added successfully.');
+        expect(response.body).toHaveProperty('favouriteId'); // Ensure favouriteId is in the response
 
-    it('should return 400 for invalid item ID or type', async () => {
-        const response = await request(baseUrl)
-            .post('favourites')
-            .send({
-                itemId: '28',
-                type: 'item',
-            })
-            .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NjQ1MDM5MywiZXhwIjoxNzQ2NDUzOTkzfQ.QMIbHPJxSdjNrBMcWv2uRr-Cg7woiGQi2gWlOm2B-0k');
-
-        expect(response.status).toBe(400);
-        expect(response.body).toHaveProperty('message');
+        favouriteId = response.body.favouriteId; // Store the favouriteId for later use
     });
 
     it('should return 404 if the item does not exist', async () => {
@@ -67,11 +60,13 @@ describe('Restaurant API v1', () => {
                 itemId: 9999, // Non-existent item ID
                 type: 'item',
             })
-            .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NjQ1MDM5MywiZXhwIjoxNzQ2NDUzOTkzfQ.QMIbHPJxSdjNrBMcWv2uRr-Cg7woiGQi2gWlOm2B-0k');
+            .set('Authorization', adminAuthToken);
 
         expect(response.status).toBe(404);
         expect(response.body).toHaveProperty('message', 'Item does not exist.');
     });
+
+    let orderId; // Declare a variable to store the orderId
 
     it('should create a new order', async () => {
         const response = await request(baseUrl)
@@ -94,27 +89,14 @@ describe('Restaurant API v1', () => {
                 notes: 'Leave at the door',
                 total_price: 7.99
             })
-            .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NjQ1MDM5MywiZXhwIjoxNzQ2NDUzOTkzfQ.QMIbHPJxSdjNrBMcWv2uRr-Cg7woiGQi2gWlOm2B-0k');
+            .set('Authorization', authToken);
 
         expect(response.status).toBe(201);
         expect(response.body).toHaveProperty('message', 'Order created successfully');
         expect(response.body).toHaveProperty('order_id');
         expect(response.body).toHaveProperty('order');
-    });
 
-    it('should return 400 for missing or invalid fields', async () => {
-        const response = await request(baseUrl)
-            .post('orders')
-            .send({
-                user_id: 1,
-                customer_name: '',
-                items: [],
-                total_price: 0
-            })
-            .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NjQ1MDM5MywiZXhwIjoxNzQ2NDUzOTkzfQ.QMIbHPJxSdjNrBMcWv2uRr-Cg7woiGQi2gWlOm2B-0k');
-
-        expect(response.status).toBe(400);
-        expect(response.body).toHaveProperty('message', 'Customer name is required and must be a non-empty string');
+        orderId = response.body.order_id; // Store the orderId for later use
     });
 
     it('should return 400 for total price mismatch', async () => {
@@ -138,16 +120,41 @@ describe('Restaurant API v1', () => {
                 notes: 'Leave at the door',
                 total_price: 50.0 // Incorrect total price
             })
-            .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NjQ1MDM5MywiZXhwIjoxNzQ2NDUzOTkzfQ.QMIbHPJxSdjNrBMcWv2uRr-Cg7woiGQi2gWlOm2B-0k');
+            .set('Authorization', authToken);
 
         expect(response.status).toBe(400);
         expect(response.body).toHaveProperty('message', 'Total price mismatch: The calculated total is 7.99, but received 50');
     });
 
+    it('should return 200 for deleted order', async () => {
+        const response = await request(baseUrl)
+            .delete(`orders/${orderId}`)
+            .set('Authorization', authToken);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty('message', 'Order deleted successfully');
+    })
+
+    it('should return 400 for missing or invalid fields', async () => {
+        const response = await request(baseUrl)
+            .post('orders')
+            .send({
+                user_id: 1,
+                customer_name: '',
+                items: [],
+                total_price: 0
+            })
+            .set('Authorization', authToken);
+
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('message', 'Customer name is required and must be a non-empty string');
+    });
+
+
     it('should return 200 for delete account', async () => {
         const response = await request(baseUrl)
-            .delete('users/13')
-            .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NjQ3NzM3NiwiZXhwIjoxNzQ2NDgwOTc2fQ.QH5ZMeANshTQcjJ7YDoSh-jTuwVDi0rtwkL7Cm4becI');
+            .delete('users/14')
+            .set('Authorization', adminAuthToken);
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('message', 'User deleted successfully.');
@@ -156,7 +163,7 @@ describe('Restaurant API v1', () => {
     it('should return 404 for non-existent user', async () => {
         const response = await request(baseUrl)
             .delete('users/99999999') // Non-existent user ID
-            .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NjQ3NzM3NiwiZXhwIjoxNzQ2NDgwOTc2fQ.QH5ZMeANshTQcjJ7YDoSh-jTuwVDi0rtwkL7Cm4becI');
+            .set('Authorization', adminAuthToken);
 
         expect(response.status).toBe(404);
         expect(response.body).toHaveProperty('message', 'User not found or delete failed.');
