@@ -47,6 +47,24 @@ router.use((err, req, res, next) => {
 // Add a new announcement
 router.post('/', isAdmin, upload.single('image'), announcementController.addAnnouncement);
 
+/**
+ * @api {get} /api/v1/announcements Get All Announcements
+ * @apiName GetAllAnnouncements
+ * @apiGroup Announcements
+ * @apiDescription Retrieve a list of all announcements.
+ *
+ * @apiSuccess {Array} announcements List of announcements.
+ * @apiSuccess {String} announcements.id The ID of the announcement.
+ * @apiSuccess {String} announcements.title The title of the announcement.
+ * @apiSuccess {String} announcements.content The content of the announcement.
+ *
+ * @apiError {String} error Error message if the retrieval fails.
+ * @apiError (400) BadRequest Missing or invalid fields in the request.
+ * @apiError (401) Unauthorized User is not authenticated.
+ * @apiError (403) Forbidden User does not have permission to access this resource.
+ * @apiError (404) NotFound The requested resource was not found.
+ * @apiError (500) InternalServerError An unexpected error occurred on the server.
+ */
 // Get all announcements
 router.get('/', checkVisibleAccess, announcementController.getAllAnnouncements);
 

@@ -4,6 +4,8 @@
 
 admin/
 
+apidoc/
+
 # Logs
 logs
 *.log
