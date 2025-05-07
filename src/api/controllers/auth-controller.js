@@ -301,14 +301,10 @@ const updateCurrentUser = async (req, res) => {
         // Generate a new verification token
         const verificationToken = crypto.randomBytes(32).toString('hex');
 
+
         // Update user in the database
-        await authModel.updateCurrentUser(userId, {
-            email,
-            name,
-            password: hashedPassword,
-            verification_token: verificationToken,
-            verified: false // Reset verification status
-        });
+        await authModel.updateCurrentUser(userId,email,name,hashedPassword,verificationToken,false); // Reset verification status
+        
 
         // Send email with new verification link
         const transporter = nodemailer.createTransport({

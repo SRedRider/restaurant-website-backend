@@ -67,13 +67,13 @@ const getUserById = async (userId) => {
 // Update user details
 const updateUser = async (userId, email, name, role, status, updated_by) => {
     const query = 'UPDATE users SET email = ?, name = ?, role = ?, status = ?, updated_by = ? WHERE id = ?';
-    const [result] = await promisePool.query(query, [email, name, role, status, updated_by, userId]);
+    const [result] = await promisePool.query(query, email, name, role, status, updated_by, userId);
     return result.affectedRows > 0;
 };
 
-const updateCurrentUser = async (userId, email, name, password, verification_token) => {
-    const query = 'UPDATE users SET email = ?, name = ?, password = ?, verification_token = ? WHERE id = ?';
-    const [result] = await promisePool.query(query, [email, name, password, verification_token, userId]);
+const updateCurrentUser = async (userId, email, name, password, verification_token, verified) => {
+    const query = 'UPDATE users SET email = ?, name = ?, password = ?, verification_token = ?, verified = ? WHERE id = ?';
+    const [result] = await promisePool.query(query, [email, name, password, verification_token, verified, userId]);
     return result.affectedRows > 0;
 };
 
@@ -149,6 +149,7 @@ module.exports = {
     getAllUsers,
     getUserById,
     updateUser,
+    updateCurrentUser,
     addFavourite,
     removeFavourite,
     getFavourites,
