@@ -33,8 +33,6 @@ const getAllAnnouncements = async (isAdmin) => {
     if (!isAdmin) {
       // Remove admin-specific fields for non-admin users
       delete announcement.visible;
-      delete announcement.created_at;
-      delete announcement.updated_at;
       delete announcement.added_by; // Don't expose the added_by field to non-admins
       delete announcement.updated_by; // Don't expose the updated_by field to non-admins
     }
@@ -69,8 +67,6 @@ const getAnnouncementById = async (id, isAdmin) => {
   if (!isAdmin) {
     // Remove admin-specific fields for non-admin users
     delete announcement.visible;
-    delete announcement.created_at;
-    delete announcement.updated_at;
     delete announcement.added_by; // Don't expose the added_by field to non-admins
     delete announcement.updated_by; // Don't expose the updated_by field to non-admins
   }
