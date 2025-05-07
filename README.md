@@ -106,8 +106,99 @@ The backend is built using **Node.js** with the **Express.js** framework. This c
 
 ---
 
+## Restaurant Website Backend Setup Guide
+
+Follow these steps to set up your Node.js backend server.
+
+---
+
+## Step 1: Create Your Node Server
+
+Follow the instructions in this document to set up your Node server:  
+[Node Server Setup Guide](https://docs.google.com/document/d/1n3A7yqE0Z-NgrSfYF_pwkFv4Oj-W57XaQWxcddcqfEc/edit?tab=t.0#heading=h.y75cpzqs4yla)
+
+---
+
+## Step 2: Clone the Repository
+
+```bash
+git clone [your-repo-url]
+```
+
+---
+
+## Step 3: Create the `.env` File
+
+Inside the `src` directory, create a `.env` file. Here's an example:
+
+```env
+DB_HOST=localhost
+DB_USER=name
+DB_PASSWORD=password
+DB_NAME=restaurant
+
+EMAIL_USER=example-email@gmail.com
+EMAIL_PASS=example password
+
+JWT_SECRET="Some secret"
+
+DISCORD_WEBHOOK_URL_REGISTERED_USER=discord webhooks
+DISCORD_WEBHOOK_URL_CONTACT=discord webhooks
+DISCORD_WEBHOOK_URL_RESERVATION=discord webhooks
+DISCORD_WEBHOOK_URL_ORDER=discord webhooks
+DISCORD_WEBHOOK_URL_ERROR=discord webhooks
+```
+
+---
+
+## Step 4: Install Dependencies
+
+Navigate to the `restaurant-website-backend` directory and run:
+
+```bash
+npm install
+```
+
+---
+
+## Step 5: Start the Server with PM2
+
+```bash
+pm2 start index.js --name [your-name-for-the-api]
+```
+
+---
+
+## Step 6: Check for PM2 Errors
+
+Check the process list:
+
+```bash
+pm2 list
+```
+
+View logs (replace `[your-api-name]` with your PM2 process name):
+
+```bash
+pm2 logs [your-api-name]
+```
+
+---
+
+## Step 7: Save the PM2 Process
+
+If there are no errors, save the process list:
+
+```bash
+pm2 save
+```
+
+Congratulations! Your backend server should now be running.
+
+---
+
 ## API Documentation
-📄 For detailed information about the API endpoints and their usage, please refer to the [API Documentation](docs/API.md).
+📄 For detailed information about the API endpoints and their usage, please refer to the [API Documentation](https://10.120.32.59/app/).
 
 ---
 
