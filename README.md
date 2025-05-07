@@ -214,9 +214,9 @@ This project is licensed under the MIT License. See the LICENSE file for details
 ## Contact
 📧 For any inquiries or support, please contact us at:
 - **Email**: burgersinhelsinki@gmail.com
-- **Website**: [Burger Company](https://users.metropolia.fi/~quangth/restaurant/)
+- **Website**: [Burger Company](https://10.120.32.59:8000/)
 
 ---
 
 ## Website Link
-🌐 Visit the live website: [Burger Company](https://users.metropolia.fi/~quangth/restaurant/)
+🌐 Visit the live website: [Burger Company](https://10.120.32.59:8000/)
