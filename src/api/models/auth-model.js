@@ -71,6 +71,12 @@ const updateUser = async (userId, email, name, role, status, updated_by) => {
     return result.affectedRows > 0;
 };
 
+const updateCurrentUser = async (userId, email, name, password, verification_token) => {
+    const query = 'UPDATE users SET email = ?, name = ?, password = ?, verification_token = ? WHERE id = ?';
+    const [result] = await promisePool.query(query, [email, name, password, verification_token, userId]);
+    return result.affectedRows > 0;
+};
+
 // Add favourite item for a user
 const addFavourite = async (userId, itemId, type) => {
     const [result] = await promisePool.query(

@@ -302,7 +302,7 @@ const updateCurrentUser = async (req, res) => {
         const verificationToken = crypto.randomBytes(32).toString('hex');
 
         // Update user in the database
-        await authModel.updateUser(userId, {
+        await authModel.updateCurrentUser(userId, {
             email,
             name,
             password: hashedPassword,
